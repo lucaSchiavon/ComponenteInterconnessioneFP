@@ -20,6 +20,9 @@ Public Class SettingsManager
 
 
         settings.Fornitore = parser.GetSetting("ROOT", "Fornitore")
+        settings.tipobf = parser.GetSetting("ROOT", "tipobf")
+
+
 
         'EXPERIENCEAUTH
         settings.ExpAuthType = parser.GetSetting("EXPERIENCEAUTH", "ExpAuthType")
@@ -35,6 +38,7 @@ Public Class SettingsManager
         settings.Ica1PercorsoErrori = Path.Combine(settings.Ica1Percorso, "Errori")
         settings.Ica1PercorsoOld = Path.Combine(settings.Ica1Percorso, "Old")
         settings.Ica1Serie = parser.GetSetting("ICA1", "Serie")
+        settings.Ica1NomeMacchina = parser.GetSetting("ICA1", "NomeMacchina")
 
         ' MECCANOPLASTICA1
         settings.Meccanoplastica1Percorso = parser.GetSetting("MECCANOPLASTICA1", "Percorso")

@@ -3,7 +3,7 @@
     'la connessione al database del componente di interscambio dove viene scritto il log nella tabella TblLog
     Public Property ConnStr As String
     'livello di verbosità del log
-    Public Property VerbosityLogLevel As String
+    Public Property VerbosityLogLevel As String 'valori ammessi: INFO, DEBUG
 
     'nome utente e password per accedere alle cartelle condivise delle macchine di produzione
     'dove risiedono i CSV
@@ -12,9 +12,10 @@
 
     'Il nome del fornitore da usare quando si effettua il carico di produzione
     Public Property Fornitore As String
+    Public Property tipobf As String
 
 
-    Public Property ExpAuthType As String
+    Public Property ExpAuthType As String 'valori ammessi TRUSTED, OFFLINE
     Public Property ExpAuthDittaCorrente As String
     Public Property ExpAuthUserNameTrust As String
     Public Property ExpAuthUserNameOffLineAuth As String
@@ -27,6 +28,7 @@
     Public Property Ica1PercorsoErrori As String
     Public Property Ica1PercorsoOld As String
     Public Property Ica1Serie As String
+    Public Property Ica1NomeMacchina As String
 
     'Meccanoplastica1
     Public Property Meccanoplastica1Percorso As String

@@ -16,7 +16,7 @@ Module Ica1CsvParser
         Dim righe() As String = File.ReadAllLines(percorsoFile, System.Text.Encoding.UTF8)
 
         If righe.Length <> 2 Then
-            Throw New InvalidDataException("Il file deve contenere una riga di intestazione e una sola riga di dati.")
+            Throw New InvalidDataException($"Il file {Path.GetFileName(percorsoFile)} deve contenere una riga di intestazione e una sola riga di dati.")
         End If
 
         'Intestazioni previste
@@ -32,19 +32,24 @@ Module Ica1CsvParser
 
         Dim header() As String = righe(0).Split(";"c)
         If header.Length <> intestazioniAttese.Length Then
-            Throw New InvalidDataException("Numero di colonne non corrispondente.")
+            Throw New InvalidDataException($"Numero di colonne non corrispondente nel file {Path.GetFileName(percorsoFile)} .")
         End If
 
         For i As Integer = 0 To intestazioniAttese.Length - 1
             If Not header(i).Trim().Equals(intestazioniAttese(i), StringComparison.OrdinalIgnoreCase) Then
-                Throw New InvalidDataException($"Colonna {i + 1} non valida: atteso '{intestazioniAttese(i)}', trovato '{header(i)}'")
+                Throw New InvalidDataException($"Colonna {i + 1} non valida nel file {Path.GetFileName(percorsoFile)}: atteso '{intestazioniAttese(i)}', trovato '{header(i)}'")
             End If
         Next
 
         'Parsing della riga dati
         Dim dati() As String = righe(1).Split(";"c)
         If dati.Length <> intestazioniAttese.Length Then
-            Throw New InvalidDataException("La riga dati non contiene il numero corretto di colonne.")
+            Throw New InvalidDataException($"La riga dati del file {Path.GetFileName(percorsoFile)} non contiene il numero corretto di colonne.")
+        End If
+
+        If Integer.Parse(dati(21)) = 0 Then
+            'se non vi è stata produzione di alcun prodotto sposta in errore
+            Throw New InvalidDataException($"Il file {Path.GetFileName(percorsoFile)} presenta una produzione pari a 0 nel campo Scatole teoriche prodotte")
         End If
 
         'Popolamento DTO

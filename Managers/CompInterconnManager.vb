@@ -21,21 +21,21 @@ Public Class CompInterconnManager
     ''Dim strBusProfilo As String = "dsdfsdfs"
 
 
-    'autenticazione trusted
-    Dim strBusDittaCorrente As String = "FPSRL"
-    'Dim strBusDittaCorrente As String = "PROVA"
-    Dim strBusOperatore As String = "UTENTE"
-    Dim strBusPasswordOperatore As String = ""
-    'Dim strBusDatabase As String = "PROVA"
-    Dim strBusDatabase As String = "FPSRL"
-    Dim strBusProfilo As String = "Fpbusexpcu5"
-    'Dim strBusProfilo As String = "dsdfsdfs"
+    ''autenticazione trusted
+    'Dim strBusDittaCorrente As String = "FPSRL"
+    ''Dim strBusDittaCorrente As String = "PROVA"
+    'Dim strBusOperatore As String = "UTENTE"
+    'Dim strBusPasswordOperatore As String = ""
+    ''Dim strBusDatabase As String = "PROVA"
+    'Dim strBusDatabase As String = "FPSRL"
+    'Dim strBusProfilo As String = "Fpbusexpcu5"
+    ''Dim strBusProfilo As String = "dsdfsdfs"
 
 
-    Public lNumTmpProd As Integer
-    Public strTipoProd As String = "T"
-    Public strSerieProd As String = "A"
-    Public nAnnoProd As Integer = Now.Year
+    'Public lNumTmpProd As Integer
+    'Public strTipoProd As String = "T"
+    'Public strSerieProd As String = "A"
+    'Public nAnnoProd As Integer = Now.Year
     Public Sub Main()
 
 
@@ -77,8 +77,8 @@ Public Class CompInterconnManager
             General.SetDataFormatForCurrentCulture()
 
             'avvia l'environment Experience 5
-            Dim trustAut As Boolean = True
-            AvviaFrameworkBus(trustAut)
+            Dim TipoAccesso As String = settings.ExpAuthType
+            AvviaFrameworkBus(settings, TipoAccesso)
 
             'inizia il job
             ExecuteJob(settings, logger)
@@ -106,7 +106,7 @@ Public Class CompInterconnManager
 
 #Region "routine per avvio e gestione framework"
 
-    Private Sub AvviaFrameworkBus(ByVal bTrusted As Boolean)
+    Private Sub AvviaFrameworkBus(settings As Settings, ByVal TipoAccesso As String)
 
         Dim bOk As Boolean = False
         Dim strError As String = ""
@@ -114,16 +114,47 @@ Public Class CompInterconnManager
         oMenu = New CLE__MENU
         AddHandler oMenu.RemoteEvent, AddressOf GestisciEventiEntity
         'todo: qui problema in caso di profilo errato... mostra una msgbox anche se siamo in una console applicatio (app.batch=true non è ancora settato...troppo presto per farlo
+        'Dim strBusOperatore As String
+        'Dim strBusPasswordOperatore As String
+        'If bTrusted Then
+        '    '  strBusOperatore = "TRUSTED"
+        '    '  strBusPasswordOperatore = "TRUSTED"
+        '    bOk = oMenu.Init("TRUSTED" & " " & "TRUSTED" & " " & settings.ExpAuthDatabase & " " & settings.ExpAuthProfile, oApp, Nothing, strError)
 
-        If bTrusted Then
-            '  strBusOperatore = "TRUSTED"
-            '  strBusPasswordOperatore = "TRUSTED"
-            bOk = oMenu.Init("TRUSTED" & " " & "TRUSTED" & " " & strBusDatabase & " " & strBusProfilo, oApp, Nothing, strError)
-            strBusOperatore = oApp.User.Nome
-            strBusPasswordOperatore = oApp.User.Pwd
-        Else
-            bOk = oMenu.Init(strBusOperatore & " " & If(strBusPasswordOperatore = "", ".", strBusPasswordOperatore) & " " & strBusDatabase & " " & strBusProfilo, oApp, Nothing, strError)
-        End If
+        '    'strBusOperatore = oApp.User.Nome
+        '    'strBusPasswordOperatore = oApp.User.Pwd
+        'Else
+        '    bOk = oMenu.Init(strBusOperatore & " " & If(strBusPasswordOperatore = "", ".", strBusPasswordOperatore) & " " & settings.ExpAuthDatabase & " " & settings.ExpAuthProfile, oApp, Nothing, strError)
+        'End If
+
+        Select Case TipoAccesso.ToUpper()
+            Case "TRUSTED"
+                bOk = oMenu.Init("TRUSTED" & " " & "TRUSTED" & " " & settings.ExpAuthDatabase & " " & settings.ExpAuthProfile, oApp, Nothing, strError)
+            Case "OFFLINE"
+                'Dim gstrUtente As String = strBusOperatore
+                Dim gstrUtente As String = settings.ExpAuthUserNameOffLineAuth
+                'in exp sulla funzione CheckOperatore c'è un 4° parametro che va messo a true per fare l'accesso offline
+                Select Case CLN__STD.NTSCInt(oMenu.CheckOperatore(settings.ExpAuthUserNameOffLineAuth, settings.ExpAuthUserNamePwdOffLineAuth, gstrUtente, True))
+                    Case -1
+                        Throw New Exception($"Nome utente {settings.ExpAuthUserNameOffLineAuth} o password non validi.")
+                    Case -2
+                        Throw New Exception($"L'operatore {settings.ExpAuthUserNameOffLineAuth} è stato disabilitato. Contattare l'amministratore.")
+                    Case 1
+                        Throw New Exception($"La password per l'utente {settings.ExpAuthUserNameOffLineAuth} è scaduta.")
+                    Case 9
+                        If settings.ExpAuthUserNamePwdOffLineAuth = "" OrElse settings.ExpAuthUserNamePwdOffLineAuth = "nts" Then
+                            'Una password temporanea "" o "nts" può capitare solo con i dati del database che distribuiamo, in questo caso do un messaggio specifico
+                            Throw New Exception("Questo è il primo accesso al sistema da parte dell'operatore preconfigurato '|" & gstrUtente & "|'." & vbCrLf &
+                                                "A seguito della normativa GDPR (Regolamento Ue 2016/679 in materia di protezione dati personali) occorre generare una nuova password.")
+                        Else
+                            Throw New Exception($"L'accesso per l'utente {settings.ExpAuthUserNameOffLineAuth} è stato eseguito con una password temporanea.")
+
+                        End If
+                End Select
+                'per completare l'accesso offline è necessario aggiungere nache questa riga
+                oApp.InitParametri(settings.ExpAuthUserNameOffLineAuth, settings.ExpAuthUserNamePwdOffLineAuth, settings.ExpAuthDatabase, settings.ExpAuthProfile, oApp.AvvioProgramma, oApp.AvvioRestrict, oApp.AvvioProgrammaParametri, oApp.Batch, True)
+
+        End Select
 
 
         If bOk = False Then
@@ -183,7 +214,7 @@ Public Class CompInterconnManager
             Throw New Exception(strError)
         End If
 
-        bOk = oMenu.SetAziendaDitta(strBusDatabase, "", strError)
+        bOk = oMenu.SetAziendaDitta(settings.ExpAuthDatabase, "", strError)
 
 
         If bOk = False Then
@@ -200,7 +231,7 @@ Public Class CompInterconnManager
             Throw New Exception(strError)
         End If
 
-        oApp.SetDittaCorrente(strBusDittaCorrente)
+        oApp.SetDittaCorrente(settings.ExpAuthDittaCorrente)
         oApp.DbAp.QueryTimeOut = 36000
         oApp.bWriteQueryInLogFile = False : oApp.bNoWriteQueryInLog = True
         oApp.Batch = True
@@ -211,7 +242,11 @@ Public Class CompInterconnManager
         Dim fErr As StreamWriter = Nothing
         Dim fiErr As FileInfo = Nothing
         Dim strNomeFileLog As String = ""
+        Dim codart As String = ""
 
+        'If oCleBoll.dttEC.Rows.Count > 0 Then
+        '    codart = CStr(oCleBoll.dttEC.Rows(oCleBoll.dttEC.Rows.Count).Item("ec_codart"))
+        'End If
 
         'forzare la data della distinta base a oggi
         If e.TipoEvento = "DataValDB.:" Then
@@ -225,7 +260,7 @@ Public Class CompInterconnManager
         If e.TipoEvento = "" Then
             'guardo se message contiene erroroccorred ed in caso affermativo loggo
             If e.Message.ToUpper.Contains("ERROR OCCURED:") Then
-                logger.LogError(e.Message, "GestisciEventiEntity")
+                logger.LogError(e.Message, Environment.StackTrace, "", codart)
             End If
         End If
 
@@ -233,9 +268,9 @@ Public Class CompInterconnManager
         If e.TipoEvento = CLN__STD.ThMsg.MSG_ERROR Then
             'loggare sempre e comunque ERROR
             'logger.LogError(e.TipoEvento, "GestisciEventiEntity")
-            logger.LogError(e.Message, "GestisciEventiEntity")
+            logger.LogError(e.Message, Environment.StackTrace, "", codart)
             'oCleBoll.dttEC.Rows.Count
-            'cstr(oCleBoll.dttEC.Rows(oCleBoll.dttEC.Rows.Count).Item("ec_codart"))
+
             'cstr(oCleBoll.dttET.Rows(0).Item("et_conto"))
             'logger.LogError(Environment.StackTrace, "GestisciEventiEntity")
             'e.Message è vuoto mettere errore se message è vuto tendenzialmente ci sono altre info su e ma tendenzialmente e.Message non succede mai in errore
@@ -244,7 +279,7 @@ Public Class CompInterconnManager
         End If
         If e.TipoEvento = CLN__STD.ThMsg.MSG_INFO Or e.TipoEvento = CLN__STD.ThMsg.MSG_INFO_POPUP Then
             If e.Message <> "" Then
-                logger.LogInfo("Errore non specificato", "GestisciEventiEntity")
+                logger.LogInfo("Errore non specificato", "", codart)
             End If
             'quando non ho a che fare con un errore se ho un messaggio loggo INFO
             'talvolta qui, a differenza di error, sono frequenti i messaggi vuoti
@@ -571,31 +606,26 @@ Public Class CompInterconnManager
         'si scorre i file csv
         Try
             'prima di accedere alla cartella si logga perchè la cartella condivisa è protetta da nome utente e pwd
-            NetworkShareManager.ConnectToShare(settings.Ica1Percorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
-
+            'NetworkShareManager.ConnectToShare(settings.Ica1Percorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
+            Dim ObjIca1CsvDto As Ica1CsvDto = Nothing
             Dim fileCsvPaths() As String = Directory.GetFiles(settings.Ica1Percorso, "*.csv")
+            Dim PublicCurrFileName As String
 
             For Each filePath As String In fileCsvPaths
 
                 Try
-
+                    'espongo il nome del file per loggarlo in caso d'errore
+                    PublicCurrFileName = Path.GetFileName(filePath)
                     ' Per ciascun file CSV effettua il carico e scarico e sposta in old il file
                     ' Il tutto in modo atomico
                     'legge il file
                     'Dim filePath As String = "C:\Dati\2025-10-31_13_32.00_Data.csv"
-                    Dim ObjIca1CsvDto As Ica1CsvDto = Ica1CsvParser.ParseProduzioneCsv(filePath)
+                    ObjIca1CsvDto = Ica1CsvParser.ParseProduzioneCsv(filePath)
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
 
 
-                    'se l'articolo ha gestione lotti
-                    'Dim StrSQL As String = ""
-                    ''StrSQL = " SELECT * from artico where codditt='" & CLN__STD.NTSCStr(oApp.Ditta) & "' and ar_codart='MOUSE' and ar_geslotti='S'" ' La query SQL
-                    'StrSQL = " SELECT * from artico where codditt='" & CLN__STD.NTSCStr(oApp.Ditta) & "' and ar_codart='MOUSE' and ar_geslotti='S'" ' La query SQL
-                    '' Chiedo i dati al database
-                    'Dim DsOut As DataSet = oCleAnlo.ocldBase.OpenRecordset(StrSQL, CLE__APP.DBTIPO.DBAZI, "ARTICO“)
-                    'Dim IsArtConfForLotto As Boolean = DsOut.Tables(0).Rows.Count > 0
-
+                    'l'articolo ha gestione lotti?
                     Dim OLottoRep = New LottoRep(oCleAnlo)
                     Dim IsArtConfForLotto As Boolean = OLottoRep.IsArtConfForLotto(oApp.Ditta, ObjIca1CsvDto.CodiceArticolo)
 
@@ -603,27 +633,52 @@ Public Class CompInterconnManager
 
 
                     Dim oLottoDto As LottoDto = Nothing
-                    If IsArtConfForLotto Then
-                        'todo:correggere
-                        Dim Oggi As Date = Now.Date.AddDays(-14)
-                        Dim strOggi As String = GetLottoDateString(Oggi)
+                    Dim Oggi As Date = ObjIca1CsvDto.FineTurno
+                    Dim strOggi As String = GetLottoDateString(Oggi)
 
-                        oLottoDto = New LottoDto() With {
+                    'Il lotto esiste già?
+
+
+                    If IsArtConfForLotto Then
+
+                        oLottoDto = OLottoRep.GetLottoProdottoFinito(oApp.Ditta, ObjIca1CsvDto.CodiceArticolo, strOggi, CLN__STD.NTSCInt(strOggi))
+                        'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
+                        'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
+
+                        If oLottoDto Is Nothing Then
+                            oLottoDto = New LottoDto() With {
                             .StrCodart = CLN__STD.NTSCStr(ObjIca1CsvDto.CodiceArticolo),
                             .StrDescodart = CLN__STD.NTSCStr(""),
                             .LLotto = CLN__STD.NTSCInt(strOggi),
                             .StrLottox = strOggi,
-                            .DataScadenza = CLN__STD.NTSCDate(Oggi.AddYears(3))
+                            .DataScadenza = CLN__STD.NTSCDate(Oggi.AddYears(3)),
+                            .LottoGiaPresente = False
                         }
+
+                        End If
+
 
                     End If
 
                     Ica1ExecCdp(oCleBoll2, oCleAnlo, ObjIca1CsvDto, oLottoDto, settings)
-                    ' Console.WriteLine($"Articolo: {produzione.CodiceArticolo}, Scatole teoriche: {produzione.ScatoleTeoricheProdotte}")
+                    'sposta il file in old dopo averlo elaborato
+                    'crea la directory se ancora non c'è
+                    Try
+                        If Not Directory.Exists(settings.Ica1PercorsoOld) Then
+                            Directory.CreateDirectory(settings.Ica1PercorsoOld)
+                        End If
+
+                        Dim oldFile As String = Path.Combine(settings.Ica1PercorsoOld, Path.GetFileName(filePath))
+                        File.Move(filePath, oldFile)
+                    Catch ex As Exception
+                        ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
+                    End Try
+
+
 
                 Catch ex As Exception
                     'logga sposta in errore il file csv e va avanti
-                    logger.LogError(ex.Message, ex.StackTrace)
+                    logger.LogError(ex.Message, ex.StackTrace, settings.Ica1NomeMacchina, If(ObjIca1CsvDto IsNot Nothing, ObjIca1CsvDto.CodiceArticolo, ""), PublicCurrFileName)
 
                     Try
                         'crea la directory se ancora non c'è
@@ -642,14 +697,14 @@ Public Class CompInterconnManager
             Next
         Catch ex As Exception
             'logga in caso non riesca ad aprire il path della cartella dei file csv...e poi passa alla elaborazione dei files della prossima macchina
-            logger.LogError(ex.Message, ex.StackTrace)
+            logger.LogError(ex.Message, ex.StackTrace, settings.Ica1NomeMacchina)
         End Try
     End Sub
 
     Public Overridable Sub Ica1ExecCdp(oCleBoll2 As CLEVEBOLL, oCleAnlo As CLEMGANLO, oIca1CsvDto As Ica1CsvDto, oLottoDto As LottoDto, settings As Settings)
 
         'esegue effettivamente il carico in experience
-        If Not oLottoDto Is Nothing Then
+        If Not oLottoDto.LottoGiaPresente Then
             'creo il lotto
             CreaLotto(oCleAnlo, oLottoDto)
         End If
@@ -680,16 +735,16 @@ Public Class CompInterconnManager
         Dim OTestataCaricoDiProd As Action(Of DataRow) =
        Sub(r As DataRow)
            r!codditt = oApp.Ditta
-           r!et_conto = 20100012
+           r!et_conto = settings.Fornitore
            r!et_tipork = "T"
            r!et_anno = oIca1CsvDto.InizioTurno.Year
            r!et_serie = settings.Ica1Serie
            r!et_numdoc = lNumTmpProd
            'todo: mettere a posto qui
-           r!et_datdoc = Now.Date
+           'r!et_datdoc = Now.Date
+           r!et_datdoc = oIca1CsvDto.FineTurno
            'r!et_datdoc = oMeccanoplastica1CsvDto.DataOra.Year
-           r!et_tipobf = 9028
-           'TODO: inserire lotto se necessario
+           r!et_tipobf = settings.tipobf
        End Sub
 
         CreaTestataProd(lNumTmpProd, oCleBoll2, settings, OTestataCaricoDiProd)

@@ -14,6 +14,8 @@
     ' Data di scadenza del lotto
     Public Property DataScadenza As Date
 
+    Public Property LottoGiaPresente As Boolean
+
     ' Costruttore opzionale per inizializzare il DTO
     Public Sub New(Optional codart As String = "",
                    Optional descodart As String = "",
