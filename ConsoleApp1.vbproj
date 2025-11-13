@@ -96,6 +96,7 @@
     <Compile Include="DTO\Settings.vb" />
     <Compile Include="Enums\Macchina.vb" />
     <Compile Include="Managers\CompInterconnManager.vb" />
+    <Compile Include="Managers\NetworkShareManager.vb" />
     <Compile Include="Managers\SettingsManager.vb" />
     <Compile Include="ModuleEntryPoint.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />

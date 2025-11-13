@@ -1,6 +1,4 @@
-﻿Imports System.Data
-Imports System.Data.SqlClient
-Imports GestioneCommesse.DataLayer
+﻿
 Public Class LogRep
 
     Private ReadOnly _connString As String

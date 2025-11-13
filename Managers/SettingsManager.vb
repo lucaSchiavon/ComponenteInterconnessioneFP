@@ -13,6 +13,23 @@ Public Class SettingsManager
         ' ROOT
         settings.ConnStr = parser.GetSetting("ROOT", "ConnStr")
 
+        settings.VerbosityLogLevel = parser.GetSetting("ROOT", "VerbosityLogLevel")
+
+        settings.MachineFoldersUserName = parser.GetSetting("ROOT", "MachineFoldersUserName")
+        settings.MachineFoldersPassword = parser.GetSetting("ROOT", "MachineFoldersPassword")
+
+
+        settings.Fornitore = parser.GetSetting("ROOT", "Fornitore")
+
+        'EXPERIENCEAUTH
+        settings.ExpAuthType = parser.GetSetting("EXPERIENCEAUTH", "ExpAuthType")
+        settings.ExpAuthDittaCorrente = parser.GetSetting("EXPERIENCEAUTH", "ExpAuthDittaCorrente")
+        settings.ExpAuthUserNameTrust = parser.GetSetting("EXPERIENCEAUTH", "ExpAuthUserNameTrust")
+        settings.ExpAuthUserNameOffLineAuth = parser.GetSetting("EXPERIENCEAUTH", "ExpAuthUserNameOffLineAuth")
+        settings.ExpAuthUserNamePwdOffLineAuth = parser.GetSetting("EXPERIENCEAUTH", "ExpAuthUserNamePwdOffLineAuth")
+        settings.ExpAuthDatabase = parser.GetSetting("EXPERIENCEAUTH", "ExpAuthDatabase")
+        settings.ExpAuthProfile = parser.GetSetting("EXPERIENCEAUTH", "ExpAuthProfile")
+
         ' ICA1
         settings.Ica1Percorso = parser.GetSetting("ICA1", "Percorso")
         settings.Ica1PercorsoErrori = Path.Combine(settings.Ica1Percorso, "Errori")

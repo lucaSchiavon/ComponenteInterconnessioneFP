@@ -8,7 +8,7 @@ Public Class LottoRep
     End Sub
     Public Function IsArtConfForLotto(codditt As String, ar_codart As String) As Boolean
         Dim StrSQL As String = ""
-        StrSQL = " SELECT * from artico where codditt='" & CLN__STD.NTSCStr(codditt) & "' and ar_codart='" & ar_codart & " ' and ar_geslotti='S'" ' La query SQL
+        StrSQL = " SELECT * from artico where codditt='" & CLN__STD.NTSCStr(codditt) & "' and ar_codart='" & CLN__STD.NTSCStr(ar_codart) & " ' and ar_geslotti='S'" ' La query SQL
         ' Chiedo i dati al database
         Dim DsOut As DataSet = Me._oCleAnlo.ocldBase.OpenRecordset(StrSQL, CLE__APP.DBTIPO.DBAZI, "ARTICO“)
         Return DsOut.Tables(0).Rows.Count > 0

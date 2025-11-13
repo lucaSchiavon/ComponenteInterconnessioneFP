@@ -22,10 +22,12 @@ Public Class CompInterconnManager
 
 
     'autenticazione trusted
-    Dim strBusDittaCorrente As String = "PROVA"
+    Dim strBusDittaCorrente As String = "FPSRL"
+    'Dim strBusDittaCorrente As String = "PROVA"
     Dim strBusOperatore As String = "UTENTE"
     Dim strBusPasswordOperatore As String = ""
-    Dim strBusDatabase As String = "PROVA"
+    'Dim strBusDatabase As String = "PROVA"
+    Dim strBusDatabase As String = "FPSRL"
     Dim strBusProfilo As String = "Fpbusexpcu5"
     'Dim strBusProfilo As String = "dsdfsdfs"
 
@@ -39,7 +41,29 @@ Public Class CompInterconnManager
 
 
         Try
+            '++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            ' Dim fileCsvPaths() As String = Directory.GetFiles("\\192.168.101.111\prova")
 
+            'Dim share As String = "\\192.168.101.111\prova"
+            'Dim user As String = "Olivetti"
+            'Dim pwd As String = "Oliv1999"
+
+            'Dim ret As Integer = NetworkShareManager.ConnectToShare(share, user, pwd)
+            'If ret = 0 Then
+            '    Try
+            '        Dim files() As String = Directory.GetFiles(share)
+            '        For Each f In files
+            '            Console.WriteLine(f)
+            '        Next
+            '    Catch ex As Exception
+            '        Console.WriteLine("Errore file: " & ex.Message)
+            '    Finally
+            '        NetworkShareManager.DisconnectShare(share)
+            '    End Try
+            'Else
+            '    Console.WriteLine("Connessione fallita, codice errore: " & ret)
+            'End If
+            '+++++++++++++++++++++++++++++++++++++++++++++++++++++++
             'legge tutti i settings dal config ini
             Dim manager As New SettingsManager(Path.Combine(Environment.CurrentDirectory, "") & "\Settings.ini")
             Dim settings As Settings = manager.LoadSettings()
@@ -208,7 +232,12 @@ Public Class CompInterconnManager
         'todo:questo il codice che metterei al posto di quello che c'è sotto
         If e.TipoEvento = CLN__STD.ThMsg.MSG_ERROR Then
             'loggare sempre e comunque ERROR
+            'logger.LogError(e.TipoEvento, "GestisciEventiEntity")
             logger.LogError(e.Message, "GestisciEventiEntity")
+            'oCleBoll.dttEC.Rows.Count
+            'cstr(oCleBoll.dttEC.Rows(oCleBoll.dttEC.Rows.Count).Item("ec_codart"))
+            'cstr(oCleBoll.dttET.Rows(0).Item("et_conto"))
+            'logger.LogError(Environment.StackTrace, "GestisciEventiEntity")
             'e.Message è vuoto mettere errore se message è vuto tendenzialmente ci sono altre info su e ma tendenzialmente e.Message non succede mai in errore
             'Else
 
@@ -284,10 +313,10 @@ Public Class CompInterconnManager
         InizializzaBemganlo()
 
         'processa i file csv della cartella della macchina di produzione Ica2:
-        Meccanoplastica1CaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
+        'Meccanoplastica1CaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
 
         'processa i file csv della cartella della macchina di produzione Meccanoplastica1:
-        'Ica1CaricoDiProduzione(oCleBoll2, oCleAnlo, settings, logger)
+        Ica1CaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
 
         'processa i file csv della cartella della macchina di produzione xxx:
         '.......
@@ -350,7 +379,7 @@ Public Class CompInterconnManager
         oCleAnlo.lLotto = CLN__STD.NTSCInt(objLottoDto.LLotto) '1112025
         oCleAnlo.strLottox = CLN__STD.NTSCStr(objLottoDto.StrLottox)
 
-        Dim dsAnlo As DataSet
+        Dim dsAnlo As DataSet = Nothing
         bOk = oCleAnlo.Nuovo(oCleAnlo.strCodart, oCleAnlo.lLotto, dsAnlo)
 
         If bOk = False Then
@@ -381,7 +410,7 @@ Public Class CompInterconnManager
 
 #Region "Meccanoplastica1"
 
-    Public Overridable Function Meccanoplastica1CaricoDiProduzione(oCleBoll2 As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogRep) As Boolean
+    Public Overridable Sub Meccanoplastica1CaricoDiProduzione(oCleBoll2 As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogRep)
         'si scorre i file csv
         Try
 
@@ -390,7 +419,7 @@ Public Class CompInterconnManager
 
             For Each filePath As String In fileCsvPaths
 
-                Dim ObjMeccanoplastica1CsvDto As Meccanoplastica1CsvDto
+                Dim ObjMeccanoplastica1CsvDto As Meccanoplastica1CsvDto = Nothing
                 Try
 
                     'verifica la validità del csv
@@ -410,7 +439,7 @@ Public Class CompInterconnManager
                     Dim oLottoDto As LottoDto = Nothing
                     If IsArtConfForLotto Then
                         'todo:il lotto del prodotto finito deve contenere come nome la data di oggi o la data del file?
-                        Dim Oggi As Date = Now.Date.AddYears(-10)
+                        Dim Oggi As Date = Now.Date.AddMonths(-12)
                         Dim strOggi As String = GetLottoDateString(Oggi)
 
                         oLottoDto = New LottoDto() With {
@@ -462,7 +491,7 @@ Public Class CompInterconnManager
             'logga in caso non riesca ad aprire il path della cartella dei file csv...e poi passa alla elaborazione dei files della prossima macchina
             logger.LogError(ex.Message, ex.StackTrace, Macchina.Meccanoplastica1)
         End Try
-    End Function
+    End Sub
 
     Public Overridable Sub Meccanoplastica1ExecCdp(oCleBoll2 As CLEVEBOLL, oCleAnlo As CLEMGANLO, oMeccanoplastica1CsvDto As Meccanoplastica1CsvDto, oLottoDto As LottoDto, settings As Settings)
 
@@ -538,10 +567,11 @@ Public Class CompInterconnManager
 
 #Region "ICA1"
 
-    Public Overridable Function Ica1CaricoDiProduzione(oCleBoll2 As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogRep) As Boolean
+    Public Overridable Sub Ica1CaricoDiProduzione(oCleBoll2 As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogRep)
         'si scorre i file csv
         Try
-
+            'prima di accedere alla cartella si logga perchè la cartella condivisa è protetta da nome utente e pwd
+            NetworkShareManager.ConnectToShare(settings.Ica1Percorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
 
             Dim fileCsvPaths() As String = Directory.GetFiles(settings.Ica1Percorso, "*.csv")
 
@@ -559,12 +589,15 @@ Public Class CompInterconnManager
 
 
                     'se l'articolo ha gestione lotti
-                    Dim StrSQL As String = ""
+                    'Dim StrSQL As String = ""
+                    ''StrSQL = " SELECT * from artico where codditt='" & CLN__STD.NTSCStr(oApp.Ditta) & "' and ar_codart='MOUSE' and ar_geslotti='S'" ' La query SQL
                     'StrSQL = " SELECT * from artico where codditt='" & CLN__STD.NTSCStr(oApp.Ditta) & "' and ar_codart='MOUSE' and ar_geslotti='S'" ' La query SQL
-                    StrSQL = " SELECT * from artico where codditt='" & CLN__STD.NTSCStr(oApp.Ditta) & "' and ar_codart='MOUSE' and ar_geslotti='S'" ' La query SQL
-                    ' Chiedo i dati al database
-                    Dim DsOut As DataSet = oCleAnlo.ocldBase.OpenRecordset(StrSQL, CLE__APP.DBTIPO.DBAZI, "ARTICO“)
-                    Dim IsArtConfForLotto As Boolean = DsOut.Tables(0).Rows.Count > 0
+                    '' Chiedo i dati al database
+                    'Dim DsOut As DataSet = oCleAnlo.ocldBase.OpenRecordset(StrSQL, CLE__APP.DBTIPO.DBAZI, "ARTICO“)
+                    'Dim IsArtConfForLotto As Boolean = DsOut.Tables(0).Rows.Count > 0
+
+                    Dim OLottoRep = New LottoRep(oCleAnlo)
+                    Dim IsArtConfForLotto As Boolean = OLottoRep.IsArtConfForLotto(oApp.Ditta, ObjIca1CsvDto.CodiceArticolo)
 
 
 
@@ -572,10 +605,8 @@ Public Class CompInterconnManager
                     Dim oLottoDto As LottoDto = Nothing
                     If IsArtConfForLotto Then
                         'todo:correggere
-                        Dim Oggi As Date = Now.Date.AddDays(1)
+                        Dim Oggi As Date = Now.Date.AddDays(-14)
                         Dim strOggi As String = GetLottoDateString(Oggi)
-
-                        ObjIca1CsvDto.CodiceArticolo = "MOUSE"
 
                         oLottoDto = New LottoDto() With {
                             .StrCodart = CLN__STD.NTSCStr(ObjIca1CsvDto.CodiceArticolo),
@@ -613,7 +644,7 @@ Public Class CompInterconnManager
             'logga in caso non riesca ad aprire il path della cartella dei file csv...e poi passa alla elaborazione dei files della prossima macchina
             logger.LogError(ex.Message, ex.StackTrace)
         End Try
-    End Function
+    End Sub
 
     Public Overridable Sub Ica1ExecCdp(oCleBoll2 As CLEVEBOLL, oCleAnlo As CLEMGANLO, oIca1CsvDto As Ica1CsvDto, oLottoDto As LottoDto, settings As Settings)
 
@@ -624,13 +655,13 @@ Public Class CompInterconnManager
         End If
 
         '--- Legge il progressivo in TABNUMA
-        Dim lNumTmpProd As Integer = oCleBoll2.LegNuma(strTipoProd, strSerieProd, nAnnoProd)
+        Dim lNumTmpProd As Integer = oCleBoll2.LegNuma("T", settings.Ica1Serie, oIca1CsvDto.FineTurno.Year)
 
 
         'preparo l'ambiente
 
         Dim ds As New DataSet
-        If Not oCleBoll2.ApriDoc(oApp.Ditta, False, "T", oIca1CsvDto.InizioTurno.Year, "A", lNumTmpProd, ds) Then
+        If Not oCleBoll2.ApriDoc(oApp.Ditta, False, "T", oIca1CsvDto.InizioTurno.Year, settings.Ica1Serie, lNumTmpProd, ds) Then
             Throw New Exception("Apertura del documento di carico fallita")
         End If
         oCleBoll2.bInApriDocSilent = True
@@ -641,7 +672,7 @@ Public Class CompInterconnManager
         oCleBoll2.strVisNoteConto = "N"
         'todo: gestire l'if se hanno valore di ritorno oppure membri con OK check valid
         'oppure c'è overolad che torna messaggio e messaggio 
-        If Not oCleBoll2.NuovoDocumento(oApp.Ditta, "T", oIca1CsvDto.InizioTurno.Year, " ", lNumTmpProd, "") Then
+        If Not oCleBoll2.NuovoDocumento(oApp.Ditta, "T", oIca1CsvDto.InizioTurno.Year, settings.Ica1Serie, lNumTmpProd, "") Then
             Throw New Exception("Creazione del documento di carico fallita")
         End If
         oCleBoll2.bInNuovoDocSilent = True
@@ -649,15 +680,15 @@ Public Class CompInterconnManager
         Dim OTestataCaricoDiProd As Action(Of DataRow) =
        Sub(r As DataRow)
            r!codditt = oApp.Ditta
-           r!et_conto = 11019999
+           r!et_conto = 20100012
            r!et_tipork = "T"
            r!et_anno = oIca1CsvDto.InizioTurno.Year
-           r!et_serie = " "
+           r!et_serie = settings.Ica1Serie
            r!et_numdoc = lNumTmpProd
            'todo: mettere a posto qui
            r!et_datdoc = Now.Date
            'r!et_datdoc = oMeccanoplastica1CsvDto.DataOra.Year
-           r!et_tipobf = 40
+           r!et_tipobf = 9028
            'TODO: inserire lotto se necessario
        End Sub
 
@@ -667,7 +698,7 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd As New CorpoCaricoProd()
         OCorpoCaricoProd.Codditt = oIca1CsvDto.CodiceArticolo
         'todo: qui calcolare i pezzi buoni
-        OCorpoCaricoProd.ec_colli = 10 'oIca1CsvDto.PezziBuoni
+        OCorpoCaricoProd.ec_colli = oIca1CsvDto.ScatoleTeoricheProdotte 'oIca1CsvDto.PezziBuoni
 
         CreaRigaProd(oCleBoll2, OCorpoCaricoProd, settings, oLottoDto)
 
