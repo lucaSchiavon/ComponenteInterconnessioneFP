@@ -33,18 +33,19 @@ Public Class SettingsManager
         settings.ExpAuthDatabase = parser.GetSetting("EXPERIENCEAUTH", "ExpAuthDatabase")
         settings.ExpAuthProfile = parser.GetSetting("EXPERIENCEAUTH", "ExpAuthProfile")
 
-        ' ICA1
-        settings.Ica1Percorso = parser.GetSetting("ICA1", "Percorso")
-        settings.Ica1PercorsoErrori = Path.Combine(settings.Ica1Percorso, "Errori")
-        settings.Ica1PercorsoOld = Path.Combine(settings.Ica1Percorso, "Old")
-        settings.Ica1Serie = parser.GetSetting("ICA1", "Serie")
-        settings.Ica1NomeMacchina = parser.GetSetting("ICA1", "NomeMacchina")
+        ' ICAVL08615
+        settings.ICAVL08615Percorso = parser.GetSetting("ICAVL08615", "Percorso")
+        settings.ICAVL08615PercorsoErrori = Path.Combine(settings.ICAVL08615Percorso, "Errori")
+        settings.ICAVL08615PercorsoOld = Path.Combine(settings.ICAVL08615Percorso, "Old")
+        settings.ICAVL08615Serie = parser.GetSetting("ICAVL08615", "Serie")
+        settings.ICAVL08615NomeMacchina = parser.GetSetting("ICAVL08615", "NomeMacchina")
 
         ' MECCANOPLASTICA1
         settings.Meccanoplastica1Percorso = parser.GetSetting("MECCANOPLASTICA1", "Percorso")
         settings.Meccanoplastica1PercorsoErrori = Path.Combine(settings.Meccanoplastica1Percorso, "Errori")
         settings.Meccanoplastica1PercorsoOld = Path.Combine(settings.Meccanoplastica1Percorso, "Old")
         settings.Meccanoplastica1Serie = parser.GetSetting("MECCANOPLASTICA1", "Serie")
+        settings.Meccanoplastica1NomeMacchina = parser.GetSetting("MECCANOPLASTICA1", "NomeMacchina")
         'settings.MeccanoplasticaOld = parser.GetSetting("MECCANOPLASTICA", "Old")
         'settings.MeccanoplasticaErrori = parser.GetSetting("MECCANOPLASTICA", "Errori")
 

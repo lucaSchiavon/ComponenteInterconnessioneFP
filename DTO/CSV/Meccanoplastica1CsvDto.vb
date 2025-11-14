@@ -4,6 +4,7 @@
     Public Property PezziBuoni As Integer
     Public Property PezziScarto As Integer
     Public Property Ricetta As String
+    Public Property Note As String
     Public ReadOnly Property CodiceArticolo As String
         Get
             If String.IsNullOrWhiteSpace(Ricetta) Then

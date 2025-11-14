@@ -2,7 +2,7 @@
 Imports System.IO
 
 Module Meccanoplastica1CsvParser
-    Public Function ParseProduzioneCsv(percorsoFile As String) As Meccanoplastica1CsvDto
+    Public Function ParseProduzioneCsv(percorsoFile As String, settings As Settings) As Meccanoplastica1CsvDto
 
         Dim NomeFile As String = Path.GetFileName(percorsoFile)
         ' Lettura righe
@@ -42,6 +42,7 @@ Module Meccanoplastica1CsvParser
         dto.Ricetta = dati(1).Trim()
         dto.PezziBuoni = Integer.Parse(dati(2))
         dto.PezziScarto = Integer.Parse(dati(3))
+        dto.Note = settings.Meccanoplastica1NomeMacchina & Environment.NewLine & righe(0) & Environment.NewLine & righe(1)
         Return dto
     End Function
 

@@ -1,8 +1,8 @@
 ﻿Imports System.Globalization
 Imports System.IO
 
-Module Ica1CsvParser
-    Public Function ParseProduzioneCsv(percorsoFile As String) As Ica1CsvDto
+Module ICAVL08615CsvParser
+    Public Function ParseProduzioneCsv(percorsoFile As String, settings As Settings) As ICAVL08615CsvDto
         ' Controlli di base
         'If Not File.Exists(percorsoFile) Then
         '    Throw New FileNotFoundException($"File non trovato: {percorsoFile}")
@@ -53,12 +53,12 @@ Module Ica1CsvParser
         End If
 
         'Popolamento DTO
-        Dim dto As New Ica1CsvDto()
+        Dim dto As New ICAVL08615CsvDto()
         Dim culture As CultureInfo = CultureInfo.InvariantCulture
 
         dto.InizioTurno = DateTime.Parse(dati(0), New CultureInfo("it-IT"))
         dto.FineTurno = DateTime.Parse(dati(1), New CultureInfo("it-IT"))
-        dto.CodiceArticolo = dati(2).Trim()
+        dto.CodiceArticolo = dati(2).Trim().Replace("""", "")
         dto.DoypackPerScatola = Integer.Parse(dati(3))
         dto.TabsPerDoypack = Integer.Parse(dati(4))
         dto.VelocitaMacchina = Integer.Parse(dati(5))
@@ -78,6 +78,7 @@ Module Ica1CsvParser
         dto.TabsProdotte = Integer.Parse(dati(19))
         dto.DoypackTeoriciProdotti = Integer.Parse(dati(20))
         dto.ScatoleTeoricheProdotte = Integer.Parse(dati(21))
+        dto.Note = settings.ICAVL08615NomeMacchina & Environment.NewLine & righe(0) & Environment.NewLine & righe(1)
 
         Return dto
     End Function

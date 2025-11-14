@@ -6,9 +6,9 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{D80C9A97-85CF-4909-B997-BBFB46E1D87C}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <StartupObject>ConsoleApp1.ModuleEntryPoint</StartupObject>
-    <RootNamespace>ConsoleApp1</RootNamespace>
-    <AssemblyName>ConsoleApp1</AssemblyName>
+    <StartupObject>FPCOMPINTERCONN.ModuleEntryPoint</StartupObject>
+    <RootNamespace>FPCOMPINTERCONN</RootNamespace>
+    <AssemblyName>FPCOMPINTERCONN</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Console</MyType>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
@@ -22,7 +22,7 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>..\TEST\</OutputPath>
-    <DocumentationFile>ConsoleApp1.xml</DocumentationFile>
+    <DocumentationFile>FPCOMPINTERCONN.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
@@ -32,7 +32,7 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>ConsoleApp1.xml</DocumentationFile>
+    <DocumentationFile>FPCOMPINTERCONN.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
   </PropertyGroup>
   <PropertyGroup>
@@ -88,13 +88,11 @@
     <Compile Include="Dal\AdoDataLayer.vb" />
     <Compile Include="Dal\LogRep.vb" />
     <Compile Include="Dal\LottoRep.vb" />
-    <Compile Include="DTO\CdpRequests\Ica1CdpInputParDto.vb" />
     <Compile Include="DTO\CSV\Meccanoplastica1CsvDto.vb" />
     <Compile Include="DTO\CSV\Ica1CsvDto.vb" />
     <Compile Include="DTO\LottoDto.vb" />
     <Compile Include="DTO\OrdineProduzione\CorpoCaricoProd.vb" />
     <Compile Include="DTO\Settings.vb" />
-    <Compile Include="Enums\Macchina.vb" />
     <Compile Include="Managers\CompInterconnManager.vb" />
     <Compile Include="Managers\NetworkShareManager.vb" />
     <Compile Include="Managers\SettingsManager.vb" />
@@ -103,6 +101,7 @@
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
       <DependentUpon>Application.myapp</DependentUpon>
+      <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="My Project\Resources.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -139,12 +138,13 @@
     </None>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="Settings.ini">
+    <None Include="FPCOMPINTERCONN_Settings.ini">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Entities\" />
+    <Folder Include="Enums\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

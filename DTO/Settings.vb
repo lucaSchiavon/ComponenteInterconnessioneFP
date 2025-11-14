@@ -23,18 +23,19 @@
     Public Property ExpAuthDatabase As String
     Public Property ExpAuthProfile As String
 
-    'ICA1
-    Public Property Ica1Percorso As String
-    Public Property Ica1PercorsoErrori As String
-    Public Property Ica1PercorsoOld As String
-    Public Property Ica1Serie As String
-    Public Property Ica1NomeMacchina As String
+    'ICAVL08615
+    Public Property ICAVL08615Percorso As String
+    Public Property ICAVL08615PercorsoErrori As String
+    Public Property ICAVL08615PercorsoOld As String
+    Public Property ICAVL08615Serie As String
+    Public Property ICAVL08615NomeMacchina As String
 
     'Meccanoplastica1
     Public Property Meccanoplastica1Percorso As String
     Public Property Meccanoplastica1PercorsoErrori As String
     Public Property Meccanoplastica1PercorsoOld As String
     Public Property Meccanoplastica1Serie As String
+    Public Property Meccanoplastica1NomeMacchina As String
 
     'Public Property MeccanoplasticaOld As String
     'Public Property MeccanoplasticaErrori As String
