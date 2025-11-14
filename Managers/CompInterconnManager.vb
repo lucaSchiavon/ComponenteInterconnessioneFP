@@ -10,62 +10,14 @@ Public Class CompInterconnManager
     Public oCleBoll As CLEVEBOLL = Nothing
     Public oCleAnlo As CLEMGANLO = Nothing
     Dim logger As LogRep = Nothing
-    'Public oCleEsem As CLEHHESEM
 
-    ''autenticazione offline
-    'Dim strBusDittaCorrente As String = "PROVA"
-    'Dim strBusOperatore As String = "experience@toninnarciso.it"
-    'Dim strBusPasswordOperatore As String = "Revihcra2!"
-    'Dim strBusDatabase As String = "PROVA"
-    'Dim strBusProfilo As String = "Fpbusexpcu5"
-    ''Dim strBusProfilo As String = "dsdfsdfs"
-
-
-    ''autenticazione trusted
-    'Dim strBusDittaCorrente As String = "FPSRL"
-    ''Dim strBusDittaCorrente As String = "PROVA"
-    'Dim strBusOperatore As String = "UTENTE"
-    'Dim strBusPasswordOperatore As String = ""
-    ''Dim strBusDatabase As String = "PROVA"
-    'Dim strBusDatabase As String = "FPSRL"
-    'Dim strBusProfilo As String = "Fpbusexpcu5"
-    ''Dim strBusProfilo As String = "dsdfsdfs"
-
-
-    'Public lNumTmpProd As Integer
-    'Public strTipoProd As String = "T"
-    'Public strSerieProd As String = "A"
-    'Public nAnnoProd As Integer = Now.Year
     Public Sub Main()
 
 
 
         Try
-            '++++++++++++++++++++++++++++++++++++++++++++++++++++++
-            ' Dim fileCsvPaths() As String = Directory.GetFiles("\\192.168.101.111\prova")
 
-            'Dim share As String = "\\192.168.101.111\prova"
-            'Dim user As String = "Olivetti"
-            'Dim pwd As String = "Oliv1999"
-
-            'Dim ret As Integer = NetworkShareManager.ConnectToShare(share, user, pwd)
-            'If ret = 0 Then
-            '    Try
-            '        Dim files() As String = Directory.GetFiles(share)
-            '        For Each f In files
-            '            Console.WriteLine(f)
-            '        Next
-            '    Catch ex As Exception
-            '        Console.WriteLine("Errore file: " & ex.Message)
-            '    Finally
-            '        NetworkShareManager.DisconnectShare(share)
-            '    End Try
-            'Else
-            '    Console.WriteLine("Connessione fallita, codice errore: " & ret)
-            'End If
-            '+++++++++++++++++++++++++++++++++++++++++++++++++++++++
             'legge tutti i settings dal config ini
-
             Dim manager As New SettingsManager(Path.Combine(Environment.CurrentDirectory, "") & "\FPCOMPINTERCONN_Settings.ini")
             Dim settings As Settings = manager.LoadSettings()
 
@@ -373,8 +325,9 @@ Public Class CompInterconnManager
 
         ' validazione interna
         If Not oCleBoll.OkTestata Then
-            Throw New Exception("Errore nella creazione della testata del documento")
+            Throw New Exception($"Errore nella creazione della testata del documento. Dettagli:num doc {row("et_numdoc")} serie {row("et_serie")} anno {row("et_anno")}")
         End If
+
 
     End Sub
     Public Overridable Sub CreaRigaProd(oCleBoll As CLEVEBOLL, oCorpoCaricoProd As CorpoCaricoProd, settings As Settings, oLottoDto As LottoDto)
@@ -383,7 +336,7 @@ Public Class CompInterconnManager
         'todo:ma qui la casuale ed il magazzino va messo??  
 
         If Not oCleBoll.AggiungiRigaCorpo(False, CLN__STD.NTSCStr(oCorpoCaricoProd.Codditt), 0, 0) Then
-            Throw New Exception("Errore nella creazione del corpo del documento")
+            Throw New Exception($"Errore nella creazione del corpo del documento. Dettagli: articolo {oLottoDto.StrCodart} qta prodotte {oCorpoCaricoProd.ec_colli} lotto {oLottoDto.StrLottox}")
         End If
 
         With oCleBoll.dttEC.Rows(oCleBoll.dttEC.Rows.Count - 1)
@@ -395,7 +348,7 @@ Public Class CompInterconnManager
 
         If Not oCleBoll.RecordSalva(oCleBoll.dttEC.Rows.Count - 1, False, Nothing) Then
             oCleBoll.dttEC.Rows(oCleBoll.dttEC.Rows.Count - 1).Delete()
-            Throw New Exception("Errore nel salvataggio del corpo del documento")
+            Throw New Exception($"Errore nel salvataggio del corpo del documento. Dettagli: articolo {oLottoDto.StrCodart} qta prodotte {oCorpoCaricoProd.ec_colli} lotto {oLottoDto.StrLottox}")
         End If
 
         oCleBoll.dtrHT = Nothing
@@ -555,17 +508,17 @@ Public Class CompInterconnManager
         'todo:aggiungere serie
         Dim A As String = settings.Meccanoplastica1Serie
         If Not oCleBoll.ApriDoc(oApp.Ditta, False, "T", oMeccanoplastica1CsvDto.DataOra.Year, settings.Meccanoplastica1Serie, lNumTmpProd, ds) Then
-            Throw New Exception("Apertura del documento di carico fallita")
+            Throw New Exception($"Apertura del documento di carico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oMeccanoplastica1CsvDto.DataOra.Year}, serie {settings.ICAVL08615Serie}, prodotto {oMeccanoplastica1CsvDto.CodiceArticolo} QtaProdotte {oMeccanoplastica1CsvDto.PezziBuoni}")
         End If
         oCleBoll.bInApriDocSilent = True
         If oCleBoll.dsShared.Tables("TESTA").Rows.Count > 0 Then
-            Throw New Exception("Errore nella numerazione del documento di carico.")
+            Throw New Exception($"Errore nella numerazione del documento di carico. Dettagli: numero documento {lNumTmpProd} data documento {oMeccanoplastica1CsvDto.DataOra.Year}, serie {settings.ICAVL08615Serie}, prodotto {oMeccanoplastica1CsvDto.CodiceArticolo} QtaProdotte {oMeccanoplastica1CsvDto.PezziBuoni}")
         End If
         oCleBoll.ResetVar()
         oCleBoll.strVisNoteConto = "N"
 
         If Not oCleBoll.NuovoDocumento(oApp.Ditta, "T", oMeccanoplastica1CsvDto.DataOra.Year, settings.Meccanoplastica1Serie, lNumTmpProd, "") Then
-            Throw New Exception("Creazione del documento di carico fallita")
+            Throw New Exception($"Creazione del documento di carico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oMeccanoplastica1CsvDto.DataOra.Year}, serie {settings.ICAVL08615Serie}, prodotto {oMeccanoplastica1CsvDto.CodiceArticolo} QtaProdotte {oMeccanoplastica1CsvDto.PezziBuoni}")
         End If
         oCleBoll.bInNuovoDocSilent = True
 
@@ -597,7 +550,7 @@ Public Class CompInterconnManager
 
         oCleBoll.bCreaFilePick = False 'non faccio generare il piking dal salvataggio del documento
         If Not oCleBoll.SalvaDocumento("N") Then
-            Throw New Exception("Errore al salvataggio del documento di carico.!")
+            Throw New Exception($"Errore al salvataggio del documento di carico.! Dettagli: numero documento {lNumTmpProd} data documento {oMeccanoplastica1CsvDto.DataOra.Year}, serie {settings.Meccanoplastica1Serie}, prodotto {oMeccanoplastica1CsvDto.CodiceArticolo} QtaProdotte {oMeccanoplastica1CsvDto.PezziBuoni}")
         End If
 
         'todo:qui logga una info con che dice che il documento è stato creato con successo
@@ -719,17 +672,17 @@ Public Class CompInterconnManager
 
         Dim ds As New DataSet
         If Not oCleBoll.ApriDoc(oApp.Ditta, False, "T", oIca1CsvDto.InizioTurno.Year, settings.ICAVL08615Serie, lNumTmpProd, ds) Then
-            Throw New Exception("Apertura del documento di carico fallita")
+            Throw New Exception($"Apertura del documento di carico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oIca1CsvDto.InizioTurno.Year}, serie {settings.ICAVL08615Serie}, prodotto {oIca1CsvDto.CodiceArticolo} QtaProdotte {oIca1CsvDto.ScatoleTeoricheProdotte}")
         End If
         oCleBoll.bInApriDocSilent = True
         If oCleBoll.dsShared.Tables("TESTA").Rows.Count > 0 Then
-            Throw New Exception("Errore nella numerazione del documento di carico.")
+            Throw New Exception($"Errore nella numerazione del documento di carico. Dettagli: numero documento {lNumTmpProd} data documento {oIca1CsvDto.InizioTurno.Year}, serie {settings.ICAVL08615Serie}, prodotto {oIca1CsvDto.CodiceArticolo} QtaProdotte {oIca1CsvDto.ScatoleTeoricheProdotte}")
         End If
         oCleBoll.ResetVar()
         oCleBoll.strVisNoteConto = "N"
 
         If Not oCleBoll.NuovoDocumento(oApp.Ditta, "T", oIca1CsvDto.InizioTurno.Year, settings.ICAVL08615Serie, lNumTmpProd, "") Then
-            Throw New Exception("Creazione del documento di carico fallita")
+            Throw New Exception($"Creazione del documento di carico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oIca1CsvDto.InizioTurno.Year}, serie {settings.ICAVL08615Serie}, prodotto {oIca1CsvDto.CodiceArticolo} QtaProdotte {oIca1CsvDto.ScatoleTeoricheProdotte}")
         End If
         oCleBoll.bInNuovoDocSilent = True
 
@@ -759,7 +712,7 @@ Public Class CompInterconnManager
 
         oCleBoll.bCreaFilePick = False 'non faccio generare il piking dal salvataggio del documento
         If Not oCleBoll.SalvaDocumento("N") Then
-            Throw New Exception("Errore al salvataggio del documento di carico.!")
+            Throw New Exception($"Errore al salvataggio del documento di carico.! Dettagli: numero documento {lNumTmpProd} data documento {oIca1CsvDto.InizioTurno.Year}, serie {settings.ICAVL08615Serie}, prodotto {oIca1CsvDto.CodiceArticolo} QtaProdotte {oIca1CsvDto.ScatoleTeoricheProdotte}")
         End If
 
         'todo:qui logga una info con che dice che il documento è stato creato con successo
