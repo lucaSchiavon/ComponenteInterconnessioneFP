@@ -2,11 +2,11 @@
 Imports System.Threading.Thread
 
 Module General
-    Public Function GetLottoDateString(data As Date) As String
+    'Public Function GetLottoDateString(data As Date) As String
 
-        Dim strData As String = "00" & data.ToString("ddMMyyyy")
-        Return strData
-    End Function
+    '    Dim strData As String = "00" & data.ToString("ddMMyyyy")
+    '    Return strData
+    'End Function
 
     Public Sub SetDataFormatForCurrentCulture()
         'definisce il formato data per la cultura corrente

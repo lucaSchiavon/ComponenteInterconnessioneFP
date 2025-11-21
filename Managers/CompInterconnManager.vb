@@ -22,7 +22,7 @@ Public Class CompInterconnManager
             Dim settings As Settings = manager.LoadSettings()
 
             'istanzia la repository per l'inserimento dei log
-            logger = New LogRep(settings.ConnStr)
+            logger = New LogRep(settings.ConnStr, settings)
 
             Dim MsgInizio As String = "JOB INIZIATO alle " & Date.Now
             logger.LogInfo(MsgInizio)
@@ -302,7 +302,7 @@ Public Class CompInterconnManager
         InizializzaBemganlo()
 
         'processa i file csv della cartella della macchina di produzione Ica2:
-        Meccanoplastica1CaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
+        'Meccanoplastica1CaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
 
         'processa i file csv della cartella della macchina di produzione Meccanoplastica1:
         ICAVL08615CaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
@@ -427,21 +427,25 @@ Public Class CompInterconnManager
                     'preparo i dati da inserire nel lotto...
                     Dim oLottoDto As LottoDto = Nothing
                     Dim Oggi As Date = ObjMeccanoplastica1CsvDto.DataOra
-                    Dim strOggi As String = GetLottoDateString(Oggi)
+                    'todo: qui innestare la logica per creare il nome del lotto in base al codice articolo
+                    Dim OLottoManager As New LottoManager(settings)
+                    Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjMeccanoplastica1CsvDto.CodiceArticolo, settings.Meccanoplastica1NomeMacchina, ObjMeccanoplastica1CsvDto.DataOra)
+                    'Dim NomeLotto As String = GetLottoDateString(Oggi)
 
                     'Il lotto esiste già?
                     If IsArtConfForLotto Then
-
-                        oLottoDto = OLottoRep.GetLottoProdottoFinito(oApp.Ditta, ObjMeccanoplastica1CsvDto.CodiceArticolo, strOggi, CLN__STD.NTSCInt(strOggi))
+                        'todo:mettere a posto alolotto
+                        oLottoDto = OLottoRep.GetLottoProdottoFinito(oApp.Ditta, ObjMeccanoplastica1CsvDto.CodiceArticolo, NomeLotto)
                         'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
                         'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
 
                         If oLottoDto Is Nothing Then
+                            Dim NextLottoNumber As Integer = OLottoRep.GetNextLottoNumber(oApp.Ditta)
                             oLottoDto = New LottoDto() With {
                           .StrCodart = CLN__STD.NTSCStr(ObjMeccanoplastica1CsvDto.CodiceArticolo),
                           .StrDescodart = CLN__STD.NTSCStr(""),
-                          .LLotto = CLN__STD.NTSCInt(strOggi),
-                          .StrLottox = strOggi,
+                            .LLotto = CLN__STD.NTSCInt(NextLottoNumber),
+                          .StrLottox = NomeLotto,
                           .DataScadenza = CLN__STD.NTSCDate(Oggi.AddYears(3)),
                           .LottoGiaPresente = False
                       }
@@ -533,7 +537,7 @@ Public Class CompInterconnManager
             r!et_numdoc = lNumTmpProd
             r!et_note = oMeccanoplastica1CsvDto.Note
             r!et_datdoc = oMeccanoplastica1CsvDto.DataOra
-            r!et_tipobf = settings.tipobf
+            r!et_tipobf = settings.TipoBf
         End Sub
 
         CreaTestataProd(lNumTmpProd, oCleBoll, settings, OTestataCaricoDiProd)
@@ -565,7 +569,7 @@ Public Class CompInterconnManager
         'si scorre i file csv
         Try
             'prima di accedere alla cartella si logga perchè la cartella condivisa è protetta da nome utente e pwd
-            NetworkShareManager.ConnectToShare(settings.ICAVL08615Percorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
+            'NetworkShareManager.ConnectToShare(settings.ICAVL08615Percorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
             Dim ObjIca1CsvDto As ICAVL08615CsvDto = Nothing
             Dim fileCsvPaths() As String = Directory.GetFiles(settings.ICAVL08615Percorso, "*.csv")
             Dim PublicCurrFileName As String
@@ -589,21 +593,25 @@ Public Class CompInterconnManager
                     'preparo i dati da inserire nel lotto...
                     Dim oLottoDto As LottoDto = Nothing
                     Dim Oggi As Date = ObjIca1CsvDto.FineTurno
-                    Dim strOggi As String = GetLottoDateString(Oggi)
+
+                    'Dim strOggi As String = GetLottoDateString(Oggi)
+                    Dim OLottoManager As New LottoManager(settings)
+                    Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjIca1CsvDto.CodiceArticolo, settings.ICAVL08615NomeMacchina, ObjIca1CsvDto.FineTurno)
 
                     'Il lotto esiste già?
                     If IsArtConfForLotto Then
-
-                        oLottoDto = OLottoRep.GetLottoProdottoFinito(oApp.Ditta, ObjIca1CsvDto.CodiceArticolo, strOggi, CLN__STD.NTSCInt(strOggi))
+                        'todo:mettere a posto alolotto
+                        oLottoDto = OLottoRep.GetLottoProdottoFinito(oApp.Ditta, ObjIca1CsvDto.CodiceArticolo, NomeLotto)
                         'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
                         'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
 
                         If oLottoDto Is Nothing Then
+                            Dim NextLottoNumber As Integer = OLottoRep.GetNextLottoNumber(oApp.Ditta)
                             oLottoDto = New LottoDto() With {
                             .StrCodart = CLN__STD.NTSCStr(ObjIca1CsvDto.CodiceArticolo),
                             .StrDescodart = CLN__STD.NTSCStr(""),
-                            .LLotto = CLN__STD.NTSCInt(strOggi),
-                            .StrLottox = strOggi,
+                            .LLotto = CLN__STD.NTSCInt(NextLottoNumber),
+                            .StrLottox = NomeLotto,
                             .DataScadenza = CLN__STD.NTSCDate(Oggi.AddYears(3)),
                             .LottoGiaPresente = False
                         }
@@ -696,7 +704,8 @@ Public Class CompInterconnManager
            r!et_numdoc = lNumTmpProd
            r!et_note = oIca1CsvDto.Note
            r!et_datdoc = oIca1CsvDto.FineTurno
-           r!et_tipobf = settings.tipobf
+           r!et_tipobf = settings.TipoBf
+           r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
        End Sub
 
         CreaTestataProd(lNumTmpProd, oCleBoll, settings, OTestataCaricoDiProd)

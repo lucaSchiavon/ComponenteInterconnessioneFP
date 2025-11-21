@@ -14,12 +14,26 @@ Public Class LottoRep
         Return DsOut.Tables(0).Rows.Count > 0
     End Function
 
-    Public Function GetLottoProdottoFinito(codditt As String, ar_codart As String, alo_lottox As String, alo_lotto As Integer) As LottoDto
+    Public Function GetNextLottoNumber(codditt As String) As Integer
+        Dim ProgNumerazioneLotto As Integer = 1
+        Dim StrSQL As String = ""
+        StrSQL = " SELECT MAX(alo_lotto) + 1 as ProgNumerazioneLotto from analotti where codditt='" & CLN__STD.NTSCStr(codditt) & "'"
+        ' Chiedo i dati al database
+        Dim DsOut As DataSet = Me._oCleAnlo.ocldBase.OpenRecordset(StrSQL, CLE__APP.DBTIPO.DBAZI, "ANALOTTI“)
+
+        If DsOut.Tables(0).Rows.Count > 0 Then
+            ProgNumerazioneLotto = CLN__STD.NTSCInt(DsOut.Tables(0).Rows("alo_lotto"))
+        End If
+
+        Return ProgNumerazioneLotto
+    End Function
+
+    Public Function GetLottoProdottoFinito(codditt As String, ar_codart As String, alo_lottox As String) As LottoDto
 
         Dim OLottoDto As LottoDto = Nothing
 
         Dim StrSQL As String = ""
-        StrSQL = " SELECT * from analotti where codditt='" & CLN__STD.NTSCStr(codditt) & "' and alo_codart='" & CLN__STD.NTSCStr(ar_codart) & "' and alo_lottox='" & CLN__STD.NTSCStr(alo_lottox) & "' and alo_lotto=" & CLN__STD.NTSCInt(alo_lotto)
+        StrSQL = " SELECT * from analotti where codditt='" & CLN__STD.NTSCStr(codditt) & "' and alo_codart='" & CLN__STD.NTSCStr(ar_codart) & "' and alo_lottox='" & CLN__STD.NTSCStr(alo_lottox) & "'"
         ' Chiedo i dati al database
         Dim DsOut As DataSet = Me._oCleAnlo.ocldBase.OpenRecordset(StrSQL, CLE__APP.DBTIPO.DBAZI, "ANALOTTI“)
         Dim TblLottoProdFinito As DataTable = DsOut.Tables(0)

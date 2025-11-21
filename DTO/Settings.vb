@@ -1,5 +1,6 @@
 ﻿Public Class Settings
 
+    'ROOT
     'la connessione al database del componente di interscambio dove viene scritto il log nella tabella TblLog
     Public Property ConnStr As String
     'livello di verbosità del log
@@ -12,9 +13,19 @@
 
     'Il nome del fornitore da usare quando si effettua il carico di produzione
     Public Property Fornitore As String
-    Public Property tipobf As String
+    'il tipo di bollo fattura
+    Public Property TipoBf As String
 
 
+    'LOTTOPAGLIERI
+    Public Property NomeLottoPagCampoFissoFp As String
+
+    'LOTTOCONTER
+    Public Property NumeroLineaDiRiempimento As String
+    Public Property LetteraIdentifFp As String
+
+
+    'EXPERIENCEAUTH
     Public Property ExpAuthType As String 'valori ammessi TRUSTED, OFFLINE
     Public Property ExpAuthDittaCorrente As String
     Public Property ExpAuthUserNameTrust As String
@@ -30,18 +41,11 @@
     Public Property ICAVL08615Serie As String
     Public Property ICAVL08615NomeMacchina As String
 
-    'Meccanoplastica1
+    'MECCANOPLASTICA1
     Public Property Meccanoplastica1Percorso As String
     Public Property Meccanoplastica1PercorsoErrori As String
     Public Property Meccanoplastica1PercorsoOld As String
     Public Property Meccanoplastica1Serie As String
     Public Property Meccanoplastica1NomeMacchina As String
 
-    'Public Property MeccanoplasticaOld As String
-    'Public Property MeccanoplasticaErrori As String
-
-    '' Sezione MECCANOPLASTICA4
-    'Public Property Meccanoplastica4Percorso As String
-    'Public Property Meccanoplastica4Old As String
-    'Public Property Meccanoplastica4Errori As String
 End Class

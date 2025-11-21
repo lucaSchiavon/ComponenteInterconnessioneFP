@@ -20,7 +20,15 @@ Public Class SettingsManager
 
 
         settings.Fornitore = parser.GetSetting("ROOT", "Fornitore")
-        settings.tipobf = parser.GetSetting("ROOT", "tipobf")
+        settings.TipoBf = parser.GetSetting("ROOT", "TipoBf")
+
+        'LOTTOPAGLIERI
+        settings.NomeLottoPagCampoFissoFp = parser.GetSetting("LOTTOPAGLIERI", "NomeLottoPagCampoFissoFp")
+
+
+        'LOTTOCONTER
+        settings.NomeLottoPagCampoFissoFp = parser.GetSetting("LOTTOCONTER", "NumeroLineaDiRiempimento")
+        settings.LetteraIdentifFp = parser.GetSetting("LOTTOCONTER", "LetteraIdentifFp")
 
 
 
