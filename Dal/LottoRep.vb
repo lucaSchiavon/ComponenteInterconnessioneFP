@@ -22,7 +22,11 @@ Public Class LottoRep
         Dim DsOut As DataSet = Me._oCleAnlo.ocldBase.OpenRecordset(StrSQL, CLE__APP.DBTIPO.DBAZI, "ANALOTTI“)
 
         If DsOut.Tables(0).Rows.Count > 0 Then
-            ProgNumerazioneLotto = CLN__STD.NTSCInt(DsOut.Tables(0).Rows("alo_lotto"))
+            Dim val = DsOut.Tables(0).Rows(0)("ProgNumerazioneLotto")
+            If val IsNot DBNull.Value AndAlso Not String.IsNullOrEmpty(val.ToString()) Then
+                ProgNumerazioneLotto = CLN__STD.NTSCInt(val)
+            End If
+            'ProgNumerazioneLotto = CLN__STD.NTSCInt(DsOut.Tables(0).Rows("ProgNumerazioneLotto"))
         End If
 
         Return ProgNumerazioneLotto

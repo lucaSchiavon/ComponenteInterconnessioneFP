@@ -15,8 +15,9 @@ Public Class SettingsManager
 
         settings.VerbosityLogLevel = parser.GetSetting("ROOT", "VerbosityLogLevel")
 
-        settings.MachineFoldersUserName = parser.GetSetting("ROOT", "MachineFoldersUserName")
-        settings.MachineFoldersPassword = parser.GetSetting("ROOT", "MachineFoldersPassword")
+        settings.MachineFoldersSecurity = parser.GetSetting("MACHINEFOLDERSECURITY", "MachineFoldersSecurity")
+        settings.MachineFoldersUserName = parser.GetSetting("MACHINEFOLDERSECURITY", "MachineFoldersUserName")
+        settings.MachineFoldersPassword = parser.GetSetting("MACHINEFOLDERSECURITY", "MachineFoldersPassword")
 
 
         settings.Fornitore = parser.GetSetting("ROOT", "Fornitore")
@@ -45,22 +46,17 @@ Public Class SettingsManager
         settings.ICAVL08615Percorso = parser.GetSetting("ICAVL08615", "Percorso")
         settings.ICAVL08615PercorsoErrori = Path.Combine(settings.ICAVL08615Percorso, "Errori")
         settings.ICAVL08615PercorsoOld = Path.Combine(settings.ICAVL08615Percorso, "Old")
-        settings.ICAVL08615Serie = parser.GetSetting("ICAVL08615", "Serie")
+        'settings.ICAVL08615Serie = parser.GetSetting("ICAVL08615", "Serie")
         settings.ICAVL08615NomeMacchina = parser.GetSetting("ICAVL08615", "NomeMacchina")
 
         ' MECCANOPLASTICA1
         settings.Meccanoplastica1Percorso = parser.GetSetting("MECCANOPLASTICA1", "Percorso")
         settings.Meccanoplastica1PercorsoErrori = Path.Combine(settings.Meccanoplastica1Percorso, "Errori")
         settings.Meccanoplastica1PercorsoOld = Path.Combine(settings.Meccanoplastica1Percorso, "Old")
-        settings.Meccanoplastica1Serie = parser.GetSetting("MECCANOPLASTICA1", "Serie")
+        'settings.Meccanoplastica1Serie = parser.GetSetting("MECCANOPLASTICA1", "Serie")
         settings.Meccanoplastica1NomeMacchina = parser.GetSetting("MECCANOPLASTICA1", "NomeMacchina")
-        'settings.MeccanoplasticaOld = parser.GetSetting("MECCANOPLASTICA", "Old")
-        'settings.MeccanoplasticaErrori = parser.GetSetting("MECCANOPLASTICA", "Errori")
 
-        '' MECCANOPLASTICA4
-        'settings.Meccanoplastica4Percorso = parser.GetSetting("MECCANOPLASTICA4", "Percorso")
-        'settings.Meccanoplastica4Old = parser.GetSetting("MECCANOPLASTICA4", "Old")
-        'settings.Meccanoplastica4Errori = parser.GetSetting("MECCANOPLASTICA4", "Errori")
+
 
         Return settings
     End Function

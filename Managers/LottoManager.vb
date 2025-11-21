@@ -1,12 +1,28 @@
 ﻿Public Class LottoManager
 
-    Dim _OLetteraIdentAnnoRep As LetteraIdentAnnoRep
-    Dim _OGiornoProdConterRep As GiornoProdConterRep
+    'Dim _OLetteraIdentAnnoRep As LetteraIdentAnnoRep
+    'Dim _OGiornoProdConterRep As GiornoProdConterRep
+    Dim _OLetteraIdentAnnoRep As ILetteraIdentAnnoRep
+    Dim _OGiornoProdConterRep As IGiornoProdConterRep
     Dim _Settings As Settings
     Public Sub New(Setting As Settings)
-        Me._OLetteraIdentAnnoRep = New LetteraIdentAnnoRep(Setting.ConnStr)
-        Me._OGiornoProdConterRep = New GiornoProdConterRep(Setting.ConnStr, Setting)
-        Me._Settings = Setting
+        'Me._OLetteraIdentAnnoRep = New LetteraIdentAnnoRep(Setting.ConnStr)
+        'Me._OGiornoProdConterRep = New GiornoProdConterRep(Setting.ConnStr, Setting)
+        'Me._Settings = Setting
+
+        Me.New(Setting,
+               New LetteraIdentAnnoRep(Setting.ConnStr),
+               New GiornoProdConterRep(Setting.ConnStr, Setting))
+    End Sub
+
+    'costruttore per unittest
+    Public Sub New(setting As Settings,
+                   letteraRep As ILetteraIdentAnnoRep,
+                   giornoRep As IGiornoProdConterRep)
+
+        _Settings = setting
+        _OLetteraIdentAnnoRep = letteraRep
+        _OGiornoProdConterRep = giornoRep
     End Sub
     Public Function GetNomeLotto(CodArt As String, Macchina As String, DataProduzione As DateTime) As String
         Dim NomeLotto As String = ""
@@ -14,148 +30,31 @@
 
             Case GlobalConstants.MACHINENAME_MECCANOPLASTICA1
                 NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-                'NomeLotto = GetNomeLottoForMeccanoplastica1(CodArt)
-
             Case GlobalConstants.MACHINENAME_MECCANOPLASTICA4
                 NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-                'NomeLotto = GetNomeLottoForMeccanoplastica4(CodArt)
-
             Case GlobalConstants.MACHINENAME_DUETTI
                 NomeLotto = EstraiNomeLotto(CodArt, DataProduzione)
-                'NomeLotto = GetNomeLottoForDuetti(CodArt)
-
             Case GlobalConstants.MACHINENAME_DUETTI2
                 NomeLotto = EstraiNomeLotto(CodArt, DataProduzione)
-                'NomeLotto = GetNomeLottoForDuetti2(CodArt)
-
             Case GlobalConstants.MACHINENAME_AXOMATIC
                 NomeLotto = EstraiNomeLotto(CodArt, DataProduzione)
-                'NomeLotto = GetNomeLottoForAxomatic(CodArt)
-
             Case GlobalConstants.MACHINENAME_ETICH
                 NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-                'NomeLotto = GetNomeLottoForEtich(CodArt)
-
             Case GlobalConstants.MACHINENAME_LAY
                 NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-                'NomeLotto = GetNomeLottoForLay(CodArt)
-
             Case GlobalConstants.MACHINENAME_PICKER2317
                 NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-                'NomeLotto = GetNomeLottoForPicker23017(CodArt)
-
             Case GlobalConstants.MACHINENAME_PICKER2318
                 NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-                'NomeLotto = GetNomeLottoForPicker23018(CodArt)
-
             Case GlobalConstants.MACHINENAME_PRONTOWASH1
                 NomeLotto = EstraiNomeLotto(CodArt, DataProduzione)
-                'NomeLotto = GetNomeLottoForProntowash1(CodArt)
-
             Case GlobalConstants.MACHINENAME_PRONTOWASH2
                 NomeLotto = EstraiNomeLotto(CodArt, DataProduzione)
-                'NomeLotto = GetNomeLottoForProntowash2(CodArt)
-
         End Select
 
         Return NomeLotto
 
     End Function
-
-
-#Region "Codice vecchio"
-    'Private Function GetNomeLottoForMeccanoplastica1(CodArt As String) As String
-    '    Dim NomeLotto As String
-    '    'applica le regole generali per la generazione dei nomi lotti
-    '    NomeLotto = GetNomeLotto(CodArt)
-    '    'poi, trattandosi di una materia prima (flacone)
-    '    'sovrascrive il nome del lotto con LOTTO_NONAPPLICATO
-    '    NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-    '    Return NomeLotto
-    'End Function
-    'Private Function GetNomeLottoForMeccanoplastica4(CodArt As String) As String
-    '    Dim NomeLotto As String
-    '    'applica le regole generali per la generazione dei nomi lotti
-    '    NomeLotto = GetNomeLotto(CodArt)
-    '    'poi, trattandosi di una materia prima (flacone)
-    '    'sovrascrive il nome del lotto con LOTTO_NONAPPLICATO
-    '    NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-    '    Return NomeLotto
-    'End Function
-
-    'Private Function GetNomeLottoForDuetti(CodArt As String) As String
-    '    Dim NomeLotto As String
-    '    'applica le regole generali per la generazione dei nomi lotti
-    '    NomeLotto = GetNomeLotto(CodArt)
-    '    Return NomeLotto
-    'End Function
-
-    'Private Function GetNomeLottoForDuetti2(CodArt As String) As String
-    '    Dim NomeLotto As String
-    '    'applica le regole generali per la generazione dei nomi lotti
-    '    NomeLotto = GetNomeLotto(CodArt)
-    '    Return NomeLotto
-    'End Function
-
-    'Private Function GetNomeLottoForAxomatic(CodArt As String) As String
-    '    Dim NomeLotto As String
-    '    'applica le regole generali per la generazione dei nomi lotti
-    '    NomeLotto = GetNomeLotto(CodArt)
-    '    Return NomeLotto
-    'End Function
-
-    'Private Function GetNomeLottoForEtich(CodArt As String) As String
-    '    Dim NomeLotto As String
-    '    'applica le regole generali per la generazione dei nomi lotti
-    '    NomeLotto = GetNomeLotto(CodArt)
-    '    'poi, trattandosi di una materia prima (etichette)
-    '    'sovrascrive il nome del lotto con LOTTO_NONAPPLICATO
-    '    NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-    '    Return NomeLotto
-    'End Function
-    'Private Function GetNomeLottoForLay(CodArt As String) As String
-    '    Dim NomeLotto As String
-    '    'applica le regole generali per la generazione dei nomi lotti
-    '    NomeLotto = GetNomeLotto(CodArt)
-    '    'poi, trattandosi di una materia prima (bancale)
-    '    'sovrascrive il nome del lotto con LOTTO_NONAPPLICATO
-    '    NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-    '    Return NomeLotto
-    'End Function
-    'Private Function GetNomeLottoForPicker23017(CodArt As String) As String
-    '    Dim NomeLotto As String
-    '    'applica le regole generali per la generazione dei nomi lotti
-    '    NomeLotto = GetNomeLotto(CodArt)
-    '    'poi, trattandosi di una materia prima (flacone)
-    '    'sovrascrive il nome del lotto con LOTTO_NONAPPLICATO
-    '    NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-    '    Return NomeLotto
-    'End Function
-    'Private Function GetNomeLottoForPicker23018(CodArt As String) As String
-    '    Dim NomeLotto As String
-    '    'applica le regole generali per la generazione dei nomi lotti
-    '    NomeLotto = GetNomeLotto(CodArt)
-    '    'poi, trattandosi di una materia prima (flacone)
-    '    'sovrascrive il nome del lotto con LOTTO_NONAPPLICATO
-    '    NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-    '    Return NomeLotto
-    'End Function
-
-    'Private Function GetNomeLottoForProntowash1(CodArt As String) As String
-    '    Dim NomeLotto As String
-    '    'applica le regole generali per la generazione dei nomi lotti
-    '    NomeLotto = GetNomeLotto(CodArt)
-    '    Return NomeLotto
-    'End Function
-
-    'Private Function GetNomeLottoForProntowash2(CodArt As String) As String
-    '    Dim NomeLotto As String
-    '    'applica le regole generali per la generazione dei nomi lotti
-    '    NomeLotto = GetNomeLotto(CodArt)
-    '    Return NomeLotto
-    'End Function
-#End Region
-
 
     Private Function EstraiNomeLotto(CodArt As String, DataProduzione As DateTime) As String
         Dim NomeLotto As String = ""
@@ -177,7 +76,7 @@
             If CodArt.Length >= 3 AndAlso CodArt.Substring(0, 3) = "FAA" Then
                 'il nome lotto va generato secondo le specifiche conter
                 'AASSGLLBBBBF
-                NomeLotto = ""
+                NomeLotto = GetNomeLottoConter(DataProduzione)
             Else
                 Throw New Exception(StrErr)
             End If
@@ -199,7 +98,8 @@
     End Function
     Private Function GetNomeLottoConData(data As Date) As String
 
-        Dim strData As String = "00" & data.ToString("ddMMyyyy")
+        'Dim strData As String = "00" & data.ToString("ddMMyy")
+        Dim strData As String = data.ToString("ddMMyy")
         Return String.Concat("U", strData)
     End Function
     Private Function GetGiornoGiuliano(ByVal dataInput As Date) As Integer
@@ -229,7 +129,7 @@
         Return giornoAnno
     End Function
 
-    Private Function GetNomeLottoCalGiuliano(ByVal DataProduzione As Date) As Integer
+    Private Function GetNomeLottoCalGiuliano(ByVal DataProduzione As Date) As String
 
         Dim GiornoGiuliano As Int32 = GetGiornoGiuliano(DataProduzione)
         Dim LetteraIdentAnno As String = _OLetteraIdentAnnoRep.GetLetteraIdentAnno(DataProduzione)
@@ -238,7 +138,7 @@
 
     End Function
 
-    Private Function GetNomeLottoConter(ByVal DataProduzione As Date) As Integer
+    Private Function GetNomeLottoConter(ByVal DataProduzione As Date) As String
         'il nome dovrà avere questo formato:
         'AASSGLLBBBBF
         'AA= anno di confezionamento
@@ -250,7 +150,7 @@
 
         Dim AnnoDiConfezionamento As String = DataProduzione.ToString("yy")
         Dim NumeroSettimanaDellAnno As String = GetIsoWeek(DataProduzione)
-        Dim GiornoDellaSettimana As String = DataProduzione.DayOfWeek.ToString()
+        Dim GiornoDellaSettimana As String = CInt(DataProduzione.DayOfWeek).ToString()
         Dim NumeroLineaDiRiempimento As String = _Settings.NumeroLineaDiRiempimento
         Dim GiornoDiProdPerContDaInizioAnno As String = _OGiornoProdConterRep.GetNextProdCounter(DataProduzione)
         Dim LetteraIdentifFp As String = _Settings.LetteraIdentifFp

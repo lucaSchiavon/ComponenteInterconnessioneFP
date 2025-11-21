@@ -8,6 +8,7 @@
 
     'nome utente e password per accedere alle cartelle condivise delle macchine di produzione
     'dove risiedono i CSV
+    Public Property MachineFoldersSecurity As String
     Public Property MachineFoldersUserName As String
     Public Property MachineFoldersPassword As String
 
@@ -38,14 +39,14 @@
     Public Property ICAVL08615Percorso As String
     Public Property ICAVL08615PercorsoErrori As String
     Public Property ICAVL08615PercorsoOld As String
-    Public Property ICAVL08615Serie As String
+    'Public Property ICAVL08615Serie As String
     Public Property ICAVL08615NomeMacchina As String
 
     'MECCANOPLASTICA1
     Public Property Meccanoplastica1Percorso As String
     Public Property Meccanoplastica1PercorsoErrori As String
     Public Property Meccanoplastica1PercorsoOld As String
-    Public Property Meccanoplastica1Serie As String
+    'Public Property Meccanoplastica1Serie As String
     Public Property Meccanoplastica1NomeMacchina As String
 
 End Class

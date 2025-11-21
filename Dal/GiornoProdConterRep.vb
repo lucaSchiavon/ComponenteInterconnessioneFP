@@ -1,5 +1,6 @@
 ﻿
 Public Class GiornoProdConterRep
+    Implements IGiornoProdConterRep
 
     Private ReadOnly _connString As String
     Private ReadOnly _settings As Settings
@@ -9,7 +10,7 @@ Public Class GiornoProdConterRep
         _settings = settings
     End Sub
 
-    Public Function GetNextProdCounter(DataProduzione As DateTime) As Int32
+    Public Function GetNextProdCounter(DataProduzione As DateTime) As Int32 Implements IGiornoProdConterRep.GetNextProdCounter
         'Torna la prossima numerazione di produzione utile
         'si assume che non si possa inserire una produzione con data inferiore all'ultima produzione ma sempre successiva
         Dim AnnoDiProduzione As Integer = DataProduzione.Year
@@ -53,9 +54,6 @@ Public Class GiornoProdConterRep
         End If
     End Function
 #Region "Private routine"
-    'Private Function GetVerbosityLevel() As VerbosityLogLevel
-    '    Return EnumManager(Of VerbosityLogLevel).Parse(_settings.VerbosityLogLevel, VerbosityLogLevel.Info)
-    'End Function
 
     Private Sub InsertLog(livello As String, messaggio As String, stackTrace As String, macchina As String, codArt As String, fileName As String)
         Dim adoLayer As New AdoDataLayer(_connString)
@@ -73,8 +71,8 @@ Public Class GiornoProdConterRep
                                     "VALUES ( @Livello, @Messaggio, @StackTrace, @Macchina, @CodArt, @FileName)"
 
         Dim rowsInserted As Integer = adoLayer.ExecuteNonQuery(insertQuery)
-        'Console.WriteLine($"Log {livello} inserito. Righe interessate: {rowsInserted}")
     End Sub
+
 #End Region
 
 End Class

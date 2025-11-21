@@ -87,6 +87,8 @@
   <ItemGroup>
     <Compile Include="Constants\GlobalConstants.vb" />
     <Compile Include="Dal\AdoDataLayer.vb" />
+    <Compile Include="Dal\IGiornoProdConterRep.vb" />
+    <Compile Include="Dal\ILetteraIdentAnnoRep.vb" />
     <Compile Include="Dal\LetteraIdentAnnoRep.vb" />
     <Compile Include="Dal\GiornoProdConterRep.vb" />
     <Compile Include="Dal\LogRep.vb" />
@@ -97,6 +99,8 @@
     <Compile Include="DTO\OrdineProduzione\CorpoCaricoProd.vb" />
     <Compile Include="DTO\Settings.vb" />
     <Compile Include="Managers\CompInterconnManager.vb" />
+    <Compile Include="Managers\CaricoProdManager.vb" />
+    <Compile Include="Managers\LogManager.vb" />
     <Compile Include="Managers\LottoManager.vb" />
     <Compile Include="Managers\NetworkShareManager.vb" />
     <Compile Include="Managers\SettingsManager.vb" />

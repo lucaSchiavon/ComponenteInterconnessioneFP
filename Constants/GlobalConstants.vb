@@ -1,4 +1,9 @@
-﻿Module GlobalConstants
+﻿Public Module GlobalConstants
+
+
+    'MACHINEFOLDERSSECURITY
+    Public Const MACHINE_FOLDERS_SECURITY_ON As String = "ON"
+    Public Const MACHINE_FOLDERS_SECURITY_OFF As String = "OFF"
 
     'VERBOSITYLOGLEVEL
     Public Const VERBOSITYLOGLEVEL_DEBUG As String = "DEBUG"
