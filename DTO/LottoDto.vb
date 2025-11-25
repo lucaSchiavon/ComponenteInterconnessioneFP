@@ -14,6 +14,8 @@
     ' Data di scadenza del lotto
     Public Property DataScadenza As Date
 
+    Public Property DataCreazione As Date
+
     Public Property LottoGiaPresente As Boolean
 
     ' Costruttore opzionale per inizializzare il DTO
@@ -21,17 +23,25 @@
                    Optional descodart As String = "",
                    Optional lotto As Long = 0,
                    Optional lottox As String = "",
+                   Optional dataCreazione As Date = Nothing,
                    Optional dataScadenza As Date = Nothing)
         Me.StrCodart = codart
         Me.StrDescodart = descodart
         Me.LLotto = lotto
         Me.StrLottox = lottox
 
+        If dataCreazione = Nothing Then
+            Me.DataCreazione = Date.MinValue
+        Else
+            Me.DataCreazione = dataCreazione
+        End If
         ' Se non viene passata una data, la inizializziamo con la data minima
         If dataScadenza = Nothing Then
             Me.DataScadenza = Date.MinValue
         Else
             Me.DataScadenza = dataScadenza
         End If
+
+
     End Sub
 End Class

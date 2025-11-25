@@ -1,29 +1,36 @@
-﻿Public Class LottoManager
+﻿Imports NTSInformatica
+
+Public Class LottoManager
 
     'Dim _OLetteraIdentAnnoRep As LetteraIdentAnnoRep
     'Dim _OGiornoProdConterRep As GiornoProdConterRep
     Dim _OLetteraIdentAnnoRep As ILetteraIdentAnnoRep
     Dim _OGiornoProdConterRep As IGiornoProdConterRep
+    Dim _OLottorRep As ILottoRep
     Dim _Settings As Settings
-    Public Sub New(Setting As Settings)
+    Public Sub New(Setting As Settings, oCleAnlo As CLEMGANLO)
         'Me._OLetteraIdentAnnoRep = New LetteraIdentAnnoRep(Setting.ConnStr)
         'Me._OGiornoProdConterRep = New GiornoProdConterRep(Setting.ConnStr, Setting)
         'Me._Settings = Setting
 
         Me.New(Setting,
                New LetteraIdentAnnoRep(Setting.ConnStr),
-               New GiornoProdConterRep(Setting.ConnStr, Setting))
+               New GiornoProdConterRep(Setting.ConnStr, Setting),
+               New LottoRep(oCleAnlo))
     End Sub
 
     'costruttore per unittest
     Public Sub New(setting As Settings,
                    letteraRep As ILetteraIdentAnnoRep,
-                   giornoRep As IGiornoProdConterRep)
+                   giornoRep As IGiornoProdConterRep,
+                   lottorRep As ILottoRep)
 
         _Settings = setting
         _OLetteraIdentAnnoRep = letteraRep
         _OGiornoProdConterRep = giornoRep
+        _OLottorRep = lottorRep
     End Sub
+
     Public Function GetNomeLotto(CodArt As String, Macchina As String, DataProduzione As DateTime) As String
         Dim NomeLotto As String = ""
         Select Case Macchina.ToUpper()
@@ -56,6 +63,21 @@
 
     End Function
 
+    Public Function IsArtConfForLotto(codditt As String, ar_codart As String) As Boolean
+        Return _OLottorRep.IsArtConfForLotto(codditt, ar_codart)
+    End Function
+    Public Function GetNextLottoNumber(codditt As String) As Integer
+        Return _OLottorRep.GetNextLottoNumber(codditt)
+    End Function
+    Public Function GetLottoProdottoFinito(codditt As String, ar_codart As String, alo_lottox As String) As LottoDto
+        Return _OLottorRep.GetLottoProdottoFinito(codditt, ar_codart, alo_lottox)
+    End Function
+
+    Public Sub CreaLotto(objLottoDto As LottoDto)
+        _OLottorRep.CreaLotto(objLottoDto)
+    End Sub
+
+#Region "metodi privati"
     Private Function EstraiNomeLotto(CodArt As String, DataProduzione As DateTime) As String
         Dim NomeLotto As String = ""
         Dim StrErr As String = $"Prodotto con Codice articolo ({CodArt}) non riconosciuto durante la generazione del nome lotto prodotto finito"
@@ -128,7 +150,6 @@
 
         Return giornoAnno
     End Function
-
     Private Function GetNomeLottoCalGiuliano(ByVal DataProduzione As Date) As String
 
         Dim GiornoGiuliano As Int32 = GetGiornoGiuliano(DataProduzione)
@@ -137,7 +158,6 @@
         Return String.Concat(GiornoGiuliano.ToString(), LetteraIdentAnno, CampoFissoFp)
 
     End Function
-
     Private Function GetNomeLottoConter(ByVal DataProduzione As Date) As String
         'il nome dovrà avere questo formato:
         'AASSGLLBBBBF
@@ -158,7 +178,6 @@
         Return String.Concat(AnnoDiConfezionamento, NumeroSettimanaDellAnno, GiornoDellaSettimana, NumeroLineaDiRiempimento, GiornoDiProdPerContDaInizioAnno, LetteraIdentifFp)
 
     End Function
-
     Private Function GetIsoWeek(ByVal dataRif As Date) As String
         'la prima settimana dell’anno è quella che contiene almeno 4 giorni del nuovo anno (regola ISO-8601).
         'la settimana inizia di lunedì (regola ISO-8601).
@@ -168,4 +187,6 @@
             DayOfWeek.Monday
         ).ToString("00")
     End Function
+#End Region
+
 End Class

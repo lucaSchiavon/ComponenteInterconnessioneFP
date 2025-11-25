@@ -8,11 +8,12 @@ Module ModuleEntryPoint
     Sub Main()
 
 
-        'todo creare un log più verboso quando aggiunge il carico:
-        'finire di scrivere  Private Function GetMsgForConsole(livello As String, messaggio As String, stackTrace As String, macchina As String, codArt As String, fileName As String) As String
-        'Dim strRet As String = $"{livello} - {messaggio} {Environment.NewLine} "
-        'End Function
-        'todo:attivare un log debug ed attivare la verbositylevel
+        'todo:finire refactor portando cio inerente al carico nel caricomanager
+        'todo:gestire il doppio file dopo la copia del file elaborato
+        'todo:dinamicizzare la creazione del nome del file che viene copiato
+        'todo:verifica generazione conter nome lotto
+
+
 
         'avvia il componente di interconnessione
         Dim OCompInterconnManager = New CompInterconnManager()
