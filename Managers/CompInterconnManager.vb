@@ -19,7 +19,7 @@ Public Class CompInterconnManager
         Try
 
             'legge tutti i settings dal config ini
-            Dim manager As New SettingsManager(Path.Combine(Environment.CurrentDirectory, "") & "\FPCOMPINTERCONN_Settings.ini")
+            Dim manager As New SettingsManager(Path.Combine(Environment.CurrentDirectory, "") & "\COMPINT_Settings.ini")
             Dim settings As Settings = manager.LoadSettings()
 
             'istanzia la repository per l'inserimento dei log
@@ -320,11 +320,32 @@ Public Class CompInterconnManager
 
     Public Overridable Sub Meccanoplastica1CaricoDiProduzione(oCleBoll As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogManager)
         'si scorre i file csv
+
+        Dim AllFileCsvPaths() As String = Nothing
         Try
-            'prima di accedere alla cartella si logga perchè la cartella condivisa è protetta da nome utente e pwd
-            NetworkShareManager.ConnectToShare(settings.ICAVL08615Percorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
+            'prima di accedere alla cartella si logga (solo se la sicurezza è configurata nel config.ini)
+            'perchè la cartella condivisa è protetta da nome utente e pwd
+            If settings.MachineFoldersSecurity.ToUpper() = GlobalConstants.MACHINE_FOLDERS_SECURITY_ON Then
+                Try
+                    NetworkShareManager.ConnectToShare(settings.Meccanoplastica1Percorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
+                    AllFileCsvPaths = Directory.GetFiles(settings.Meccanoplastica1Percorso, "*.csv")
+                Catch ex As Exception
+                    'si è verificato un errore nell'accesso con password
+                    'verifico che l'accesso non sia già stato fatto precedentemente perchè nel qual caso andrebbe in crash
+                    'se cerca di accedere ad una cartella a cui si può già accedere fornendo le credenziali
+                    Try
+                        AllFileCsvPaths = Directory.GetFiles(settings.Meccanoplastica1Percorso, "*.csv")
+                    Catch exInn As Exception
+                        'se anche il tentativo di accedere senza credenziali fallisce allora il problema potrebbe essere utente o pwd errata
+                        Throw New Exception($"Apertura della cartella {settings.Meccanoplastica1Percorso} fallita, utilizzando l'utente {settings.MachineFoldersUserName} probabilmente il nome utente o password non sono corretti")
+                    End Try
+                End Try
+            Else
+                'le cartelle non sono protette da password leggo direttamente i contenuti
+                AllFileCsvPaths = Directory.GetFiles(settings.Meccanoplastica1Percorso, "*.csv")
+            End If
+
             Dim ObjMeccanoplastica1CsvDto As Meccanoplastica1CsvDto = Nothing
-            Dim AllFileCsvPaths() As String = Directory.GetFiles(settings.Meccanoplastica1Percorso, "*.csv")
 
             Dim CsvFilePaths = FiltraSoloCsvMacchine(AllFileCsvPaths)
 
@@ -488,15 +509,33 @@ Public Class CompInterconnManager
 
     Public Overridable Sub ICAVL08615CaricoDiProduzione(oCleBoll As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogManager)
         'si scorre i file csv
+
+        Dim AllFileCsvPaths() As String = Nothing
         Try
             'prima di accedere alla cartella si logga (solo se la sicurezza è configurata nel config.ini)
             'perchè la cartella condivisa è protetta da nome utente e pwd
             If settings.MachineFoldersSecurity.ToUpper() = GlobalConstants.MACHINE_FOLDERS_SECURITY_ON Then
-                NetworkShareManager.ConnectToShare(settings.ICAVL08615Percorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
+                Try
+                    NetworkShareManager.ConnectToShare(settings.ICAVL08615Percorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
+                    AllFileCsvPaths = Directory.GetFiles(settings.ICAVL08615Percorso, "*.csv")
+                Catch ex As Exception
+                    'si è verificato un errore nell'accesso con password
+                    'verifico che l'accesso non sia già stato fatto precedentemente perchè nel qual caso andrebbe in crash
+                    'se cerca di accedere ad una cartella a cui si può già accedere fornendo le credenziali
+                    Try
+                        AllFileCsvPaths = Directory.GetFiles(settings.ICAVL08615Percorso, "*.csv")
+                    Catch exInn As Exception
+                        'se anche il tentativo di accedere senza credenziali fallisce allora il problema potrebbe essere utente o pwd errata
+                        Throw New Exception($"Apertura della cartella {settings.ICAVL08615Percorso} fallita, utilizzando l'utente {settings.MachineFoldersUserName} probabilmente il nome utente o password non sono corretti")
+                    End Try
+                End Try
+            Else
+                'le cartelle non sono protette da password leggo direttamente i contenuti
+                AllFileCsvPaths = Directory.GetFiles(settings.ICAVL08615Percorso, "*.csv")
             End If
 
             Dim ObjIca1CsvDto As ICAVL08615CsvDto = Nothing
-            Dim AllFileCsvPaths() As String = Directory.GetFiles(settings.ICAVL08615Percorso, "*.csv")
+
 
             Dim CsvFilePaths = FiltraSoloCsvMacchine(AllFileCsvPaths)
 

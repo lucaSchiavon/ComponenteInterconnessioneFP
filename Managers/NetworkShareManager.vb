@@ -41,7 +41,7 @@ Public Class NetworkShareManager
         nr.lpLocalName = Nothing
         ret = WNetAddConnection2(nr, password, username, 0)
         If ret <> 0 Then
-            Throw New Exception($"Apertura della cartella{remoteUNC} fallita, utilizzando l'utente {username} probabilmente il nome utente o password non sono corretti")
+            Throw New Exception($"Apertura della cartella {remoteUNC} fallita, utilizzando l'utente {username} probabilmente il nome utente o password non sono corretti")
         End If
     End Sub
 

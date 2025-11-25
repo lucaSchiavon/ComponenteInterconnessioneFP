@@ -8,10 +8,10 @@ Imports System.Runtime.InteropServices
 
 ' Controllare i valori degli attributi degli assembly
 
-<Assembly: AssemblyTitle("FPCOMPINTERCONN")>
-<Assembly: AssemblyDescription("Componente di dialogo tra macchine produzione ed ERP")>
+<Assembly: AssemblyTitle("COMPINT")>
+<Assembly: AssemblyDescription("Componente di interconnessione tra macchine produzione ed ERP")>
 <Assembly: AssemblyCompany("ToninNarciso")>
-<Assembly: AssemblyProduct("FPCOMPINTERCONN")>
+<Assembly: AssemblyProduct("COMPINT")>
 <Assembly: AssemblyCopyright("Copyright ©  2025")>
 <Assembly: AssemblyTrademark("")>
 
