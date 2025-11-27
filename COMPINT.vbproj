@@ -94,8 +94,9 @@
     <Compile Include="Dal\GiornoProdConterRep.vb" />
     <Compile Include="Dal\LogRep.vb" />
     <Compile Include="Dal\LottoRep.vb" />
+    <Compile Include="DTO\CSV\ICAVL08616CsvDto.vb" />
     <Compile Include="DTO\CSV\Meccanoplastica1CsvDto.vb" />
-    <Compile Include="DTO\CSV\Ica1CsvDto.vb" />
+    <Compile Include="DTO\CSV\ICAVL08615CsvDto.vb" />
     <Compile Include="DTO\LottoDto.vb" />
     <Compile Include="DTO\OrdineProduzione\CorpoCaricoProd.vb" />
     <Compile Include="DTO\Settings.vb" />
@@ -122,8 +123,9 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="Parsers\ICAVL08616CsvParser.vb" />
     <Compile Include="Parsers\Meccanoplastica1CsvParser.vb" />
-    <Compile Include="Parsers\Ica1CsvParser.vb" />
+    <Compile Include="Parsers\ICAVL08615CsvParser.vb" />
     <Compile Include="Utilities\General.vb" />
     <Compile Include="Utilities\IniParser.vb" />
   </ItemGroup>

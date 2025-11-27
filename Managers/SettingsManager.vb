@@ -46,8 +46,13 @@ Public Class SettingsManager
         settings.ICAVL08615Percorso = parser.GetSetting("ICAVL08615", "Percorso")
         settings.ICAVL08615PercorsoErrori = Path.Combine(settings.ICAVL08615Percorso, "Errori")
         settings.ICAVL08615PercorsoOld = Path.Combine(settings.ICAVL08615Percorso, "Old")
-        'settings.ICAVL08615Serie = parser.GetSetting("ICAVL08615", "Serie")
         settings.ICAVL08615NomeMacchina = parser.GetSetting("ICAVL08615", "NomeMacchina")
+
+        ' ICAVL08616
+        settings.ICAVL08616Percorso = parser.GetSetting("ICAVL08616", "Percorso")
+        settings.ICAVL08616PercorsoErrori = Path.Combine(settings.ICAVL08616Percorso, "Errori")
+        settings.ICAVL08616PercorsoOld = Path.Combine(settings.ICAVL08616Percorso, "Old")
+        settings.ICAVL08616NomeMacchina = parser.GetSetting("ICAVL08616", "NomeMacchina")
 
         ' MECCANOPLASTICA1
         settings.Meccanoplastica1Percorso = parser.GetSetting("MECCANOPLASTICA1", "Percorso")

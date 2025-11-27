@@ -7,13 +7,8 @@ Module ModuleEntryPoint
 
     Sub Main()
 
-
-        'todo:finire refactor portando cio inerente al carico nel caricomanager
-        'todo:gestire il doppio file dopo la copia del file elaborato
-        'todo:dinamicizzare la creazione del nome del file che viene copiato
         'todo:verifica generazione conter nome lotto
-
-
+        'todo:ricordarsi di valutare con elena in caso di counter che non ci stà nella tabella...le prod devono essere sequenziali
 
         'avvia il componente di interconnessione
         Dim OCompInterconnManager = New CompInterconnManager()

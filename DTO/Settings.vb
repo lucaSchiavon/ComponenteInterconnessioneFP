@@ -42,6 +42,13 @@
     'Public Property ICAVL08615Serie As String
     Public Property ICAVL08615NomeMacchina As String
 
+    'ICAVL08616
+    Public Property ICAVL08616Percorso As String
+    Public Property ICAVL08616PercorsoErrori As String
+    Public Property ICAVL08616PercorsoOld As String
+    'Public Property ICAVL08615Serie As String
+    Public Property ICAVL08616NomeMacchina As String
+
     'MECCANOPLASTICA1
     Public Property Meccanoplastica1Percorso As String
     Public Property Meccanoplastica1PercorsoErrori As String
