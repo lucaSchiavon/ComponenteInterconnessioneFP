@@ -1,7 +1,7 @@
 ﻿Imports System.Globalization
 Imports System.IO
 
-Module ICAVL08616CsvParser
+Public Module ICAVL08616CsvParser
     Public Function ParseProduzioneCsv(percorsoFile As String, settings As Settings) As ICAVL08616CsvDto
         ' Controlli di base
         'If Not File.Exists(percorsoFile) Then
@@ -20,14 +20,23 @@ Module ICAVL08616CsvParser
         End If
 
         'Intestazioni previste
+        'Dim intestazioniAttese As String() = {
+        '    "Inizio turno", "Fine turno", "Codice articolo", "Doypack/barattoli per scatola",
+        '    "Tabs per doypack/barattoli", "Velocità macchina", "Scarichi effettuati dosatore 1",
+        '    "Scarichi effettuati dosatore 2", "Scarichi effettuati dosatore 3", "Scarichi effettuati dosatore 4",
+        '    "Scarichi effettuati dosatore 5", "Scarichi effettuati dosatore 6", "Ricetta attiva",
+        '    "Tabs espulse", "Passi eseguiti dal tamburo", "Passi eseguiti traino",
+        '    "Passi eseguiti traino 2", "Carta svolta", "Tabs accettate", "Tabs prodotte",
+        '    "Doypack/barattoli teorici prodotti", "Scatole teoriche prodotte"
+        '}
         Dim intestazioniAttese As String() = {
-            "Inizio turno", "Fine turno", "Codice articolo", "Doypack/barattoli per scatola",
-            "Tabs per doypack/barattoli", "Velocità macchina", "Scarichi effettuati dosatore 1",
+            "Inizio turno", "Fine turno", "Codice articolo", "Doypack per scatole",
+            "Tabs per doypack", "Velocità macchina", "Scarichi effettuati dosatore 1",
             "Scarichi effettuati dosatore 2", "Scarichi effettuati dosatore 3", "Scarichi effettuati dosatore 4",
-            "Scarichi effettuati dosatore 5", "Scarichi effettuati dosatore 6", "Ricetta attiva",
-            "Tabs espulse", "Passi eseguiti dal tamburo", "Passi eseguiti traino",
-            "Passi eseguiti traino 2", "Carta svolta", "Tabs accettate", "Tabs prodotte",
-            "Doypack/barattoli teorici prodotti", "Scatole teoriche prodotte"
+            "Scarichi effettuati dosatore 5", "Scarichi effettuati dosatore 6", "Numero ordine", "Quantità in ordine", "Ricetta attiva",
+            "Cialde espulse", "Passi eseguiti dal tamburo", "Passi eseguiti traino",
+            "Passi eseguiti traino 2", "Carta svolta", "Cialde accettate", "Cialde riempite",
+            "Doypack teorici prodotti", "Scatole teoriche prodotte"
         }
 
         Dim header() As String = righe(0).Split(";"c)
@@ -47,7 +56,7 @@ Module ICAVL08616CsvParser
             Throw New InvalidDataException($"La riga dati del file {Path.GetFileName(percorsoFile)} non contiene il numero corretto di colonne.")
         End If
 
-        If Integer.Parse(dati(21)) = 0 Then
+        If Integer.Parse(dati(23)) = 0 Then
             'se non vi è stata produzione di alcun prodotto sposta in errore
             Throw New InvalidDataException($"Il file {Path.GetFileName(percorsoFile)} presenta una produzione pari a 0 nel campo Scatole teoriche prodotte")
         End If
@@ -68,16 +77,18 @@ Module ICAVL08616CsvParser
         dto.ScarichiDosatore4 = Integer.Parse(dati(9))
         dto.ScarichiDosatore5 = Integer.Parse(dati(10))
         dto.ScarichiDosatore6 = Integer.Parse(dati(11))
-        dto.RicettaAttiva = dati(12).Trim()
-        dto.TabsEspulse = Integer.Parse(dati(13))
-        dto.PassiTamburo = Integer.Parse(dati(14))
-        dto.PassiTraino = Integer.Parse(dati(15))
-        dto.PassiTraino2 = Integer.Parse(dati(16))
-        dto.CartaSvolta = Double.Parse(dati(17), CultureInfo.InvariantCulture)
-        dto.TabsAccettate = Integer.Parse(dati(18))
-        dto.TabsProdotte = Integer.Parse(dati(19))
-        dto.DoypackTeoriciProdotti = Integer.Parse(dati(20))
-        dto.ScatoleTeoricheProdotte = Integer.Parse(dati(21))
+        dto.NumeroOrdine = dati(12).Trim().Replace("""", "")
+        dto.QuantitaInOrdine = Integer.Parse(dati(13))
+        dto.RicettaAttiva = dati(14).Trim().Replace("""", "")
+        dto.TabsEspulse = Integer.Parse(dati(15))
+        dto.PassiTamburo = Integer.Parse(dati(16))
+        dto.PassiTraino = Integer.Parse(dati(17))
+        dto.PassiTraino2 = Integer.Parse(dati(18))
+        dto.CartaSvolta = Double.Parse(dati(19), CultureInfo.InvariantCulture)
+        dto.TabsAccettate = Integer.Parse(dati(20))
+        dto.TabsProdotte = Integer.Parse(dati(21))
+        dto.DoypackTeoriciProdotti = Integer.Parse(dati(22))
+        dto.ScatoleTeoricheProdotte = Integer.Parse(dati(23))
         dto.Note = settings.ICAVL08615NomeMacchina & Environment.NewLine & righe(0) & Environment.NewLine & righe(1)
 
         Return dto

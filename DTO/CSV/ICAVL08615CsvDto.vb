@@ -12,6 +12,8 @@
     Public Property ScarichiDosatore4 As Integer
     Public Property ScarichiDosatore5 As Integer
     Public Property ScarichiDosatore6 As Integer
+    Public Property NumeroOrdine As String
+    Public Property QuantitaInOrdine As Integer
     Public Property RicettaAttiva As String
     Public Property TabsEspulse As Integer
     Public Property PassiTamburo As Integer
