@@ -377,14 +377,11 @@ Public Class CompInterconnManager
                     'preparo i dati da inserire nel lotto...
                     Dim oLottoDto As LottoDto = Nothing
                     Dim Oggi As Date = ObjMeccanoplastica1CsvDto.DataOra
-                    'todo: qui innestare la logica per creare il nome del lotto in base al codice articolo
 
-                    Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjMeccanoplastica1CsvDto.CodiceArticolo, settings.Meccanoplastica1NomeMacchina, ObjMeccanoplastica1CsvDto.DataOra)
-                    'Dim NomeLotto As String = GetLottoDateString(Oggi)
 
                     'Il lotto esiste già?
                     If IsArtConfForLotto Then
-                        'todo:mettere a posto alolotto
+                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjMeccanoplastica1CsvDto.CodiceArticolo, settings.Meccanoplastica1NomeMacchina, ObjMeccanoplastica1CsvDto.DataOra)
                         oLottoDto = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjMeccanoplastica1CsvDto.CodiceArticolo, NomeLotto)
                         'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
                         'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
@@ -568,10 +565,10 @@ Public Class CompInterconnManager
                     Dim oLottoDto As LottoDto = Nothing
                     Dim Oggi As Date = ObjIca1CsvDto.FineTurno
 
-                    Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjIca1CsvDto.CodiceArticolo, settings.ICAVL08615NomeMacchina, ObjIca1CsvDto.FineTurno)
-
                     'Il lotto esiste già?
                     If IsArtConfForLotto Then
+
+                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjIca1CsvDto.CodiceArticolo, settings.ICAVL08615NomeMacchina, ObjIca1CsvDto.FineTurno)
                         oLottoDto = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjIca1CsvDto.CodiceArticolo, NomeLotto)
                         'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
                         'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
@@ -770,10 +767,9 @@ Public Class CompInterconnManager
                     Dim oLottoDto As LottoDto = Nothing
                     Dim Oggi As Date = ObjIca2CsvDto.FineTurno
 
-                    Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjIca2CsvDto.CodiceArticolo, settings.ICAVL08616NomeMacchina, ObjIca2CsvDto.FineTurno)
-
                     'Il lotto esiste già?
                     If IsArtConfForLotto Then
+                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjIca2CsvDto.CodiceArticolo, settings.ICAVL08616NomeMacchina, ObjIca2CsvDto.FineTurno)
                         oLottoDto = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjIca2CsvDto.CodiceArticolo, NomeLotto)
                         'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
                         'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
