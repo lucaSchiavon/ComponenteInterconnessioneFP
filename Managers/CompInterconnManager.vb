@@ -12,7 +12,7 @@ Public Class CompInterconnManager
     Public oCleAnlo As CLEMGANLO = Nothing
     Dim logger As LogManager = Nothing
 
-    Public Sub Main()
+    Public Function EseguiJobPrincipale() As Integer
 
 
 
@@ -44,27 +44,28 @@ Public Class CompInterconnManager
             Console.WriteLine(MsgFine)
 
             'se siamo in modalità debug non chiude la console ma la lascia aperta
-            If settings.VerbosityLogLevel.ToUpper() = VERBOSITYLOGLEVEL_DEBUG Then
+            If settings.VerbosityLogLevel.ToUpper() = VERBOSITYLOGLEVEL_DEBUG AndAlso Environment.UserInteractive Then
+                Console.WriteLine("Premi un tasto per chiudere...")
                 Console.Read()
             End If
-
+            Return 0 ' Successo
         Catch ex As Exception
             'qui loggo in una tabella tutti gli errori
             'in una gestione centralizzata
             Try
 
-                logger.LogError(ex.Message, ex.StackTrace)
+                logger?.LogError(ex.Message, ex.StackTrace)
 
             Catch ex2 As Exception
                 'nell'eventualità rara si impianti subito prima ancora di istanziare il logger
                 'stampiamo a console quello che è successo e manteniamo aperta la console per poter leggere l'errore
                 'a video
                 Console.WriteLine("Errore in apertura del file Settings.ini, chiudere la console e risolvere l'errore, il job non partirà fino a che  l'errore non sarà risolto")
-                Console.ReadLine()
+                If Environment.UserInteractive Then Console.ReadLine()
+                Return 1 ' Errore
             End Try
-
         End Try
-    End Sub
+    End Function
 
 
 #Region "routine per avvio e gestione framework"
@@ -407,7 +408,7 @@ Public Class CompInterconnManager
                     'sposta il file in old dopo averlo elaborato
                     'crea la directory se ancora non c'è
                     Try
-                        SpostaECopiaFile(FilePath, Oggi, settings.Meccanoplastica1Percorso, settings.Meccanoplastica1PercorsoOld, OMovimentazioneManager)
+                        SpostaECopiaFile(FilePath, Oggi, settings.Meccanoplastica1PercorsoOld, OMovimentazioneManager)
 
                     Catch ex As Exception
                         ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
@@ -598,7 +599,7 @@ Public Class CompInterconnManager
                         '2025-09-11_23.09.28_ExpFile.csv_1026_PB_12_09_2025.csv dove 2025-09-11_23.09.28_ExpFile.csv= il nome del file che viene spostato in old
                         '1026= progressivo di produzione, PB= serie, 12_09_2025 la data del carico nel gestionale ERP
                         'sposta il file in old dopo averlo elaborato, crea la directory se ancora non c'è
-                        SpostaECopiaFile(FilePath, Oggi, settings.ICAVL08615Percorso, settings.ICAVL08615PercorsoOld, OMovimentazioneManager)
+                        SpostaECopiaFile(FilePath, Oggi, settings.ICAVL08615PercorsoOld, OMovimentazioneManager)
 
                     Catch ex As Exception
                         ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
@@ -799,7 +800,7 @@ Public Class CompInterconnManager
                         '2025-09-11_23.09.28_ExpFile.csv_1026_PB_12_09_2025.csv dove 2025-09-11_23.09.28_ExpFile.csv= il nome del file che viene spostato in old
                         '1026= progressivo di produzione, PB= serie, 12_09_2025 la data del carico nel gestionale ERP
                         'sposta il file in old dopo averlo elaborato, crea la directory se ancora non c'è
-                        SpostaECopiaFile(FilePath, Oggi, settings.ICAVL08616Percorso, settings.ICAVL08616PercorsoOld, OMovimentazioneManager)
+                        SpostaECopiaFile(FilePath, Oggi, settings.ICAVL08616PercorsoOld, OMovimentazioneManager)
 
                     Catch ex As Exception
                         ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
@@ -914,7 +915,7 @@ Public Class CompInterconnManager
 
 #Region "Routines private"
 
-    Public Sub SpostaECopiaFile(FilePath As String, Oggi As DateTime, PercorsoCorrente As String, PercorsoOld As String, OMovimentazioneManager As MovimentazioneManager)
+    Public Sub SpostaECopiaFile(FilePath As String, Oggi As DateTime, PercorsoOld As String, OMovimentazioneManager As MovimentazioneManager)
         ' Verifica ed eventualmente crea la cartella "Old"
         If Not Directory.Exists(PercorsoOld) Then
             Directory.CreateDirectory(PercorsoOld)
@@ -928,7 +929,7 @@ Public Class CompInterconnManager
 
         ' Nome e percorso della copia
         Dim FileCopiaNome As String = $"{Path.GetFileName(FilePath)}_{OMovimentazioneManager.ProgProd}_{OMovimentazioneManager.Serie}_{DataCaricoERP}.csv"
-        Dim FileCopiaPath As String = Path.Combine(PercorsoCorrente, FileCopiaNome)
+        Dim FileCopiaPath As String = Path.Combine(PercorsoOld, FileCopiaNome)
 
         ' Copia del file
         File.Copy(FilePath, FileCopiaPath, overwrite:=True)
