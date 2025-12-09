@@ -50,15 +50,21 @@ Module General
             Case GlobalConstants.MACHINENAME_MECCANOPLASTICA1,
                  GlobalConstants.MACHINENAME_MECCANOPLASTICA4
                 fmt = "yyyy-MM-dd_HH.mm.ss"
-            Case GlobalConstants.MACHINENAME_DUETTI,
-                 GlobalConstants.MACHINENAME_DUETTI2
-                Select Case CodArt(0)
-                    Case "P"c, "F"c
-                        fmt = "dd/MM/yyyy HH.mm.ss"
-                    Case "M"c
-                        fmt = "dd.MM.yyyy HH:mm:ss"
+                'Case GlobalConstants.MACHINENAME_DUETTI,
+                '     GlobalConstants.MACHINENAME_DUETTI2
+                '    Select Case CodArt(0)
+                '        Case "P"c, "F"c
+                '            fmt = "dd/MM/yyyy HH.mm.ss"
+                '        Case "M"c
+                '            fmt = "dd.MM.yyyy HH:mm:ss"
 
-                End Select
+                '    End Select
+            Case GlobalConstants.MACHINENAME_DUETTI
+                fmt = "dd/MM/yyyy HH.mm.ss"
+            Case GlobalConstants.MACHINENAME_DUETTI2
+                fmt = "dd.MM.yyyy HH:mm:ss"
+            Case GlobalConstants.MACHINENAME_AXOMATIC
+                fmt = "yyyy-MM-dd_HH.mm.ss"
 
             Case Else
                 Throw New ArgumentException($"Nome macchina {NomeMacchina} non riconosciuto durante la conversione in data del valore nel csv di produzione")

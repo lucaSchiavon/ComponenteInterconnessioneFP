@@ -96,6 +96,7 @@
     <Compile Include="Dal\LottoRep.vb" />
     <Compile Include="DTO\CSV\Duetti2CsvDto.vb" />
     <Compile Include="DTO\CSV\DuettiCsvDto.vb" />
+    <Compile Include="DTO\CSV\AxomaticCsvDto.vb" />
     <Compile Include="DTO\CSV\Meccanoplastica4CsvDto.vb" />
     <Compile Include="DTO\CSV\ICAVL08616CsvDto.vb" />
     <Compile Include="DTO\CSV\Meccanoplastica1CsvDto.vb" />
@@ -129,6 +130,7 @@
     <Compile Include="Parsers\Duetti2CsvParser.vb" />
     <Compile Include="Parsers\ICAVL08616CsvParser.vb" />
     <Compile Include="Parsers\DuettiCsvParser.vb" />
+    <Compile Include="Parsers\AxomaticCsvParser.vb" />
     <Compile Include="Parsers\Meccanoplastica4CsvParser.vb" />
     <Compile Include="Parsers\Meccanoplastica1CsvParser.vb" />
     <Compile Include="Parsers\ICAVL08615CsvParser.vb" />
