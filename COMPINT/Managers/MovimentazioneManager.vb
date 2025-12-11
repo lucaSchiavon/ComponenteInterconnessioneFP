@@ -168,8 +168,8 @@ Public Class MovimentazioneManager
         'Creo una nuova riga di corpo setto i principali campi poi setto tutti gli altri
         'todo:ma qui la casuale ed il magazzino va messo??  
 
-        If Not _oCleBoll.AggiungiRigaCorpo(False, CLN__STD.NTSCStr(oCorpoCaricoProd.Codditt), 0, 0) Then
-            Throw New Exception($"Errore nella creazione del corpo del documento. Dettagli: articolo {oLottoDto.StrCodart} qta prodotte {oCorpoCaricoProd.ec_colli} lotto {oLottoDto.StrLottox}")
+        If Not _oCleBoll.AggiungiRigaCorpo(False, CLN__STD.NTSCStr(oCorpoCaricoProd.CodArt), 0, 0) Then
+            Throw New Exception($"Errore nella creazione del corpo del documento. Dettagli: articolo {oCorpoCaricoProd.CodArt} qta prodotte {oCorpoCaricoProd.ec_colli} {If(oLottoDto IsNot Nothing, "lotto" + oLottoDto.StrLottox, "")}")
         End If
 
         With _oCleBoll.dttEC.Rows(_oCleBoll.dttEC.Rows.Count - 1)
@@ -181,7 +181,7 @@ Public Class MovimentazioneManager
 
         If Not _oCleBoll.RecordSalva(_oCleBoll.dttEC.Rows.Count - 1, False, Nothing) Then
             _oCleBoll.dttEC.Rows(_oCleBoll.dttEC.Rows.Count - 1).Delete()
-            Throw New Exception($"Errore nel salvataggio del corpo del documento. Dettagli: articolo {oLottoDto.StrCodart} qta prodotte {oCorpoCaricoProd.ec_colli} lotto {oLottoDto.StrLottox}")
+            Throw New Exception($"Errore nel salvataggio del corpo del documento. Dettagli: articolo {oCorpoCaricoProd.CodArt} qta prodotte {oCorpoCaricoProd.ec_colli} {If(oLottoDto IsNot Nothing, "lotto" + oLottoDto.StrLottox, "")}")
         End If
 
         _oCleBoll.dtrHT = Nothing

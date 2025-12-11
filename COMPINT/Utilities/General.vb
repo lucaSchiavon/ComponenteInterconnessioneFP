@@ -61,7 +61,7 @@ Module General
                 '    End Select
             Case GlobalConstants.MACHINENAME_DUETTI
                 fmt = "dd/MM/yyyy HH.mm.ss"
-            Case GlobalConstants.MACHINENAME_DUETTI2
+            Case GlobalConstants.MACHINENAME_DUETTI2, GlobalConstants.MACHINENAME_LAY
                 fmt = "dd.MM.yyyy HH:mm:ss"
             Case GlobalConstants.MACHINENAME_AXOMATIC
                 fmt = "yyyy-MM-dd_HH.mm.ss"
