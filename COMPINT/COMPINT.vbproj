@@ -87,6 +87,7 @@
   <ItemGroup>
     <Compile Include="Constants\GlobalConstants.vb" />
     <Compile Include="Dal\AdoDataLayer.vb" />
+    <Compile Include="Dal\ErrorsUsedForNotificationsRep.vb" />
     <Compile Include="Dal\IGiornoProdConterRep.vb" />
     <Compile Include="Dal\ILetteraIdentAnnoRep.vb" />
     <Compile Include="Dal\ILottoRep.vb" />
@@ -102,10 +103,12 @@
     <Compile Include="DTO\CSV\ICAVL08616CsvDto.vb" />
     <Compile Include="DTO\CSV\Meccanoplastica1CsvDto.vb" />
     <Compile Include="DTO\CSV\ICAVL08615CsvDto.vb" />
+    <Compile Include="DTO\ErrorUsedForNotificationDto.vb" />
     <Compile Include="DTO\LottoDto.vb" />
     <Compile Include="DTO\OrdineProduzione\CorpoCaricoProd.vb" />
     <Compile Include="DTO\Settings.vb" />
     <Compile Include="Managers\CompInterconnManager.vb" />
+    <Compile Include="Managers\EmailManager.vb" />
     <Compile Include="Managers\MovimentazioneManager.vb" />
     <Compile Include="Managers\LogManager.vb" />
     <Compile Include="Managers\LottoManager.vb" />

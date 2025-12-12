@@ -19,13 +19,21 @@ Public Class SettingsManager
         settings.MachineFoldersUserName = parser.GetSetting("MACHINEFOLDERSECURITY", "MachineFoldersUserName")
         settings.MachineFoldersPassword = parser.GetSetting("MACHINEFOLDERSECURITY", "MachineFoldersPassword")
 
-
         settings.Fornitore = parser.GetSetting("ROOT", "Fornitore")
-        settings.TipoBf = parser.GetSetting("ROOT", "TipoBf")
+        settings.TipoBfCaricoScarico = parser.GetSetting("ROOT", "TipoBfCaricoScarico")
+        settings.TipoBfScarico = parser.GetSetting("ROOT", "TipoBfScarico")
+
+        ' SMTP
+        settings.SmtpServer = parser.GetSetting("SMTP", "Server")
+        Integer.TryParse(parser.GetSetting("SMTP", "Port"), settings.SmtpPort)
+        settings.SmtpUser = parser.GetSetting("SMTP", "User")
+        settings.SmtpPassword = parser.GetSetting("SMTP", "Password")
+        Boolean.TryParse(parser.GetSetting("SMTP", "EnableSsl"), settings.SmtpEnableSsl)
+        Boolean.TryParse(parser.GetSetting("SMTP", "UseDefaultCredentials"), settings.SmtpUseDefaultCredentials)
+        settings.SmtpFrom = parser.GetSetting("SMTP", "From")
 
         'LOTTOPAGLIERI
         settings.NomeLottoPagCampoFissoFp = parser.GetSetting("LOTTOPAGLIERI", "NomeLottoPagCampoFissoFp")
-
 
         'LOTTOCONTER
         settings.NumeroLineaDiRiempimento = parser.GetSetting("LOTTOCONTER", "NumeroLineaDiRiempimento")

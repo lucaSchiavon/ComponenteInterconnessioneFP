@@ -314,7 +314,7 @@ Public Class CompInterconnManager
         AxomaticCaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
 
         'processa i file csv della cartella della macchina di produzione  Layerpack:
-        LayCaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
+        LayScaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
 
         'processa i file csv della cartella della macchina di produzione Prontowash1:
         ICAVL08615CaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
@@ -498,7 +498,7 @@ Public Class CompInterconnManager
             r!et_numdoc = lNumTmpProd
             r!et_note = oMeccanoplastica1CsvDto.Note
             r!et_datdoc = oMeccanoplastica1CsvDto.DataOra
-            r!et_tipobf = settings.TipoBf
+            r!et_tipobf = settings.TipoBfCaricoScarico
         End Sub
 
         OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
@@ -707,7 +707,7 @@ Public Class CompInterconnManager
            r!et_numdoc = lNumTmpProd
            r!et_note = oMeccanoplastica4CsvDto.Note
            r!et_datdoc = oMeccanoplastica4CsvDto.DataOra
-           r!et_tipobf = settings.TipoBf
+           r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
        End Sub
 
@@ -921,7 +921,7 @@ Public Class CompInterconnManager
            r!et_numdoc = lNumTmpProd
            r!et_note = oAxomaticCsvDto.Note
            r!et_datdoc = oAxomaticCsvDto.Data_Ora
-           r!et_tipobf = settings.TipoBf
+           r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
        End Sub
 
@@ -958,7 +958,7 @@ Public Class CompInterconnManager
 
 #Region "Layerpak"
 
-    Public Overridable Sub LayCaricoDiProduzione(oCleBoll As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogManager)
+    Public Overridable Sub LayScaricoDiProduzione(oCleBoll As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogManager)
         'si scorre i file csv
 
         Dim AllFileCsvPaths() As String = Nothing
@@ -1036,7 +1036,7 @@ Public Class CompInterconnManager
 
                     'crea il lotto e un carico di produzione per l'articolo del csv
                     Dim OMovimentazioneManager As New MovimentazioneManager(settings, oCleBoll)
-                    LayExecCdp(OMovimentazioneManager, OLottoManager, ObjLayCsvDto, oLottoDto, settings, logger, PublicCurrFileName)
+                    LayExecScdp(OMovimentazioneManager, OLottoManager, ObjLayCsvDto, oLottoDto, settings, logger, PublicCurrFileName)
                     'sposta il file in old dopo averlo elaborato
                     'crea la directory se ancora non c'è
                     Try
@@ -1066,7 +1066,7 @@ Public Class CompInterconnManager
         End Try
     End Sub
 
-    Public Overridable Sub LayExecCdp(OMovimentazioneManager As MovimentazioneManager, oLottoManager As LottoManager, oLayCsvDto As LayCsvDto, oLottoDto As LottoDto, settings As Settings, logger As LogManager, PublicCurrFileName As String)
+    Public Overridable Sub LayExecScdp(OMovimentazioneManager As MovimentazioneManager, oLottoManager As LottoManager, oLayCsvDto As LayCsvDto, oLottoDto As LottoDto, settings As Settings, logger As LogManager, PublicCurrFileName As String)
 
         Dim Serie As String = OMovimentazioneManager.GetSerie(GlobalConstants.MACHINENAME_LAY, oLayCsvDto.CodiceArticolo)
 
@@ -1090,25 +1090,25 @@ Public Class CompInterconnManager
 
 
         '--- Legge il progressivo in TABNUMA
-        Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("T", Serie, oLayCsvDto.DataOra.Year)
+        Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("Z", Serie, oLayCsvDto.DataOra.Year)
 
         'preparo l'ambiente
 
         Dim ds As New DataSet
-        If Not OMovimentazioneManager.ApriDoc(oApp.Ditta, False, "T", oLayCsvDto.DataOra.Year, Serie, lNumTmpProd, ds) Then
-            Throw New Exception($"Apertura del documento di carico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oLayCsvDto.DataOra.Year}, serie {Serie}, prodotto {oLayCsvDto.CodiceArticolo} QtaProdotte {oLayCsvDto.PalletCompleti}")
+        If Not OMovimentazioneManager.ApriDoc(oApp.Ditta, False, "Z", oLayCsvDto.DataOra.Year, Serie, lNumTmpProd, ds) Then
+            Throw New Exception($"Apertura del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oLayCsvDto.DataOra.Year}, serie {Serie}, prodotto {oLayCsvDto.CodiceArticolo} QtaProdotte {oLayCsvDto.PalletCompleti}")
         End If
 
         OMovimentazioneManager.SetApriDocSilent(True)
 
         If OMovimentazioneManager.DsShared.Tables("TESTA").Rows.Count > 0 Then
-            Throw New Exception($"Errore nella numerazione del documento di carico. Dettagli: numero documento {lNumTmpProd} data documento {oLayCsvDto.DataOra.Year}, serie {Serie}, prodotto {oLayCsvDto.CodiceArticolo} QtaProdotte {oLayCsvDto.PalletCompleti}")
+            Throw New Exception($"Errore nella numerazione del documento di Scarico. Dettagli: numero documento {lNumTmpProd} data documento {oLayCsvDto.DataOra.Year}, serie {Serie}, prodotto {oLayCsvDto.CodiceArticolo} QtaProdotte {oLayCsvDto.PalletCompleti}")
         End If
         OMovimentazioneManager.ResetVar()
         OMovimentazioneManager.StrVisNoteConto = "N"
 
-        If Not OMovimentazioneManager.NuovoDocumento(oApp.Ditta, "T", oLayCsvDto.DataOra.Year, Serie, lNumTmpProd, "") Then
-            Throw New Exception($"Creazione del documento di carico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oLayCsvDto.DataOra.Year}, serie {Serie}, prodotto {oLayCsvDto.CodiceArticolo} QtaProdotte {oLayCsvDto.PalletCompleti}")
+        If Not OMovimentazioneManager.NuovoDocumento(oApp.Ditta, "Z", oLayCsvDto.DataOra.Year, Serie, lNumTmpProd, "") Then
+            Throw New Exception($"Creazione del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oLayCsvDto.DataOra.Year}, serie {Serie}, prodotto {oLayCsvDto.CodiceArticolo} QtaProdotte {oLayCsvDto.PalletCompleti}")
         End If
         'oCleBoll.bInNuovoDocSilent = True
         OMovimentazioneManager.SetNuovoDocSilent(True)
@@ -1117,13 +1117,13 @@ Public Class CompInterconnManager
         Sub(r As DataRow)
             r!codditt = oApp.Ditta
             r!et_conto = settings.Fornitore
-            r!et_tipork = "T"
+            r!et_tipork = "Z"
             r!et_anno = oLayCsvDto.DataOra.Year
             r!et_serie = Serie
             r!et_numdoc = lNumTmpProd
             r!et_note = oLayCsvDto.Note
             r!et_datdoc = oLayCsvDto.DataOra
-            r!et_tipobf = settings.TipoBf
+            r!et_tipobf = settings.TipoBfScarico
         End Sub
 
         OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
@@ -1141,13 +1141,13 @@ Public Class CompInterconnManager
         OMovimentazioneManager.BCreaFilePick = False 'non faccio generare il piking dal salvataggio del documento
 
         If Not OMovimentazioneManager.SalvaDocumento("N") Then
-            Throw New Exception($"Errore al salvataggio del documento di carico.! Dettagli: numero documento {lNumTmpProd} data documento {oLayCsvDto.DataOra.Year}, serie {Serie}, prodotto {oLayCsvDto.CodiceArticolo} QtaProdotte {oLayCsvDto.PalletCompleti}")
+            Throw New Exception($"Errore al salvataggio del documento di Scarico.! Dettagli: numero documento {lNumTmpProd} data documento {oLayCsvDto.DataOra.Year}, serie {Serie}, prodotto {oLayCsvDto.CodiceArticolo} QtaProdotte {oLayCsvDto.PalletCompleti}")
         End If
 
 
         OMovimentazioneManager.ProgProd = lNumTmpProd
         OMovimentazioneManager.Serie = Serie
-        logger.LogInfo($"Carico effettuato con successo (num. produzione {OMovimentazioneManager.ProgProd} serie {OMovimentazioneManager.Serie} il {oLayCsvDto.DataOra.ToString("dddd dd/MM/yyyy", New CultureInfo("it-IT"))} di qta {oLayCsvDto.PalletCompleti} per il prodotto {oLayCsvDto.CodiceArticolo} ", settings.LayNomeMacchina, oLayCsvDto.CodiceArticolo, PublicCurrFileName)
+        logger.LogInfo($"Scarico effettuato con successo (num. produzione {OMovimentazioneManager.ProgProd} serie {OMovimentazioneManager.Serie} il {oLayCsvDto.DataOra.ToString("dddd dd/MM/yyyy", New CultureInfo("it-IT"))} di qta {oLayCsvDto.PalletCompleti} per il prodotto {oLayCsvDto.CodiceArticolo} ", settings.LayNomeMacchina, oLayCsvDto.CodiceArticolo, PublicCurrFileName)
     End Sub
 
 #End Region
@@ -1330,7 +1330,7 @@ Public Class CompInterconnManager
            r!et_numdoc = lNumTmpProd
            r!et_note = oDuettiCsvDto.Note
            r!et_datdoc = oDuettiCsvDto.DataOra
-           r!et_tipobf = settings.TipoBf
+           r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
        End Sub
 
@@ -1544,7 +1544,7 @@ Public Class CompInterconnManager
            r!et_numdoc = lNumTmpProd
            r!et_note = oDuetti2CsvDto.Note
            r!et_datdoc = oDuetti2CsvDto.DataOra
-           r!et_tipobf = settings.TipoBf
+           r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
        End Sub
 
@@ -1757,7 +1757,7 @@ Public Class CompInterconnManager
            r!et_numdoc = lNumTmpProd
            r!et_note = oIca1CsvDto.Note
            r!et_datdoc = oIca1CsvDto.FineTurno
-           r!et_tipobf = settings.TipoBf
+           r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
        End Sub
 
@@ -1969,7 +1969,7 @@ Public Class CompInterconnManager
            r!et_numdoc = lNumTmpProd
            r!et_note = oIca2CsvDto.Note
            r!et_datdoc = oIca2CsvDto.FineTurno
-           r!et_tipobf = settings.TipoBf
+           r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
        End Sub
 

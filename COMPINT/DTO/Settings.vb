@@ -6,6 +6,15 @@
     'livello di verbosità del log
     Public Property VerbosityLogLevel As String 'valori ammessi: INFO, DEBUG
 
+    'SMTP
+    Public Property SmtpServer As String
+    Public Property SmtpPort As Integer
+    Public Property SmtpUser As String
+    Public Property SmtpPassword As String
+    Public Property SmtpEnableSsl As Boolean
+    Public Property SmtpUseDefaultCredentials As Boolean
+    Public Property SmtpFrom As String
+
     'nome utente e password per accedere alle cartelle condivise delle macchine di produzione
     'dove risiedono i CSV
     Public Property MachineFoldersSecurity As String
@@ -15,8 +24,8 @@
     'Il nome del fornitore da usare quando si effettua il carico di produzione
     Public Property Fornitore As String
     'il tipo di bollo fattura
-    Public Property TipoBf As String
-
+    Public Property TipoBfCaricoScarico As String
+    Public Property TipoBfScarico As String
 
     'LOTTOPAGLIERI
     Public Property NomeLottoPagCampoFissoFp As String
