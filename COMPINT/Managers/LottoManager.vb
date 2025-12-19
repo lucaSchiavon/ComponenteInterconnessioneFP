@@ -49,9 +49,9 @@ Public Class LottoManager
                 NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
             Case GlobalConstants.MACHINENAME_LAY
                 NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-            Case GlobalConstants.MACHINENAME_PICKER2317
+            Case GlobalConstants.MACHINENAME_PICKER23017
                 NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
-            Case GlobalConstants.MACHINENAME_PICKER2318
+            Case GlobalConstants.MACHINENAME_PICKER23018
                 NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
             Case GlobalConstants.MACHINENAME_PRONTOWASH1
                 NomeLotto = EstraiNomeLotto(CodArt, DataProduzione)

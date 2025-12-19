@@ -38,7 +38,7 @@ Module AxomaticCsvParser
         Dim dto As New AxomaticCsvDto()
         Dim culture As CultureInfo = CultureInfo.InvariantCulture
 
-        dto.Data_Ora = DateTime.Parse(General.ConvertiDataCustom(dati(0).Trim().Replace("""", ""), GlobalConstants.MACHINENAME_AXOMATIC, dto.CodiceArticolo), New CultureInfo("it-IT"))
+        dto.Data_Ora = DateTime.Parse(General.ConvertiDataCustom(dati(0).Trim().Replace("""", ""), GlobalConstants.MACHINENAME_AXOMATIC), New CultureInfo("it-IT"))
         dto.NomeRicetta = dati(1).Trim().Replace("""", "")
         dto.PezziBuoni = Integer.Parse(dati(2).Trim().Replace("""", ""))
         dto.PezziScartati = Integer.Parse(dati(3).Trim().Replace("""", ""))

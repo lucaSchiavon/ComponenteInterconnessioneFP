@@ -40,7 +40,7 @@ Module Duetti2CsvParser
 
 
         dto.Ricetta = dati(1).Trim()
-        dto.DataOra = DateTime.Parse(General.ConvertiDataCustom(dati(0), GlobalConstants.MACHINENAME_DUETTI2, dto.CodiceArticolo), New CultureInfo("it-IT"))
+        dto.DataOra = DateTime.Parse(General.ConvertiDataCustom(dati(0), GlobalConstants.MACHINENAME_DUETTI2), New CultureInfo("it-IT"))
         dto.CartoniBuoni = Integer.Parse(dati(2))
         dto.CartoniScarto = Integer.Parse(dati(3))
         dto.Note = settings.Duetti2NomeMacchina & Environment.NewLine & righe(0) & Environment.NewLine & righe(1)

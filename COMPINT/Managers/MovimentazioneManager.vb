@@ -50,12 +50,12 @@ Public Class MovimentazioneManager
                     Case "2"c
                         Serie = "LY"
                 End Select
-            Case GlobalConstants.MACHINENAME_PICKER2317
+            Case GlobalConstants.MACHINENAME_PICKER23017
                 Select Case PrimoCar
                     Case "5"c, "M"c, "P"c
                         Serie = "FL"
                 End Select
-            Case GlobalConstants.MACHINENAME_PICKER2318
+            Case GlobalConstants.MACHINENAME_PICKER23018
                 Select Case PrimoCar
                     Case "5"c, "C"c, "M"c, "P"c
                         Serie = "FL"
@@ -166,8 +166,6 @@ Public Class MovimentazioneManager
     Public Sub CreaRigaProd(oCorpoCaricoProd As CorpoCaricoProd, oLottoDto As LottoDto)
 
         'Creo una nuova riga di corpo setto i principali campi poi setto tutti gli altri
-        'todo:ma qui la casuale ed il magazzino va messo??  
-
         If Not _oCleBoll.AggiungiRigaCorpo(False, CLN__STD.NTSCStr(oCorpoCaricoProd.CodArt), 0, 0) Then
             Throw New Exception($"Errore nella creazione del corpo del documento. Dettagli: articolo {oCorpoCaricoProd.CodArt} qta prodotte {oCorpoCaricoProd.ec_colli} {If(oLottoDto IsNot Nothing, "lotto" + oLottoDto.StrLottox, "")}")
         End If
@@ -175,7 +173,9 @@ Public Class MovimentazioneManager
         With _oCleBoll.dttEC.Rows(_oCleBoll.dttEC.Rows.Count - 1)
             !ec_colli = oCorpoCaricoProd.ec_colli
             If Not oLottoDto Is Nothing Then
-                !ec_lotto = oLottoDto.LLotto
+                If oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+                    !ec_lotto = oLottoDto.LLotto
+                End If
             End If
         End With
 

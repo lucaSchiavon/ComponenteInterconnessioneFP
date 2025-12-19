@@ -1,8 +1,8 @@
 ﻿Imports System.Globalization
 Imports System.IO
 
-Module DuettiCsvParser
-    Public Function ParseProduzioneCsv(percorsoFile As String, settings As Settings) As DuettiCsvDto
+Module EtichCsvParser
+    Public Function ParseProduzioneCsv(percorsoFile As String, settings As Settings) As EtichCsvDto
 
         Dim NomeFile As String = Path.GetFileName(percorsoFile)
         ' Lettura righe
@@ -14,10 +14,10 @@ Module DuettiCsvParser
 
         'Intestazioni previste
         Dim intestazioniAttese As String() = {
-            "DataOra", "Ricetta", "CartoniBuoni", "CartoniScarto"
+            """Data""", """Tempo""", """Nome_Ricetta""", """Nome Etichetta Gruppo 1""", """Etichette Erogate Gruppo 1""", """Nome Etichetta Gruppo 2""", """Etihchette Erogate Gruppo 2"""
         }
 
-        Dim header() As String = righe(0).Split(";"c)
+        Dim header() As String = righe(0).Split(","c)
         If header.Length <> intestazioniAttese.Length Then
             Throw New InvalidDataException($"Numero di colonne nel file {NomeFile} non corrispondente.")
         End If
@@ -29,21 +29,23 @@ Module DuettiCsvParser
         Next
 
         'Parsing della riga dati
-        Dim dati() As String = righe(1).Split(";"c)
+        Dim dati() As String = righe(1).Split(","c)
         If dati.Length <> intestazioniAttese.Length Then
             Throw New InvalidDataException($"La riga dati nel file {NomeFile} non contiene il numero corretto di colonne.")
         End If
 
         'Popolamento DTO
-        Dim dto As New DuettiCsvDto()
+        Dim dto As New EtichCsvDto()
         Dim culture As CultureInfo = CultureInfo.InvariantCulture
 
-
-        dto.Ricetta = dati(1).Trim()
-        dto.DataOra = DateTime.Parse(General.ConvertiDataCustom(dati(0), GlobalConstants.MACHINENAME_DUETTI), New CultureInfo("it-IT"))
-        dto.CartoniBuoni = Integer.Parse(dati(2))
-        dto.CartoniScarto = Integer.Parse(dati(3))
-        dto.Note = settings.DuettiNomeMacchina & Environment.NewLine & righe(0) & Environment.NewLine & righe(1)
+        dto.Data = DateTime.Parse(General.ConvertiDataCustom(dati(0).Trim().Replace("""", ""), GlobalConstants.MACHINENAME_ETICH), New CultureInfo("it-IT"))
+        dto.Tempo = dati(1).Trim().Replace("""", "")
+        dto.Nome_Ricetta = dati(2).Trim().Replace("""", "")
+        dto.NomeEtichettaGruppo1 = dati(3).Trim().Replace("""", "")
+        dto.EtichetteErogateGruppo1 = Integer.Parse(dati(4).Trim().Replace("""", ""))
+        dto.NomeEtichettaGruppo2 = dati(5).Trim().Replace("""", "")
+        dto.EtichetteErogateGruppo2 = Integer.Parse(dati(6).Trim().Replace("""", ""))
+        dto.Note = settings.EtichNomeMacchina & Environment.NewLine & righe(0) & Environment.NewLine & righe(1)
         Return dto
     End Function
 

@@ -15,22 +15,26 @@ Public Class LogManager
 
     Public Sub LogInfo(messaggio As String, Optional macchina As String = Nothing, Optional codArt As String = Nothing, Optional fileName As String = Nothing)
         _logRep.InsertLog("INFO", messaggio, Nothing, macchina, codArt, fileName)
-        'todo:invia una mail se l'errore o la info è presente nella tabella TblErrorsUsedForNotifications
         'SpedisciEmailNotifica(messaggio)
         PrintConsoleMsg(messaggio, macchina, codArt, fileName)
     End Sub
 
     Public Sub LogWarning(messaggio As String, Optional stackTrace As String = Nothing, Optional macchina As String = Nothing, Optional codArt As String = Nothing, Optional fileName As String = Nothing)
         _logRep.InsertLog("WARNING", messaggio, stackTrace, macchina, codArt, fileName)
-        'todo:invia una mail se l'errore o la info è presente nella tabella TblErrorsUsedForNotifications
         'SpedisciEmailNotifica(messaggio)
         PrintConsoleMsg(messaggio, macchina, codArt, fileName)
     End Sub
 
     Public Sub LogError(messaggio As String, Optional stackTrace As String = Nothing, Optional macchina As String = Nothing, Optional codArt As String = Nothing, Optional fileName As String = Nothing)
         _logRep.InsertLog("ERROR", messaggio, stackTrace, macchina, codArt, fileName)
-        'todo:invia una mail se l'errore o la info è presente nella tabella TblErrorsUsedForNotifications
         'SpedisciEmailNotifica(messaggio)
+        PrintConsoleMsg(messaggio, macchina, codArt, fileName)
+    End Sub
+
+    Public Sub LogDebug(messaggio As String, Optional stackTrace As String = Nothing, Optional macchina As String = Nothing, Optional codArt As String = Nothing, Optional fileName As String = Nothing)
+        If _settings.VerbosityLogLevel.ToUpper() = VERBOSITYLOGLEVEL_DEBUG Then
+            _logRep.InsertLog("DEBUG", messaggio, stackTrace, macchina, codArt, fileName)
+        End If
         PrintConsoleMsg(messaggio, macchina, codArt, fileName)
     End Sub
 
@@ -40,19 +44,6 @@ Public Class LogManager
         End If
     End Sub
 
-    Private Function WildcardPatternToRegex(pattern As String) As String
-        ' Trasforma un pattern che usa [...] per parti variabili in una regex.
-        ' Esempio: "L'articolo [...] nella riga [...] degli SCARICHI" -> "L'articolo \[.*?\] nella riga \[.*?\] degli SCARICHI"
-        If String.IsNullOrWhiteSpace(pattern) Then Return String.Empty
-
-        ' Escape regex metacharacters first, then replace escaped \[\.\.\.\] with a capture of any content
-        Dim escaped As String = Regex.Escape(pattern)
-        ' l'escape rende \[ \.\.\. \] per la sequenza [...]
-        Dim regexPattern As String = Regex.Replace(escaped, Regex.Escape("[...]"), ".*?", RegexOptions.IgnoreCase)
-
-        ' Allow whitespace and minor differences: normalize spaces
-        Return "^\s*" & regexPattern & "\s*$"
-    End Function
 
     Public Sub SpedisciEmailNotifica(messaggio As String)
         Try
@@ -63,7 +54,7 @@ Public Class LogManager
                 Return
             End If
 
-            Dim emailManager As New EmailManager(_settings, Me)
+            Dim emailManager As New EmailManager(_settings)
 
             For Each rule As ErrorUsedForNotificationDto In rules
                 Try
@@ -74,6 +65,7 @@ Public Class LogManager
 
                     Dim match As Boolean = False
                     If Not String.IsNullOrWhiteSpace(regexPattern) Then
+                        'considera il testo come una unica riga, anche se ne ha due e il testo va quindi a capo
                         match = Regex.IsMatch(messaggio, regexPattern, RegexOptions.IgnoreCase Or RegexOptions.Singleline)
                     End If
 
@@ -97,7 +89,7 @@ Public Class LogManager
 
                         Try
                             ' Evitare logging ricorsivo durante l'invio
-                            emailManager.SendEmail(sender, addresses, subject, messaggio, logResult:=False)
+                            emailManager.SendEmail(sender, addresses, subject, messaggio)
                             ' Log a livello informativo dell'azione di notifica
                             _logRep.InsertLog("INFO", $"Invio notifica email a: {String.Join(";", addresses)} soggetto: {subject}", Nothing, "", "", "")
                         Catch ex As Exception
@@ -114,5 +106,26 @@ Public Class LogManager
             _logRep.InsertLog("ERROR", $"Errore SpedisciEmailNotifica: {ex.Message}", ex.StackTrace, "", "", "")
         End Try
     End Sub
+
+
+    Private Function WildcardPatternToRegex(pattern As String) As String
+        If String.IsNullOrWhiteSpace(pattern) Then Return String.Empty
+
+        ' Suddividi il pattern sulle sequenze [...]
+        Dim parts As String() = pattern.Split(New String() {"[...]"}, StringSplitOptions.None)
+
+        ' Ricostruisci la regex: ogni parte fissa viene escappata, tra una parte e l'altra metti .*?
+        Dim sb As New System.Text.StringBuilder()
+        For i As Integer = 0 To parts.Length - 1
+            'fa precedere ogni cartattere speciale con backslash in modo che i caratteri speciali vengano considerati normali e non come operatori regex
+            sb.Append(Regex.Escape(parts(i)))
+            If i < parts.Length - 1 Then
+                sb.Append(".*?") ' corrisponde a qualsiasi cosa (non greedy)
+            End If
+        Next
+
+        ' Aggiungi ancore per matchare l'intera stringa
+        Return "^\s*" & sb.ToString() & "\s*$"
+    End Function
 
 End Class

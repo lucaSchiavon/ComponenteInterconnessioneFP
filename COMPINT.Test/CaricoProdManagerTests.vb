@@ -33,13 +33,13 @@ Public Class CaricoProdManagerTests
     <DataRow(COMPINT.GlobalConstants.MACHINENAME_ETICH, "C001", "ET")>
     <DataRow(COMPINT.GlobalConstants.MACHINENAME_ETICH, "P999", "ET")>
     <DataRow(COMPINT.GlobalConstants.MACHINENAME_LAY, "2123", "LY")>
-    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER2317, "5123", "FL")>
-    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER2317, "M001", "FL")>
-    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER2317, "P777", "FL")>
-    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER2318, "5123", "FL")>
-    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER2318, "C001", "FL")>
-    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER2318, "M001", "FL")>
-    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER2318, "P777", "FL")>
+    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER23017, "5123", "FL")>
+    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER23017, "M001", "FL")>
+    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER23017, "P777", "FL")>
+    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER23018, "5123", "FL")>
+    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER23018, "C001", "FL")>
+    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER23018, "M001", "FL")>
+    <DataRow(COMPINT.GlobalConstants.MACHINENAME_PICKER23018, "P777", "FL")>
     <DataRow(COMPINT.GlobalConstants.MACHINENAME_PRONTOWASH1, "M123", "PB")>
     <DataRow(COMPINT.GlobalConstants.MACHINENAME_PRONTOWASH2, "M555", "PB")>
     Public Sub GetSerie_ValidCases(macchina As String, codart As String, expected As String)

@@ -15,7 +15,6 @@ Public Class CompInterconnManager
     Public Function EseguiJobPrincipale() As Integer
 
 
-
         Try
 
             'legge tutti i settings dal config ini
@@ -60,10 +59,12 @@ Public Class CompInterconnManager
                 'nell'eventualità rara si impianti subito prima ancora di istanziare il logger
                 'stampiamo a console quello che è successo e manteniamo aperta la console per poter leggere l'errore
                 'a video
-                Console.WriteLine("Errore in apertura del file Settings.ini, chiudere la console e risolvere l'errore, il job non partirà fino a che  l'errore non sarà risolto")
+                Console.WriteLine($"Errore in apertura del file Settings.ini, chiudere la console e risolvere l'errore, il job non partirà fino a che  l'errore non sarà risolto. {ex2.Message}")
+                LogTestoManager.LoggaErrore(ex2)
                 If Environment.UserInteractive Then Console.ReadLine()
                 Return 1 ' Errore
             End Try
+            Return 1 ' Errore
         End Try
     End Function
 
@@ -191,62 +192,64 @@ Public Class CompInterconnManager
     End Sub
 
     Public Overridable Sub GestisciEventiEntity(ByVal sender As Object, ByRef e As NTSEventArgs)
-        Dim fErr As StreamWriter = Nothing
-        Dim fiErr As FileInfo = Nothing
         Dim strNomeFileLog As String = ""
         Dim codart As String = ""
+        Try
 
-        'If oCleBoll.dttEC.Rows.Count > 0 Then
-        '    codart = CStr(oCleBoll.dttEC.Rows(oCleBoll.dttEC.Rows.Count).Item("ec_codart"))
-        'End If
+            'If oCleBoll.dttEC.Rows.Count > 0 Then
+            '    codart = CStr(oCleBoll.dttEC.Rows(oCleBoll.dttEC.Rows.Count).Item("ec_codart"))
+            'End If
 
-        'forzare la data della distinta base a oggi
-        If e.TipoEvento = "DataValDB.:" Then
-            'Questa gestione serve per creare i carichi di produzione
-            e.RetValue = CLN__STD.NTSCDate(oCleBoll.dttET.Rows(0)!et_datdoc.ToString).ToShortDateString
-        Else
-            'magari poi inserire anche l'istruzione sotto, così un volta loggati li giriamo comunque alla UI
-            'todo:qui cosa inserire??
-        End If
+            'forzare la data della distinta base a oggi
+            If e.TipoEvento = "DataValDB.:" Then
+                'Questa gestione serve per creare i carichi di produzione
+                e.RetValue = CLN__STD.NTSCDate(oCleBoll.dttET.Rows(0)!et_datdoc.ToString).ToShortDateString
+            Else
+                'magari poi inserire anche l'istruzione sotto, così un volta loggati li giriamo comunque alla UI
+                'todo:qui cosa inserire??
+            End If
 
-        If e.TipoEvento = "" Then
-            'guardo se message contiene erroroccorred ed in caso affermativo loggo
-            If e.Message.ToUpper.Contains("ERROR OCCURED:") Then
+            If e.TipoEvento = "" Then
+                'guardo se message contiene erroroccorred ed in caso affermativo loggo
+                If e.Message.ToUpper.Contains("ERROR OCCURED:") Then
+                    logger.LogError(e.Message, Environment.StackTrace, "", codart)
+                End If
+            End If
+
+
+            If e.TipoEvento = CLN__STD.ThMsg.MSG_ERROR Then
+                'loggare sempre e comunque ERROR
+                'logger.LogError(e.TipoEvento, "GestisciEventiEntity")
                 logger.LogError(e.Message, Environment.StackTrace, "", codart)
+                'oCleBoll.dttEC.Rows.Count
+
+                'cstr(oCleBoll.dttET.Rows(0).Item("et_conto"))
+                'logger.LogError(Environment.StackTrace, "GestisciEventiEntity")
+                'e.Message è vuoto mettere errore se message è vuto tendenzialmente ci sono altre info su e ma tendenzialmente e.Message non succede mai in errore
+                'Else
+
             End If
-        End If
-
-        'todo:questo il codice che metterei al posto di quello che c'è sotto
-        If e.TipoEvento = CLN__STD.ThMsg.MSG_ERROR Then
-            'loggare sempre e comunque ERROR
-            'logger.LogError(e.TipoEvento, "GestisciEventiEntity")
-            logger.LogError(e.Message, Environment.StackTrace, "", codart)
-            'oCleBoll.dttEC.Rows.Count
-
-            'cstr(oCleBoll.dttET.Rows(0).Item("et_conto"))
-            'logger.LogError(Environment.StackTrace, "GestisciEventiEntity")
-            'e.Message è vuoto mettere errore se message è vuto tendenzialmente ci sono altre info su e ma tendenzialmente e.Message non succede mai in errore
-            'Else
-
-        End If
-        If e.TipoEvento = CLN__STD.ThMsg.MSG_INFO Or e.TipoEvento = CLN__STD.ThMsg.MSG_INFO_POPUP Then
-            If e.Message <> "" Then
-                'todo:qui c'era Errore non specificato prima ma volgio loggare cosa succede
-                'perchè è venuto fuori in produzione
-                logger.LogInfo($"Informazione (MSG_INFO o MSG_INFO_POPUP): {e.Message}", "", codart)
+            If e.TipoEvento = CLN__STD.ThMsg.MSG_INFO Or e.TipoEvento = CLN__STD.ThMsg.MSG_INFO_POPUP Then
+                If e.Message <> "" Then
+                    'perchè è venuto fuori in produzione
+                    logger.LogInfo($"Informazione (MSG_INFO o MSG_INFO_POPUP): {e.Message}", "", codart)
+                End If
+                'quando non ho a che fare con un errore se ho un messaggio loggo INFO
+                'talvolta qui, a differenza di error, sono frequenti i messaggi vuoti
+                'in questo caso non loggo nulla
             End If
-            'quando non ho a che fare con un errore se ho un messaggio loggo INFO
-            'talvolta qui, a differenza di error, sono frequenti i messaggi vuoti
-            'in questo caso non loggo nulla
-        End If
 
 
-        'If e.Message.ToUpper.Contains("ERROR OCCURED:") Then
-        '    'Throw New Exception(e.Message)
-        '    ErroreInGestisciEventiEntity = True
-        '    StrErroreInGestisciEventiEntity = e.Message
-        'End If
+            'If e.Message.ToUpper.Contains("ERROR OCCURED:") Then
+            '    'Throw New Exception(e.Message)
+            '    ErroreInGestisciEventiEntity = True
+            '    StrErroreInGestisciEventiEntity = e.Message
+            'End If
+        Catch ex As Exception
+            'Logga in un file di testo l'errore perchè non riesce a loggare nel db
+            LogTestoManager.LoggaErrore(ex)
 
+        End Try
     End Sub
 
 #End Region
@@ -315,6 +318,15 @@ Public Class CompInterconnManager
 
         'processa i file csv della cartella della macchina di produzione  Layerpack:
         LayScaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
+
+        ''processa i file csv della cartella della macchina di produzione  Layerpack:
+        EtichScaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
+
+        'processa i file csv della cartella della macchina di produzione  Layerpack:
+        Picker23017ScaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
+
+        'processa i file csv della cartella della macchina di produzione  Layerpack:
+        Picker23018ScaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
 
         'processa i file csv della cartella della macchina di produzione Prontowash1:
         ICAVL08615CaricoDiProduzione(oCleBoll, oCleAnlo, settings, logger)
@@ -1152,6 +1164,824 @@ Public Class CompInterconnManager
 
 #End Region
 
+#Region "Etich"
+
+    'Public Overridable Sub EtichScaricoDiProduzione(oCleBoll As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogManager)
+    '    'si scorre i file csv
+
+    '    Dim AllFileCsvPaths() As String = Nothing
+    '    Try
+    '        'prima di accedere alla cartella si logga (solo se la sicurezza è configurata nel config.ini)
+    '        'perchè la cartella condivisa è protetta da nome utente e pwd
+    '        If settings.MachineFoldersSecurity.ToUpper() = GlobalConstants.MACHINE_FOLDERS_SECURITY_ON Then
+    '            Try
+    '                NetworkShareManager.ConnectToShare(settings.EtichPercorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
+    '                AllFileCsvPaths = Directory.GetFiles(settings.EtichPercorso, "*.csv")
+    '            Catch ex As Exception
+    '                'si è verificato un errore nell'accesso con password
+    '                'verifico che l'accesso non sia già stato fatto precedentemente perchè nel qual caso andrebbe in crash
+    '                'se cerca di accedere ad una cartella a cui si può già accedere fornendo le credenziali
+    '                Try
+    '                    AllFileCsvPaths = Directory.GetFiles(settings.EtichPercorso, "*.csv")
+    '                Catch exInn As Exception
+    '                    'se anche il tentativo di accedere senza credenziali fallisce allora il problema potrebbe essere utente o pwd errata
+    '                    Throw New Exception($"Apertura della cartella {settings.EtichPercorso} fallita, utilizzando l'utente {settings.MachineFoldersUserName} probabilmente il nome utente o password non sono corretti")
+    '                End Try
+    '            End Try
+    '        Else
+    '            'le cartelle non sono protette da password leggo direttamente i contenuti
+    '            AllFileCsvPaths = Directory.GetFiles(settings.EtichPercorso, "*.csv")
+    '        End If
+
+    '        Dim ObjEtichCsvDto As EtichCsvDto = Nothing
+
+    '        Dim CsvFilePaths = FiltraSoloCsvMacchine(AllFileCsvPaths)
+
+    '        Dim PublicCurrFileName As String = ""
+
+    '        For Each FilePath As String In CsvFilePaths
+
+
+    '            Try
+    '                'espongo il nome del file per loggarlo in caso d'errore
+    '                PublicCurrFileName = Path.GetFileName(FilePath)
+    '                'verifica la validità del csv
+    '                ObjEtichCsvDto = EtichCsvParser.ParseProduzioneCsv(FilePath, settings)
+
+    '                'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
+    '                'l'articolo ha gestione lotti?
+    '                Dim OLottoManager As New LottoManager(settings, oCleAnlo)
+    '                'Dim OLottoRep = New LottoRep(oCleAnlo)
+    '                Dim IsArtConfForLotto As Boolean = OLottoManager.IsArtConfForLotto(oApp.Ditta, ObjEtichCsvDto.CodiceArticolo)
+
+    '                'se l'articolo è configurato per gestire lotto allora occorre creare un lotto per il prodotto finito
+    '                'preparo i dati da inserire nel lotto...
+    '                Dim oLottoDto As LottoDto = Nothing
+
+    '                Dim Oggi As Date = ObjEtichCsvDto.Data
+
+    '                'Il lotto esiste già?
+    '                If IsArtConfForLotto Then
+    '                    Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjEtichCsvDto.CodiceArticolo, settings.EtichNomeMacchina, ObjEtichCsvDto.Data)
+    '                    oLottoDto = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjEtichCsvDto.CodiceArticolo, NomeLotto)
+    '                    'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
+    '                    'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
+
+    '                    If oLottoDto Is Nothing Then
+    '                        Dim NextLottoNumber As Integer = OLottoManager.GetNextLottoNumber(oApp.Ditta)
+    '                        oLottoDto = New LottoDto() With {
+    '                      .StrCodart = CLN__STD.NTSCStr(ObjEtichCsvDto.CodiceArticolo),
+    '                      .StrDescodart = CLN__STD.NTSCStr(""),
+    '                        .LLotto = CLN__STD.NTSCInt(NextLottoNumber),
+    '                      .StrLottox = NomeLotto,
+    '                      .DataCreazione = CLN__STD.NTSCDate(Oggi),
+    '                      .DataScadenza = CLN__STD.NTSCDate(Oggi.AddYears(3)),
+    '                      .LottoGiaPresente = False
+    '                  }
+    '                    End If
+
+    '                End If
+
+    '                'crea il lotto e un carico di produzione per l'articolo del csv
+    '                Dim OMovimentazioneManager As New MovimentazioneManager(settings, oCleBoll)
+    '                LayExecScdp(OMovimentazioneManager, OLottoManager, ObjEtichCsvDto, oLottoDto, settings, logger, PublicCurrFileName)
+    '                'sposta il file in old dopo averlo elaborato
+    '                'crea la directory se ancora non c'è
+    '                Try
+    '                    SpostaECopiaFile(FilePath, Oggi, settings.EtichPercorsoOld, OMovimentazioneManager)
+
+    '                Catch ex As Exception
+    '                    ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
+    '                End Try
+
+
+    '            Catch ex As Exception
+    '                'logga sposta in errore il file csv e va avanti
+    '                logger.LogError(ex.Message, ex.StackTrace, settings.EtichNomeMacchina, If(ObjEtichCsvDto IsNot Nothing, ObjEtichCsvDto.CodiceArticolo, ""), PublicCurrFileName)
+
+    '                Try
+    '                    SpostaNellaCartellaErrori(FilePath, settings.EtichPercorsoErrori)
+
+    '                Catch
+    '                    ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
+    '                End Try
+    '            End Try
+
+    '        Next
+    '    Catch ex As Exception
+    '        'logga in caso non riesca ad aprire il path della cartella dei file csv...e poi passa alla elaborazione dei files della prossima macchina
+    '        logger.LogError(ex.Message, ex.StackTrace, settings.EtichNomeMacchina)
+    '    End Try
+    'End Sub
+
+    'Public Overridable Sub EtichExecScdp(OMovimentazioneManager As MovimentazioneManager, oLottoManager As LottoManager, oEtichCsvDto As EtichCsvDto, oLottoDto As LottoDto, settings As Settings, logger As LogManager, PublicCurrFileName As String)
+
+    '    Dim Serie As String = OMovimentazioneManager.GetSerie(GlobalConstants.MACHINENAME_ETICH, oEtichCsvDto.CodiceArticolo)
+
+    '    'esegue effettivamente il carico in experience
+    '    If oLottoDto IsNot Nothing AndAlso Not oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+    '        'creo il lotto solo se si tratta di un articolo con gestione lotti
+    '        'e solo se il lotto non è ancora presente a db
+    '        If Serie = "CON" Then
+    '            'se la serie è CON allora il lotto è di tipo conter e quindi devo fare 
+    '            'l'insert del contatore conteggio giorni di produzione in crea lotto
+    '            oLottoDto.IsLottoConter = True
+    '        End If
+    '        oLottoManager.CreaLotto(oLottoDto)
+
+    '        logger.LogInfo($"Lotto creato per l'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.EtichNomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
+    '    Else
+    '        If oLottoDto IsNot Nothing AndAlso oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+    '            logger.LogInfo($"Lotto associato all'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.EtichNomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
+    '        End If
+    '    End If
+
+
+    '    '--- Legge il progressivo in TABNUMA
+    '    Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("Z", Serie, oEtichCsvDto.Data.Year)
+
+    '    'preparo l'ambiente
+
+    '    Dim ds As New DataSet
+    '    If Not OMovimentazioneManager.ApriDoc(oApp.Ditta, False, "Z", oEtichCsvDto.Data.Year, Serie, lNumTmpProd, ds) Then
+    '        Throw New Exception($"Apertura del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotto {oEtichCsvDto.CodiceArticolo} QtaProdotte {oEtichCsvDto.PalletCompleti}")
+    '    End If
+
+    '    OMovimentazioneManager.SetApriDocSilent(True)
+
+    '    If OMovimentazioneManager.DsShared.Tables("TESTA").Rows.Count > 0 Then
+    '        Throw New Exception($"Errore nella numerazione del documento di Scarico. Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotto {oEtichCsvDto.CodiceArticolo} QtaProdotte {oEtichCsvDto.PalletCompleti}")
+    '    End If
+    '    OMovimentazioneManager.ResetVar()
+    '    OMovimentazioneManager.StrVisNoteConto = "N"
+
+    '    If Not OMovimentazioneManager.NuovoDocumento(oApp.Ditta, "Z", oEtichCsvDto.Data.Year, Serie, lNumTmpProd, "") Then
+    '        Throw New Exception($"Creazione del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotto {oEtichCsvDto.CodiceArticolo} QtaProdotte {oEtichCsvDto.PalletCompleti}")
+    '    End If
+    '    'oCleBoll.bInNuovoDocSilent = True
+    '    OMovimentazioneManager.SetNuovoDocSilent(True)
+
+    '    Dim OTestataCaricoDiProd As Action(Of DataRow) =
+    '    Sub(r As DataRow)
+    '        r!codditt = oApp.Ditta
+    '        r!et_conto = settings.Fornitore
+    '        r!et_tipork = "Z"
+    '        r!et_anno = oEtichCsvDto.Data.Year
+    '        r!et_serie = Serie
+    '        r!et_numdoc = lNumTmpProd
+    '        r!et_note = oEtichCsvDto.Note
+    '        r!et_datdoc = oEtichCsvDto.Data
+    '        r!et_tipobf = settings.TipoBfScarico
+    '    End Sub
+
+    '    OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
+
+
+    '    'setta il carico di produzione
+    '    Dim OCorpoCaricoProd As New CorpoCaricoProd()
+    '    OCorpoCaricoProd.CodArt = oEtichCsvDto.CodiceArticolo
+    '    OCorpoCaricoProd.ec_colli = oEtichCsvDto.PalletCompleti
+
+    '    OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+
+    '    OMovimentazioneManager.SettaPiedeProd()
+
+    '    OMovimentazioneManager.BCreaFilePick = False 'non faccio generare il piking dal salvataggio del documento
+
+    '    If Not OMovimentazioneManager.SalvaDocumento("N") Then
+    '        Throw New Exception($"Errore al salvataggio del documento di Scarico.! Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotto {oEtichCsvDto.CodiceArticolo} QtaProdotte {oEtichCsvDto.PalletCompleti}")
+    '    End If
+
+
+    '    OMovimentazioneManager.ProgProd = lNumTmpProd
+    '    OMovimentazioneManager.Serie = Serie
+    '    logger.LogInfo($"Scarico effettuato con successo (num. produzione {OMovimentazioneManager.ProgProd} serie {OMovimentazioneManager.Serie} il {oEtichCsvDto.Data.ToString("dddd dd/MM/yyyy", New CultureInfo("it-IT"))} di qta {oEtichCsvDto.PalletCompleti} per il prodotto {oEtichCsvDto.CodiceArticolo} ", settings.EtichNomeMacchina, oEtichCsvDto.CodiceArticolo, PublicCurrFileName)
+    'End Sub
+
+    '-------------------------------------------------------------------
+
+    'qui di seguito la versione corretta per etich
+    Public Overridable Sub EtichScaricoDiProduzione(oCleBoll As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogManager)
+        'si scorre i file csv
+
+        Dim AllFileCsvPaths() As String = Nothing
+        Try
+            'prima di accedere alla cartella si logga (solo se la sicurezza è configurata nel config.ini)
+            'perchè la cartella condivisa è protetta da nome utente e pwd
+            If settings.MachineFoldersSecurity.ToUpper() = GlobalConstants.MACHINE_FOLDERS_SECURITY_ON Then
+                Try
+                    NetworkShareManager.ConnectToShare(settings.EtichPercorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
+                    AllFileCsvPaths = Directory.GetFiles(settings.EtichPercorso, "*.csv")
+                Catch ex As Exception
+                    'si è verificato un errore nell'accesso con password
+                    'verifico che l'accesso non sia già stato fatto precedentemente perchè nel qual caso andrebbe in crash
+                    'se cerca di accedere ad una cartella a cui si può già accedere fornendo le credenziali
+                    Try
+                        AllFileCsvPaths = Directory.GetFiles(settings.EtichPercorso, "*.csv")
+                    Catch exInn As Exception
+                        'se anche il tentativo di accedere senza credenziali fallisce allora il problema potrebbe essere utente o pwd errata
+                        Throw New Exception($"Apertura della cartella {settings.EtichPercorso} fallita, utilizzando l'utente {settings.MachineFoldersUserName} probabilmente il nome utente o password non sono corretti")
+                    End Try
+                End Try
+            Else
+                'le cartelle non sono protette da password leggo direttamente i contenuti
+                AllFileCsvPaths = Directory.GetFiles(settings.EtichPercorso, "*.csv")
+            End If
+
+            Dim ObjEtichCsvDto As EtichCsvDto = Nothing
+
+            Dim CsvFilePaths = FiltraSoloCsvMacchine(AllFileCsvPaths)
+
+            Dim PublicCurrFileName As String = ""
+
+            For Each FilePath As String In CsvFilePaths
+
+
+                Try
+                    'espongo il nome del file per loggarlo in caso d'errore
+                    PublicCurrFileName = Path.GetFileName(FilePath)
+                    'verifica la validità del csv
+                    ObjEtichCsvDto = EtichCsvParser.ParseProduzioneCsv(FilePath, settings)
+
+                    'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
+                    'l'articolo ha gestione lotti?
+                    Dim OLottoManager As New LottoManager(settings, oCleAnlo)
+                    'Dim OLottoRep = New LottoRep(oCleAnlo)
+                    Dim IsArt1ConfForLotto As Boolean = OLottoManager.IsArtConfForLotto(oApp.Ditta, ObjEtichCsvDto.NomeEtichettaGruppo1)
+                    Dim IsArt2ConfForLotto As Boolean = OLottoManager.IsArtConfForLotto(oApp.Ditta, ObjEtichCsvDto.NomeEtichettaGruppo2)
+
+                    'se l'articolo è configurato per gestire lotto allora occorre creare un lotto per il prodotto finito
+                    'preparo i dati da inserire nel lotto...
+                    Dim oLottoDto1 As LottoDto = Nothing
+                    Dim oLottoDto2 As LottoDto = Nothing
+
+                    Dim Oggi As Date = ObjEtichCsvDto.Data
+
+                    Dim NextLottoNumber As Integer = OLottoManager.GetNextLottoNumber(oApp.Ditta)
+                    'Il lotto esiste già per il primo articolo?
+                    If IsArt1ConfForLotto Then
+                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjEtichCsvDto.NomeEtichettaGruppo1, settings.EtichNomeMacchina, ObjEtichCsvDto.Data)
+                        oLottoDto1 = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjEtichCsvDto.NomeEtichettaGruppo1, NomeLotto)
+                        'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
+                        'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
+
+                        If oLottoDto1 Is Nothing Then
+                            oLottoDto1 = New LottoDto() With {
+                          .StrCodart = CLN__STD.NTSCStr(ObjEtichCsvDto.NomeEtichettaGruppo1),
+                          .StrDescodart = CLN__STD.NTSCStr(""),
+                            .LLotto = CLN__STD.NTSCInt(NextLottoNumber),
+                          .StrLottox = NomeLotto,
+                          .DataCreazione = CLN__STD.NTSCDate(Oggi),
+                          .DataScadenza = CLN__STD.NTSCDate(Oggi.AddYears(3)),
+                          .LottoGiaPresente = False
+                      }
+                        End If
+
+                    End If
+
+                    'Il lotto esiste già per il secondo articolo?
+                    If IsArt2ConfForLotto Then
+                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjEtichCsvDto.NomeEtichettaGruppo2, settings.EtichNomeMacchina, ObjEtichCsvDto.Data)
+                        oLottoDto1 = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjEtichCsvDto.NomeEtichettaGruppo2, NomeLotto)
+                        'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
+                        'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
+
+                        If oLottoDto2 Is Nothing Then
+                            'Dim NextLottoNumber As Integer = OLottoManager.GetNextLottoNumber(oApp.Ditta)
+                            oLottoDto2 = New LottoDto() With {
+                          .StrCodart = CLN__STD.NTSCStr(ObjEtichCsvDto.NomeEtichettaGruppo2),
+                          .StrDescodart = CLN__STD.NTSCStr(""),
+                            .LLotto = CLN__STD.NTSCInt(NextLottoNumber + 1),
+                          .StrLottox = NomeLotto,
+                          .DataCreazione = CLN__STD.NTSCDate(Oggi),
+                          .DataScadenza = CLN__STD.NTSCDate(Oggi.AddYears(3)),
+                          .LottoGiaPresente = False
+                      }
+                        End If
+
+                    End If
+
+                    'crea il lotto e un carico di produzione per l'articolo del csv
+                    Dim OMovimentazioneManager As New MovimentazioneManager(settings, oCleBoll)
+                    'todo:creare due routine per gestire i carichi
+                    EtichExecScdp(OMovimentazioneManager, OLottoManager, ObjEtichCsvDto, oLottoDto1, settings, logger, PublicCurrFileName)
+                    'EtichExecScdp(OMovimentazioneManager, OLottoManager, ObjEtichCsvDto, oLottoDto2, settings, logger, PublicCurrFileName)
+                    'sposta il file in old dopo averlo elaborato
+                    'crea la directory se ancora non c'è
+                    Try
+                        SpostaECopiaFile(FilePath, Oggi, settings.EtichPercorsoOld, OMovimentazioneManager)
+
+                    Catch ex As Exception
+                        ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
+                    End Try
+
+
+                Catch ex As Exception
+                    'logga sposta in errore il file csv e va avanti
+                    logger.LogError(ex.Message, ex.StackTrace, settings.EtichNomeMacchina, If(ObjEtichCsvDto IsNot Nothing, ObjEtichCsvDto.NomeEtichettaGruppo1 + " " + ObjEtichCsvDto.NomeEtichettaGruppo2, ""), PublicCurrFileName)
+
+                    Try
+                        SpostaNellaCartellaErrori(FilePath, settings.EtichPercorsoErrori)
+
+                    Catch
+                        ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
+                    End Try
+                End Try
+
+            Next
+        Catch ex As Exception
+            'logga in caso non riesca ad aprire il path della cartella dei file csv...e poi passa alla elaborazione dei files della prossima macchina
+            logger.LogError(ex.Message, ex.StackTrace, settings.EtichNomeMacchina)
+        End Try
+    End Sub
+
+    Public Overridable Sub EtichExecScdp(OMovimentazioneManager As MovimentazioneManager, oLottoManager As LottoManager, oEtichCsvDto As EtichCsvDto, oLottoDto As LottoDto, settings As Settings, logger As LogManager, PublicCurrFileName As String)
+
+        Dim Serie As String = OMovimentazioneManager.GetSerie(GlobalConstants.MACHINENAME_ETICH, oEtichCsvDto.NomeEtichettaGruppo1)
+
+        'non deve creare nessun lotto etich...
+        ''esegue effettivamente il carico in experience
+        'If oLottoDto IsNot Nothing AndAlso Not oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+        '    'creo il lotto solo se si tratta di un articolo con gestione lotti
+        '    'e solo se il lotto non è ancora presente a db
+        '    If Serie1 = "CON" Then
+        '        'se la serie è CON allora il lotto è di tipo conter e quindi devo fare 
+        '        'l'insert del contatore conteggio giorni di produzione in crea lotto
+        '        oLottoDto.IsLottoConter = True
+        '    End If
+        '    oLottoManager.CreaLotto(oLottoDto)
+
+        '    logger.LogInfo($"Lotto creato per l'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.EtichNomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
+        'Else
+        '    If oLottoDto IsNot Nothing AndAlso oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+        '        logger.LogInfo($"Lotto associato all'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.EtichNomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
+        '    End If
+        'End If
+
+
+        '--- Legge il progressivo in TABNUMA
+        Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("Z", Serie, oEtichCsvDto.Data.Year)
+
+        'preparo l'ambiente
+
+        Dim ds As New DataSet
+        If Not OMovimentazioneManager.ApriDoc(oApp.Ditta, False, "Z", oEtichCsvDto.Data.Year, Serie, lNumTmpProd, ds) Then
+            Throw New Exception($"Apertura del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotti {oEtichCsvDto.NomeEtichettaGruppo1},{oEtichCsvDto.NomeEtichettaGruppo2} QtaProdotte {oEtichCsvDto.EtichetteErogateGruppo1},{oEtichCsvDto.EtichetteErogateGruppo2}")
+        End If
+
+        OMovimentazioneManager.SetApriDocSilent(True)
+
+        If OMovimentazioneManager.DsShared.Tables("TESTA").Rows.Count > 0 Then
+            Throw New Exception($"Errore nella numerazione del documento di Scarico. Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotti {oEtichCsvDto.NomeEtichettaGruppo1},{oEtichCsvDto.NomeEtichettaGruppo2} QtaProdotte {oEtichCsvDto.EtichetteErogateGruppo1},{oEtichCsvDto.EtichetteErogateGruppo2}")
+        End If
+        OMovimentazioneManager.ResetVar()
+        OMovimentazioneManager.StrVisNoteConto = "N"
+
+        If Not OMovimentazioneManager.NuovoDocumento(oApp.Ditta, "Z", oEtichCsvDto.Data.Year, Serie, lNumTmpProd, "") Then
+            Throw New Exception($"Creazione del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotti {oEtichCsvDto.NomeEtichettaGruppo1},{oEtichCsvDto.NomeEtichettaGruppo2} QtaProdotte {oEtichCsvDto.EtichetteErogateGruppo1},{oEtichCsvDto.EtichetteErogateGruppo2}")
+        End If
+        'oCleBoll.bInNuovoDocSilent = True
+        OMovimentazioneManager.SetNuovoDocSilent(True)
+
+        Dim OTestataCaricoDiProd As Action(Of DataRow) =
+        Sub(r As DataRow)
+            r!codditt = oApp.Ditta
+            r!et_conto = settings.Fornitore
+            r!et_tipork = "Z"
+            r!et_anno = oEtichCsvDto.Data.Year
+            r!et_serie = Serie
+            r!et_numdoc = lNumTmpProd
+            r!et_note = oEtichCsvDto.Note
+            r!et_datdoc = oEtichCsvDto.Data
+            r!et_tipobf = settings.TipoBfScarico
+        End Sub
+
+        OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
+
+
+        'setta il carico di produzione
+        Dim OCorpoCaricoProd1 As New CorpoCaricoProd()
+        OCorpoCaricoProd1.CodArt = oEtichCsvDto.NomeEtichettaGruppo1
+        OCorpoCaricoProd1.ec_colli = oEtichCsvDto.EtichetteErogateGruppo1
+
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd1, oLottoDto)
+
+        Dim OCorpoCaricoProd2 As New CorpoCaricoProd()
+        OCorpoCaricoProd2.CodArt = oEtichCsvDto.NomeEtichettaGruppo2
+        OCorpoCaricoProd2.ec_colli = oEtichCsvDto.EtichetteErogateGruppo2
+
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd2, oLottoDto)
+
+        OMovimentazioneManager.SettaPiedeProd()
+
+        OMovimentazioneManager.BCreaFilePick = False 'non faccio generare il piking dal salvataggio del documento
+
+        If Not OMovimentazioneManager.SalvaDocumento("N") Then
+            Throw New Exception($"Errore al salvataggio del documento di Scarico.! Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotti {oEtichCsvDto.NomeEtichettaGruppo1},{oEtichCsvDto.NomeEtichettaGruppo2} QtaProdotte {oEtichCsvDto.EtichetteErogateGruppo1},{oEtichCsvDto.EtichetteErogateGruppo2}")
+        End If
+
+
+        OMovimentazioneManager.ProgProd = lNumTmpProd
+        OMovimentazioneManager.Serie = Serie
+        logger.LogInfo($"Scarico effettuato con successo (num. produzione {OMovimentazioneManager.ProgProd} serie {OMovimentazioneManager.Serie} il {oEtichCsvDto.Data.ToString("dddd dd/MM/yyyy", New CultureInfo("it-IT"))} di QtaProdotte {oEtichCsvDto.EtichetteErogateGruppo1},{oEtichCsvDto.EtichetteErogateGruppo2} per i prodotti {oEtichCsvDto.NomeEtichettaGruppo1},{oEtichCsvDto.NomeEtichettaGruppo2} ", settings.EtichNomeMacchina, oEtichCsvDto.NomeEtichettaGruppo1, PublicCurrFileName)
+    End Sub
+
+#End Region
+
+
+#Region "Picker23017"
+
+    Public Overridable Sub Picker23017ScaricoDiProduzione(oCleBoll As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogManager)
+        'si scorre i file csv
+
+        Dim AllFileCsvPaths() As String = Nothing
+        Try
+            'prima di accedere alla cartella si logga (solo se la sicurezza è configurata nel config.ini)
+            'perchè la cartella condivisa è protetta da nome utente e pwd
+            If settings.MachineFoldersSecurity.ToUpper() = GlobalConstants.MACHINE_FOLDERS_SECURITY_ON Then
+                Try
+                    NetworkShareManager.ConnectToShare(settings.Picker23017Percorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
+                    AllFileCsvPaths = Directory.GetFiles(settings.Picker23017Percorso, "*.csv")
+                Catch ex As Exception
+                    'si è verificato un errore nell'accesso con password
+                    'verifico che l'accesso non sia già stato fatto precedentemente perchè nel qual caso andrebbe in crash
+                    'se cerca di accedere ad una cartella a cui si può già accedere fornendo le credenziali
+                    Try
+                        AllFileCsvPaths = Directory.GetFiles(settings.Picker23017Percorso, "*.csv")
+                    Catch exInn As Exception
+                        'se anche il tentativo di accedere senza credenziali fallisce allora il problema potrebbe essere utente o pwd errata
+                        Throw New Exception($"Apertura della cartella {settings.Picker23017Percorso} fallita, utilizzando l'utente {settings.MachineFoldersUserName} probabilmente il nome utente o password non sono corretti")
+                    End Try
+                End Try
+            Else
+                'le cartelle non sono protette da password leggo direttamente i contenuti
+                AllFileCsvPaths = Directory.GetFiles(settings.Picker23017Percorso, "*.csv")
+            End If
+
+            Dim ObjPicker23017CsvDto As Picker23017CsvDto = Nothing
+
+            Dim CsvFilePaths = FiltraSoloCsvMacchine(AllFileCsvPaths)
+
+            Dim PublicCurrFileName As String = ""
+
+            For Each FilePath As String In CsvFilePaths
+
+
+                Try
+                    'espongo il nome del file per loggarlo in caso d'errore
+                    PublicCurrFileName = Path.GetFileName(FilePath)
+                    'verifica la validità del csv
+                    ObjPicker23017CsvDto = Picker23017CsvParser.ParseProduzioneCsv(FilePath, settings)
+
+                    'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
+                    'l'articolo ha gestione lotti?
+                    Dim OLottoManager As New LottoManager(settings, oCleAnlo)
+                    'Dim OLottoRep = New LottoRep(oCleAnlo)
+                    Dim IsArtConfForLotto As Boolean = OLottoManager.IsArtConfForLotto(oApp.Ditta, ObjPicker23017CsvDto.CodiceArticolo)
+
+                    'se l'articolo è configurato per gestire lotto allora occorre creare un lotto per il prodotto finito
+                    'preparo i dati da inserire nel lotto...
+                    Dim oLottoDto As LottoDto = Nothing
+
+                    Dim Oggi As Date = ObjPicker23017CsvDto.DataEOra
+
+                    'Il lotto esiste già?
+                    If IsArtConfForLotto Then
+                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjPicker23017CsvDto.CodiceArticolo, settings.Picker23017NomeMacchina, ObjPicker23017CsvDto.DataEOra)
+                        oLottoDto = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjPicker23017CsvDto.CodiceArticolo, NomeLotto)
+                        'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
+                        'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
+
+                        If oLottoDto Is Nothing Then
+                            Dim NextLottoNumber As Integer = OLottoManager.GetNextLottoNumber(oApp.Ditta)
+                            oLottoDto = New LottoDto() With {
+                          .StrCodart = CLN__STD.NTSCStr(ObjPicker23017CsvDto.CodiceArticolo),
+                          .StrDescodart = CLN__STD.NTSCStr(""),
+                            .LLotto = CLN__STD.NTSCInt(NextLottoNumber),
+                          .StrLottox = NomeLotto,
+                          .DataCreazione = CLN__STD.NTSCDate(Oggi),
+                          .DataScadenza = CLN__STD.NTSCDate(Oggi.AddYears(3)),
+                          .LottoGiaPresente = False
+                      }
+                        End If
+
+                    End If
+
+                    'crea il lotto e un carico di produzione per l'articolo del csv
+                    Dim OMovimentazioneManager As New MovimentazioneManager(settings, oCleBoll)
+                    Picker23017ExecScdp(OMovimentazioneManager, OLottoManager, ObjPicker23017CsvDto, oLottoDto, settings, logger, PublicCurrFileName)
+                    'sposta il file in old dopo averlo elaborato
+                    'crea la directory se ancora non c'è
+                    Try
+                        SpostaECopiaFile(FilePath, Oggi, settings.Picker23017PercorsoOld, OMovimentazioneManager)
+
+                    Catch ex As Exception
+                        ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
+                    End Try
+
+
+                Catch ex As Exception
+                    'logga sposta in errore il file csv e va avanti
+                    logger.LogError(ex.Message, ex.StackTrace, settings.Picker23017NomeMacchina, If(ObjPicker23017CsvDto IsNot Nothing, ObjPicker23017CsvDto.CodiceArticolo, ""), PublicCurrFileName)
+
+                    Try
+                        SpostaNellaCartellaErrori(FilePath, settings.Picker23017PercorsoErrori)
+
+                    Catch
+                        ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
+                    End Try
+                End Try
+
+            Next
+        Catch ex As Exception
+            'logga in caso non riesca ad aprire il path della cartella dei file csv...e poi passa alla elaborazione dei files della prossima macchina
+            logger.LogError(ex.Message, ex.StackTrace, settings.Picker23017NomeMacchina)
+        End Try
+    End Sub
+
+    Public Overridable Sub Picker23017ExecScdp(OMovimentazioneManager As MovimentazioneManager, oLottoManager As LottoManager, oPicker23017CsvDto As Picker23017CsvDto, oLottoDto As LottoDto, settings As Settings, logger As LogManager, PublicCurrFileName As String)
+
+        Dim Serie As String = OMovimentazioneManager.GetSerie(GlobalConstants.MACHINENAME_PICKER23017, oPicker23017CsvDto.CodiceArticolo)
+
+        'esegue effettivamente il carico in experience
+        If oLottoDto IsNot Nothing AndAlso Not oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+            'creo il lotto solo se si tratta di un articolo con gestione lotti
+            'e solo se il lotto non è ancora presente a db
+            If Serie = "CON" Then
+                'se la serie è CON allora il lotto è di tipo conter e quindi devo fare 
+                'l'insert del contatore conteggio giorni di produzione in crea lotto
+                oLottoDto.IsLottoConter = True
+            End If
+            oLottoManager.CreaLotto(oLottoDto)
+
+            logger.LogInfo($"Lotto creato per l'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.Picker23017NomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
+        Else
+            If oLottoDto IsNot Nothing AndAlso oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+                logger.LogInfo($"Lotto associato all'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.Picker23017NomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
+            End If
+        End If
+
+
+        '--- Legge il progressivo in TABNUMA
+        Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("Z", Serie, oPicker23017CsvDto.DataEOra.Year)
+
+        'preparo l'ambiente
+
+        Dim ds As New DataSet
+        If Not OMovimentazioneManager.ApriDoc(oApp.Ditta, False, "Z", oPicker23017CsvDto.DataEOra.Year, Serie, lNumTmpProd, ds) Then
+            Throw New Exception($"Apertura del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oPicker23017CsvDto.DataEOra.Year}, serie {Serie}, prodotto {oPicker23017CsvDto.CodiceArticolo} QtaProdotte {oPicker23017CsvDto.PezziBuoni}")
+        End If
+
+        OMovimentazioneManager.SetApriDocSilent(True)
+
+        If OMovimentazioneManager.DsShared.Tables("TESTA").Rows.Count > 0 Then
+            Throw New Exception($"Errore nella numerazione del documento di Scarico. Dettagli: numero documento {lNumTmpProd} data documento {oPicker23017CsvDto.DataEOra.Year}, serie {Serie}, prodotto {oPicker23017CsvDto.CodiceArticolo} QtaProdotte {oPicker23017CsvDto.PezziBuoni}")
+        End If
+        OMovimentazioneManager.ResetVar()
+        OMovimentazioneManager.StrVisNoteConto = "N"
+
+        If Not OMovimentazioneManager.NuovoDocumento(oApp.Ditta, "Z", oPicker23017CsvDto.DataEOra.Year, Serie, lNumTmpProd, "") Then
+            Throw New Exception($"Creazione del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oPicker23017CsvDto.DataEOra.Year}, serie {Serie}, prodotto {oPicker23017CsvDto.CodiceArticolo} QtaProdotte {oPicker23017CsvDto.PezziBuoni}")
+        End If
+        'oCleBoll.bInNuovoDocSilent = True
+        OMovimentazioneManager.SetNuovoDocSilent(True)
+
+        Dim OTestataCaricoDiProd As Action(Of DataRow) =
+        Sub(r As DataRow)
+            r!codditt = oApp.Ditta
+            r!et_conto = settings.Fornitore
+            r!et_tipork = "Z"
+            r!et_anno = oPicker23017CsvDto.DataEOra.Year
+            r!et_serie = Serie
+            r!et_numdoc = lNumTmpProd
+            r!et_note = oPicker23017CsvDto.Note
+            r!et_datdoc = oPicker23017CsvDto.DataEOra
+            r!et_tipobf = settings.TipoBfScarico
+        End Sub
+
+        OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
+
+
+        'setta il carico di produzione
+        Dim OCorpoCaricoProd As New CorpoCaricoProd()
+        OCorpoCaricoProd.CodArt = oPicker23017CsvDto.CodiceArticolo
+        OCorpoCaricoProd.ec_colli = oPicker23017CsvDto.PezziBuoni
+
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+
+        OMovimentazioneManager.SettaPiedeProd()
+
+        OMovimentazioneManager.BCreaFilePick = False 'non faccio generare il piking dal salvataggio del documento
+
+        If Not OMovimentazioneManager.SalvaDocumento("N") Then
+            Throw New Exception($"Errore al salvataggio del documento di Scarico.! Dettagli: numero documento {lNumTmpProd} data documento {oPicker23017CsvDto.DataEOra.Year}, serie {Serie}, prodotto {oPicker23017CsvDto.CodiceArticolo} QtaProdotte {oPicker23017CsvDto.PezziBuoni}")
+        End If
+
+
+        OMovimentazioneManager.ProgProd = lNumTmpProd
+        OMovimentazioneManager.Serie = Serie
+        logger.LogInfo($"Scarico effettuato con successo (num. produzione {OMovimentazioneManager.ProgProd} serie {OMovimentazioneManager.Serie} il {oPicker23017CsvDto.DataEOra.ToString("dddd dd/MM/yyyy", New CultureInfo("it-IT"))} di qta {oPicker23017CsvDto.PezziBuoni} per il prodotto {oPicker23017CsvDto.CodiceArticolo} ", settings.Picker23017NomeMacchina, oPicker23017CsvDto.CodiceArticolo, PublicCurrFileName)
+    End Sub
+
+#End Region
+
+
+#Region "Picker23018"
+
+    Public Overridable Sub Picker23018ScaricoDiProduzione(oCleBoll As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogManager)
+        'si scorre i file csv
+
+        Dim AllFileCsvPaths() As String = Nothing
+        Try
+            'prima di accedere alla cartella si logga (solo se la sicurezza è configurata nel config.ini)
+            'perchè la cartella condivisa è protetta da nome utente e pwd
+            If settings.MachineFoldersSecurity.ToUpper() = GlobalConstants.MACHINE_FOLDERS_SECURITY_ON Then
+                Try
+                    NetworkShareManager.ConnectToShare(settings.Picker23018Percorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
+                    AllFileCsvPaths = Directory.GetFiles(settings.Picker23018Percorso, "*.csv")
+                Catch ex As Exception
+                    'si è verificato un errore nell'accesso con password
+                    'verifico che l'accesso non sia già stato fatto precedentemente perchè nel qual caso andrebbe in crash
+                    'se cerca di accedere ad una cartella a cui si può già accedere fornendo le credenziali
+                    Try
+                        AllFileCsvPaths = Directory.GetFiles(settings.Picker23018Percorso, "*.csv")
+                    Catch exInn As Exception
+                        'se anche il tentativo di accedere senza credenziali fallisce allora il problema potrebbe essere utente o pwd errata
+                        Throw New Exception($"Apertura della cartella {settings.Picker23018Percorso} fallita, utilizzando l'utente {settings.MachineFoldersUserName} probabilmente il nome utente o password non sono corretti")
+                    End Try
+                End Try
+            Else
+                'le cartelle non sono protette da password leggo direttamente i contenuti
+                AllFileCsvPaths = Directory.GetFiles(settings.Picker23018Percorso, "*.csv")
+            End If
+
+            Dim ObjPicker23018CsvDto As Picker23018CsvDto = Nothing
+
+            Dim CsvFilePaths = FiltraSoloCsvMacchine(AllFileCsvPaths)
+
+            Dim PublicCurrFileName As String = ""
+
+            For Each FilePath As String In CsvFilePaths
+
+
+                Try
+                    'espongo il nome del file per loggarlo in caso d'errore
+                    PublicCurrFileName = Path.GetFileName(FilePath)
+                    'verifica la validità del csv
+                    ObjPicker23018CsvDto = Picker23018CsvParser.ParseProduzioneCsv(FilePath, settings)
+
+                    'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
+                    'l'articolo ha gestione lotti?
+                    Dim OLottoManager As New LottoManager(settings, oCleAnlo)
+                    'Dim OLottoRep = New LottoRep(oCleAnlo)
+                    Dim IsArtConfForLotto As Boolean = OLottoManager.IsArtConfForLotto(oApp.Ditta, ObjPicker23018CsvDto.CodiceArticolo)
+
+                    'se l'articolo è configurato per gestire lotto allora occorre creare un lotto per il prodotto finito
+                    'preparo i dati da inserire nel lotto...
+                    Dim oLottoDto As LottoDto = Nothing
+
+                    Dim Oggi As Date = ObjPicker23018CsvDto.DataEOra
+
+                    'Il lotto esiste già?
+                    If IsArtConfForLotto Then
+                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjPicker23018CsvDto.CodiceArticolo, settings.Picker23018NomeMacchina, ObjPicker23018CsvDto.DataEOra)
+                        oLottoDto = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjPicker23018CsvDto.CodiceArticolo, NomeLotto)
+                        'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
+                        'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
+
+                        If oLottoDto Is Nothing Then
+                            Dim NextLottoNumber As Integer = OLottoManager.GetNextLottoNumber(oApp.Ditta)
+                            oLottoDto = New LottoDto() With {
+                          .StrCodart = CLN__STD.NTSCStr(ObjPicker23018CsvDto.CodiceArticolo),
+                          .StrDescodart = CLN__STD.NTSCStr(""),
+                            .LLotto = CLN__STD.NTSCInt(NextLottoNumber),
+                          .StrLottox = NomeLotto,
+                          .DataCreazione = CLN__STD.NTSCDate(Oggi),
+                          .DataScadenza = CLN__STD.NTSCDate(Oggi.AddYears(3)),
+                          .LottoGiaPresente = False
+                      }
+                        End If
+
+                    End If
+
+                    'crea il lotto e un carico di produzione per l'articolo del csv
+                    Dim OMovimentazioneManager As New MovimentazioneManager(settings, oCleBoll)
+                    Picker23018ExecScdp(OMovimentazioneManager, OLottoManager, ObjPicker23018CsvDto, oLottoDto, settings, logger, PublicCurrFileName)
+                    'sposta il file in old dopo averlo elaborato
+                    'crea la directory se ancora non c'è
+                    Try
+                        SpostaECopiaFile(FilePath, Oggi, settings.Picker23018PercorsoOld, OMovimentazioneManager)
+
+                    Catch ex As Exception
+                        ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
+                    End Try
+
+
+                Catch ex As Exception
+                    'logga sposta in errore il file csv e va avanti
+                    logger.LogError(ex.Message, ex.StackTrace, settings.Picker23018NomeMacchina, If(ObjPicker23018CsvDto IsNot Nothing, ObjPicker23018CsvDto.CodiceArticolo, ""), PublicCurrFileName)
+
+                    Try
+                        SpostaNellaCartellaErrori(FilePath, settings.Picker23018PercorsoErrori)
+
+                    Catch
+                        ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
+                    End Try
+                End Try
+
+            Next
+        Catch ex As Exception
+            'logga in caso non riesca ad aprire il path della cartella dei file csv...e poi passa alla elaborazione dei files della prossima macchina
+            logger.LogError(ex.Message, ex.StackTrace, settings.Picker23018NomeMacchina)
+        End Try
+    End Sub
+
+    Public Overridable Sub Picker23018ExecScdp(OMovimentazioneManager As MovimentazioneManager, oLottoManager As LottoManager, oPicker23018CsvDto As Picker23018CsvDto, oLottoDto As LottoDto, settings As Settings, logger As LogManager, PublicCurrFileName As String)
+
+        Dim Serie As String = OMovimentazioneManager.GetSerie(GlobalConstants.MACHINENAME_PICKER23018, oPicker23018CsvDto.CodiceArticolo)
+
+        'esegue effettivamente il carico in experience
+        If oLottoDto IsNot Nothing AndAlso Not oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+            'creo il lotto solo se si tratta di un articolo con gestione lotti
+            'e solo se il lotto non è ancora presente a db
+            If Serie = "CON" Then
+                'se la serie è CON allora il lotto è di tipo conter e quindi devo fare 
+                'l'insert del contatore conteggio giorni di produzione in crea lotto
+                oLottoDto.IsLottoConter = True
+            End If
+            oLottoManager.CreaLotto(oLottoDto)
+
+            logger.LogInfo($"Lotto creato per l'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.Picker23018NomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
+        Else
+            If oLottoDto IsNot Nothing AndAlso oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+                logger.LogInfo($"Lotto associato all'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.Picker23018NomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
+            End If
+        End If
+
+
+        '--- Legge il progressivo in TABNUMA
+        Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("Z", Serie, oPicker23018CsvDto.DataEOra.Year)
+
+        'preparo l'ambiente
+
+        Dim ds As New DataSet
+        If Not OMovimentazioneManager.ApriDoc(oApp.Ditta, False, "Z", oPicker23018CsvDto.DataEOra.Year, Serie, lNumTmpProd, ds) Then
+            Throw New Exception($"Apertura del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oPicker23018CsvDto.DataEOra.Year}, serie {Serie}, prodotto {oPicker23018CsvDto.CodiceArticolo} QtaProdotte {oPicker23018CsvDto.PezziBuoni}")
+        End If
+
+        OMovimentazioneManager.SetApriDocSilent(True)
+
+        If OMovimentazioneManager.DsShared.Tables("TESTA").Rows.Count > 0 Then
+            Throw New Exception($"Errore nella numerazione del documento di Scarico. Dettagli: numero documento {lNumTmpProd} data documento {oPicker23018CsvDto.DataEOra.Year}, serie {Serie}, prodotto {oPicker23018CsvDto.CodiceArticolo} QtaProdotte {oPicker23018CsvDto.PezziBuoni}")
+        End If
+        OMovimentazioneManager.ResetVar()
+        OMovimentazioneManager.StrVisNoteConto = "N"
+
+        If Not OMovimentazioneManager.NuovoDocumento(oApp.Ditta, "Z", oPicker23018CsvDto.DataEOra.Year, Serie, lNumTmpProd, "") Then
+            Throw New Exception($"Creazione del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oPicker23018CsvDto.DataEOra.Year}, serie {Serie}, prodotto {oPicker23018CsvDto.CodiceArticolo} QtaProdotte {oPicker23018CsvDto.PezziBuoni}")
+        End If
+        'oCleBoll.bInNuovoDocSilent = True
+        OMovimentazioneManager.SetNuovoDocSilent(True)
+
+        Dim OTestataCaricoDiProd As Action(Of DataRow) =
+        Sub(r As DataRow)
+            r!codditt = oApp.Ditta
+            r!et_conto = settings.Fornitore
+            r!et_tipork = "Z"
+            r!et_anno = oPicker23018CsvDto.DataEOra.Year
+            r!et_serie = Serie
+            r!et_numdoc = lNumTmpProd
+            r!et_note = oPicker23018CsvDto.Note
+            r!et_datdoc = oPicker23018CsvDto.DataEOra
+            r!et_tipobf = settings.TipoBfScarico
+        End Sub
+
+        OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
+
+
+        'setta il carico di produzione
+        Dim OCorpoCaricoProd As New CorpoCaricoProd()
+        OCorpoCaricoProd.CodArt = oPicker23018CsvDto.CodiceArticolo
+        OCorpoCaricoProd.ec_colli = oPicker23018CsvDto.PezziBuoni
+
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+
+        OMovimentazioneManager.SettaPiedeProd()
+
+        OMovimentazioneManager.BCreaFilePick = False 'non faccio generare il piking dal salvataggio del documento
+
+        If Not OMovimentazioneManager.SalvaDocumento("N") Then
+            Throw New Exception($"Errore al salvataggio del documento di Scarico.! Dettagli: numero documento {lNumTmpProd} data documento {oPicker23018CsvDto.DataEOra.Year}, serie {Serie}, prodotto {oPicker23018CsvDto.CodiceArticolo} QtaProdotte {oPicker23018CsvDto.PezziBuoni}")
+        End If
+
+
+        OMovimentazioneManager.ProgProd = lNumTmpProd
+        OMovimentazioneManager.Serie = Serie
+        logger.LogInfo($"Scarico effettuato con successo (num. produzione {OMovimentazioneManager.ProgProd} serie {OMovimentazioneManager.Serie} il {oPicker23018CsvDto.DataEOra.ToString("dddd dd/MM/yyyy", New CultureInfo("it-IT"))} di qta {oPicker23018CsvDto.PezziBuoni} per il prodotto {oPicker23018CsvDto.CodiceArticolo} ", settings.Picker23018NomeMacchina, oPicker23018CsvDto.CodiceArticolo, PublicCurrFileName)
+    End Sub
+
+#End Region
+
 #Region "Duetti"
 
     Public Overridable Sub DuettiCaricoDiProduzione(oCleBoll As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogManager)
@@ -1634,12 +2464,12 @@ Public Class CompInterconnManager
                     'se l'articolo è configurato per gestire lotto allora occorre creare un lotto per il prodotto finito
                     'preparo i dati da inserire nel lotto...
                     Dim oLottoDto As LottoDto = Nothing
-                    Dim Oggi As Date = ObjIca1CsvDto.FineTurno
+                    Dim Oggi As Date = ObjIca1CsvDto.InizioTurno
 
                     'Il lotto esiste già?
                     If IsArtConfForLotto Then
 
-                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjIca1CsvDto.CodiceArticolo, settings.ICAVL08615NomeMacchina, ObjIca1CsvDto.FineTurno)
+                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjIca1CsvDto.CodiceArticolo, settings.ICAVL08615NomeMacchina, ObjIca1CsvDto.InizioTurno)
                         oLottoDto = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjIca1CsvDto.CodiceArticolo, NomeLotto)
                         'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
                         'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
@@ -1720,7 +2550,7 @@ Public Class CompInterconnManager
 
 
         '--- Legge il progressivo in TABNUMA
-        Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("T", Serie, oIca1CsvDto.FineTurno.Year)
+        Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("T", Serie, oIca1CsvDto.InizioTurno.Year)
 
 
         'preparo l'ambiente
@@ -1752,11 +2582,11 @@ Public Class CompInterconnManager
            r!codditt = oApp.Ditta
            r!et_conto = settings.Fornitore
            r!et_tipork = "T"
-           r!et_anno = oIca1CsvDto.FineTurno.Year
+           r!et_anno = oIca1CsvDto.InizioTurno.Year
            r!et_serie = Serie
            r!et_numdoc = lNumTmpProd
            r!et_note = oIca1CsvDto.Note
-           r!et_datdoc = oIca1CsvDto.FineTurno
+           r!et_datdoc = oIca1CsvDto.InizioTurno
            r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
        End Sub
@@ -1786,7 +2616,7 @@ Public Class CompInterconnManager
         OMovimentazioneManager.ProgProd = lNumTmpProd
         OMovimentazioneManager.Serie = Serie
 
-        logger.LogInfo($"Carico effettuato con successo (num. produzione {OMovimentazioneManager.ProgProd} serie {OMovimentazioneManager.Serie} il {oIca1CsvDto.FineTurno.ToString("dddd dd/MM/yyyy", New CultureInfo("it-IT"))} di qta {oIca1CsvDto.ScatoleTeoricheProdotte} per il prodotto {oIca1CsvDto.CodiceArticolo} ", settings.ICAVL08615NomeMacchina, oIca1CsvDto.CodiceArticolo, PublicCurrFileName)
+        logger.LogInfo($"Carico effettuato con successo (num. produzione {OMovimentazioneManager.ProgProd} serie {OMovimentazioneManager.Serie} il {oIca1CsvDto.InizioTurno.ToString("dddd dd/MM/yyyy", New CultureInfo("it-IT"))} di qta {oIca1CsvDto.ScatoleTeoricheProdotte} per il prodotto {oIca1CsvDto.CodiceArticolo} ", settings.ICAVL08615NomeMacchina, oIca1CsvDto.CodiceArticolo, PublicCurrFileName)
 
     End Sub
 
@@ -1847,11 +2677,11 @@ Public Class CompInterconnManager
                     'se l'articolo è configurato per gestire lotto allora occorre creare un lotto per il prodotto finito
                     'preparo i dati da inserire nel lotto...
                     Dim oLottoDto As LottoDto = Nothing
-                    Dim Oggi As Date = ObjIca2CsvDto.FineTurno
+                    Dim Oggi As Date = ObjIca2CsvDto.InizioTurno
 
                     'Il lotto esiste già?
                     If IsArtConfForLotto Then
-                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjIca2CsvDto.CodiceArticolo, settings.ICAVL08616NomeMacchina, ObjIca2CsvDto.FineTurno)
+                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjIca2CsvDto.CodiceArticolo, settings.ICAVL08616NomeMacchina, ObjIca2CsvDto.InizioTurno)
                         oLottoDto = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjIca2CsvDto.CodiceArticolo, NomeLotto)
                         'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
                         'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
@@ -1932,7 +2762,7 @@ Public Class CompInterconnManager
 
 
         '--- Legge il progressivo in TABNUMA
-        Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("T", Serie, oIca2CsvDto.FineTurno.Year)
+        Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("T", Serie, oIca2CsvDto.InizioTurno.Year)
 
 
         'preparo l'ambiente
@@ -1964,11 +2794,11 @@ Public Class CompInterconnManager
            r!codditt = oApp.Ditta
            r!et_conto = settings.Fornitore
            r!et_tipork = "T"
-           r!et_anno = oIca2CsvDto.FineTurno.Year
+           r!et_anno = oIca2CsvDto.InizioTurno.Year
            r!et_serie = Serie
            r!et_numdoc = lNumTmpProd
            r!et_note = oIca2CsvDto.Note
-           r!et_datdoc = oIca2CsvDto.FineTurno
+           r!et_datdoc = oIca2CsvDto.InizioTurno
            r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
        End Sub
@@ -1998,7 +2828,7 @@ Public Class CompInterconnManager
         OMovimentazioneManager.ProgProd = lNumTmpProd
         OMovimentazioneManager.Serie = Serie
 
-        logger.LogInfo($"Carico effettuato con successo (num. produzione {OMovimentazioneManager.ProgProd} serie {OMovimentazioneManager.Serie} il {oIca2CsvDto.FineTurno.ToString("dddd dd/MM/yyyy", New CultureInfo("it-IT"))} di qta {oIca2CsvDto.ScatoleTeoricheProdotte} per il prodotto {oIca2CsvDto.CodiceArticolo} ", settings.ICAVL08616NomeMacchina, oIca2CsvDto.CodiceArticolo, PublicCurrFileName)
+        logger.LogInfo($"Carico effettuato con successo (num. produzione {OMovimentazioneManager.ProgProd} serie {OMovimentazioneManager.Serie} il {oIca2CsvDto.InizioTurno.ToString("dddd dd/MM/yyyy", New CultureInfo("it-IT"))} di qta {oIca2CsvDto.ScatoleTeoricheProdotte} per il prodotto {oIca2CsvDto.CodiceArticolo} ", settings.ICAVL08616NomeMacchina, oIca2CsvDto.CodiceArticolo, PublicCurrFileName)
 
     End Sub
 

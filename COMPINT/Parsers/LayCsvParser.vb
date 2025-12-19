@@ -38,12 +38,12 @@ Module LayCsvParser
         Dim dto As New LayCsvDto()
         Dim culture As CultureInfo = CultureInfo.InvariantCulture
 
-        dto.DataOra = DateTime.Parse(General.ConvertiDataCustom(dati(0), GlobalConstants.MACHINENAME_LAY, dto.CodiceArticolo), New CultureInfo("it-IT"))
+        dto.DataOra = DateTime.Parse(General.ConvertiDataCustom(dati(0), GlobalConstants.MACHINENAME_LAY), New CultureInfo("it-IT"))
         dto.Ricetta = dati(1).Trim()
         dto.PalletCompleti = Integer.Parse(dati(2))
         dto.PalletIncompleti = Integer.Parse(dati(3))
         dto.PalletVuoti = Integer.Parse(dati(4))
-        dto.Note = settings.Meccanoplastica1NomeMacchina & Environment.NewLine & righe(0) & Environment.NewLine & righe(1)
+        dto.Note = settings.LayNomeMacchina & Environment.NewLine & righe(0) & Environment.NewLine & righe(1)
         Return dto
     End Function
 

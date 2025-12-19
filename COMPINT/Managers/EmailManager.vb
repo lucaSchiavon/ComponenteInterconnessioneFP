@@ -1,18 +1,18 @@
-Imports System
-Imports System.Collections.Generic
+
 Imports System.Net
 Imports System.Net.Mail
 
+
 Public Class EmailManager
     Private ReadOnly _settings As Settings
-    Private ReadOnly _logger As LogManager
+    'Private ReadOnly _logRep As LogRep
 
-    Public Sub New(settings As Settings, Optional logger As LogManager = Nothing)
+    Public Sub New(settings As Settings)
         _settings = settings
-        _logger = If(logger, New LogManager(settings))
+        '_logRep = If(logger, New LogManager(settings))
     End Sub
 
-    Public Function SendEmail(ByVal sender As String, ByVal recipients As List(Of String), ByVal subject As String, ByVal body As String, Optional ByVal logResult As Boolean = True) As Boolean
+    Public Sub SendEmail(ByVal sender As String, ByVal recipients As List(Of String), ByVal subject As String, ByVal body As String)
         Try
             If String.IsNullOrWhiteSpace(_settings.SmtpServer) Then
                 Throw New ArgumentException("SMTP server non configurato")
@@ -43,15 +43,17 @@ Public Class EmailManager
                 smtp.Send(mail)
             End Using
 
-            If logResult Then
-                _logger.LogInfo($"Email inviata a: {String.Join(";", recipients)} Oggetto: {subject}")
-            End If
-            Return True
+            'If logResult Then
+            '    '_logRep.InsertLog("INFO", $"Email inviata a: {String.Join(";", recipients)} Oggetto: {subject}", Nothing, "", "", "")
+
+            'End If
+
         Catch ex As Exception
-            If logResult Then
-                _logger.LogError($"Errore invio email: {ex.Message}", ex.StackTrace)
-            End If
-            Return False
+            'If logResult Then
+            '    '_logRep.InsertLog("ERROR", $"Errore invio email: {ex.Message}", ex.StackTrace, "", "", "")
+
+            'End If
+            Throw New Exception("Errore invio email: " & ex.Message, ex)
         End Try
-    End Function
+    End Sub
 End Class

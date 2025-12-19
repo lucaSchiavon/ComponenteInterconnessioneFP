@@ -41,15 +41,59 @@ Module General
     '    Globalization.CultureInfo.InvariantCulture
     ')
     'End Function
-    Public Function ConvertiDataCustom(dataStr As String, NomeMacchina As String, CodArt As String) As Date
-        Dim fmt As String = ""
+    'Public Function ConvertiDataCustom(dataStr As String, NomeMacchina As String) As Date
+    '    Dim fmt As String = ""
+    '    Dim fmts As String() = Nothing
+    '    'Const fmt As String = "dd/MM/yyyy HH.mm.ss"
 
+    '    Select Case NomeMacchina.ToUpperInvariant()
+    '        Case GlobalConstants.MACHINENAME_MECCANOPLASTICA1,
+    '             GlobalConstants.MACHINENAME_MECCANOPLASTICA4
+    '            fmts = {"yyyy-MM-dd_HH.mm.ss"}
+    '            'Case GlobalConstants.MACHINENAME_DUETTI,
+    '            '     GlobalConstants.MACHINENAME_DUETTI2
+    '            '    Select Case CodArt(0)
+    '            '        Case "P"c, "F"c
+    '            '            fmt = "dd/MM/yyyy HH.mm.ss"
+    '            '        Case "M"c
+    '            '            fmt = "dd.MM.yyyy HH:mm:ss"
+
+    '            '    End Select
+    '        Case GlobalConstants.MACHINENAME_DUETTI
+    '            fmts = {"dd/MM/yyyy HH.mm.ss", "d/M/yyyy H.m.s"}
+    '        Case GlobalConstants.MACHINENAME_DUETTI2,
+    '             GlobalConstants.MACHINENAME_LAY
+    '            fmts = {"dd.MM.yyyy HH:mm:ss", "d.M.yyyy H:m:s"}
+    '        Case GlobalConstants.MACHINENAME_AXOMATIC
+    '            fmts = {"yyyy-MM-dd_HH.mm.ss"}
+    '        Case GlobalConstants.MACHINENAME_ETICH
+    '            fmts = {"yyyy/M/d", "yyyy/MM/dd"}
+    '            'fmt = "yyyy/MM/dd"
+    '        Case GlobalConstants.MACHINENAME_PICKER23017,
+    '             GlobalConstants.MACHINENAME_PICKER23018
+    '            fmts = {"yyyy-MM-dd-HH:mm:ss"}
+    '        Case Else
+    '            Throw New ArgumentException($"Nome macchina {NomeMacchina} non riconosciuto durante la conversione in data del valore nel csv di produzione")
+    '    End Select
+
+    '    Return DateTime.ParseExact(dataStr, fmts, Globalization.CultureInfo.InvariantCulture, Globalization.DateTimeStyles.None)
+
+    '    'Return DateTime.ParseExact(
+    '    '    dataStr,
+    '    '    fmt,
+    '    '    Globalization.CultureInfo.InvariantCulture
+    '    ')
+    'End Function
+    Public Function ConvertiDataCustom(dataStr As String, NomeMacchina As String) As Date
+        Dim fmt As String = ""
+        Dim fmts As String() = Nothing
         'Const fmt As String = "dd/MM/yyyy HH.mm.ss"
 
         Select Case NomeMacchina.ToUpperInvariant()
             Case GlobalConstants.MACHINENAME_MECCANOPLASTICA1,
-                 GlobalConstants.MACHINENAME_MECCANOPLASTICA4
-                fmt = "yyyy-MM-dd_HH.mm.ss"
+                 GlobalConstants.MACHINENAME_MECCANOPLASTICA4,
+                 GlobalConstants.MACHINENAME_AXOMATIC
+                fmts = {"yyyy-M-d_H.m.s"}
                 'Case GlobalConstants.MACHINENAME_DUETTI,
                 '     GlobalConstants.MACHINENAME_DUETTI2
                 '    Select Case CodArt(0)
@@ -60,20 +104,27 @@ Module General
 
                 '    End Select
             Case GlobalConstants.MACHINENAME_DUETTI
-                fmt = "dd/MM/yyyy HH.mm.ss"
-            Case GlobalConstants.MACHINENAME_DUETTI2, GlobalConstants.MACHINENAME_LAY
-                fmt = "dd.MM.yyyy HH:mm:ss"
-            Case GlobalConstants.MACHINENAME_AXOMATIC
-                fmt = "yyyy-MM-dd_HH.mm.ss"
+                fmts = {"d/M/yyyy H.m.s"}
+            Case GlobalConstants.MACHINENAME_DUETTI2,
+                 GlobalConstants.MACHINENAME_LAY
+                fmts = {"d.M.yyyy H:m:s"}
 
+            Case GlobalConstants.MACHINENAME_ETICH
+                fmts = {"yyyy/M/d"}
+                'fmt = "yyyy/MM/dd"
+            Case GlobalConstants.MACHINENAME_PICKER23017,
+                 GlobalConstants.MACHINENAME_PICKER23018
+                fmts = {"yyyy-M-d-H:m:s"}
             Case Else
                 Throw New ArgumentException($"Nome macchina {NomeMacchina} non riconosciuto durante la conversione in data del valore nel csv di produzione")
         End Select
 
-        Return DateTime.ParseExact(
-            dataStr,
-            fmt,
-            Globalization.CultureInfo.InvariantCulture
-        )
+        Return DateTime.ParseExact(dataStr, fmts, Globalization.CultureInfo.InvariantCulture, Globalization.DateTimeStyles.None)
+
+        'Return DateTime.ParseExact(
+        '    dataStr,
+        '    fmt,
+        '    Globalization.CultureInfo.InvariantCulture
+        ')
     End Function
 End Module

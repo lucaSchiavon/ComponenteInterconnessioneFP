@@ -39,7 +39,7 @@ Module Meccanoplastica4CsvParser
         Dim culture As CultureInfo = CultureInfo.InvariantCulture
 
         dto.Ricetta = dati(1).Trim()
-        dto.DataOra = DateTime.Parse(General.ConvertiDataCustom(dati(0), GlobalConstants.MACHINENAME_MECCANOPLASTICA4, dto.CodiceArticolo), New CultureInfo("it-IT"))
+        dto.DataOra = DateTime.Parse(General.ConvertiDataCustom(dati(0), GlobalConstants.MACHINENAME_MECCANOPLASTICA4), New CultureInfo("it-IT"))
         dto.PezziBuoni = Integer.Parse(dati(2))
         dto.PezziScarto = Integer.Parse(dati(3))
         dto.Note = settings.Meccanoplastica4NomeMacchina & Environment.NewLine & righe(0) & Environment.NewLine & righe(1)
