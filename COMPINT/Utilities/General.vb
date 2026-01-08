@@ -103,9 +103,10 @@ Module General
                 '            fmt = "dd.MM.yyyy HH:mm:ss"
 
                 '    End Select
-            Case GlobalConstants.MACHINENAME_DUETTI
-                fmts = {"d/M/yyyy H.m.s"}
-            Case GlobalConstants.MACHINENAME_DUETTI2,
+            'Case GlobalConstants.MACHINENAME_DUETTI
+            '    fmts = {"d/M/yyyy H.m.s"}
+            Case GlobalConstants.MACHINENAME_DUETTI,
+                 GlobalConstants.MACHINENAME_DUETTI2,
                  GlobalConstants.MACHINENAME_LAY
                 fmts = {"d.M.yyyy H:m:s"}
 

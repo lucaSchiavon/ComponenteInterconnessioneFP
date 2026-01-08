@@ -796,7 +796,7 @@ Public Class CompInterconnManager
                     'espongo il nome del file per loggarlo in caso d'errore
                     PublicCurrFileName = Path.GetFileName(FilePath)
                     'verifica la validità del csv
-                    ObjAxomaticCsvDto = AxomaticCsvParser.ParseProduzioneCsv(FilePath, settings)
+                    ObjAxomaticCsvDto = AxomaticCsvParser.ParseProduzioneCsvTollerante(FilePath, settings)
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?

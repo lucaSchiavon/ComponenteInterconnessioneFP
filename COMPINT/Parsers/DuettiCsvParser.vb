@@ -34,6 +34,11 @@ Module DuettiCsvParser
             Throw New InvalidDataException($"La riga dati nel file {NomeFile} non contiene il numero corretto di colonne.")
         End If
 
+
+        If Integer.Parse(dati(2)) = 0 Then
+            'se non vi è stata produzione di alcun prodotto sposta in errore
+            Throw New InvalidDataException($"Il file {Path.GetFileName(percorsoFile)} presenta una produzione pari a 0 nel campo CartoniBuoni")
+        End If
         'Popolamento DTO
         Dim dto As New DuettiCsvDto()
         Dim culture As CultureInfo = CultureInfo.InvariantCulture

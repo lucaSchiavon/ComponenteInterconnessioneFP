@@ -36,7 +36,10 @@ Module Picker23018CsvParser
         'If dati.Length <> intestazioniAttese.Length Then
         '    Throw New InvalidDataException($"La riga dati nel file {NomeFile} non contiene il numero corretto di colonne.")
         'End If
-
+        If Integer.Parse(dati(2)) = 0 Then
+            'se non vi è stata produzione di alcun prodotto sposta in errore
+            Throw New InvalidDataException($"Il file {Path.GetFileName(percorsoFile)} presenta una produzione pari a 0 nel campo PezziBuoni")
+        End If
         'Popolamento DTO
         Dim dto As New Picker23018CsvDto()
         Dim culture As CultureInfo = CultureInfo.InvariantCulture
