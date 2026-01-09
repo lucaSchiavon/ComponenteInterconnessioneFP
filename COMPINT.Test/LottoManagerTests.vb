@@ -21,10 +21,10 @@ Public Class LottoManagerTests
     End Sub
 
     <TestMethod()>
-    Public Sub GetNomeLotto_MacchinaMeccanoplastica1_RestituisceNonApplicato()
+    Public Sub GetNomeLotto_MacchinaMeccanoplastica1ProdConM_RestituisceConUIniziale()
         ' Arrange
         'Dim settings As New Settings()
-        Settings.NomeLottoPagCampoFissoFp = "FP"
+        'Settings.NomeLottoPagCampoFissoFp = "FP"
 
         'Dim mockLettera = New Mock(Of ILetteraIdentAnnoRep)()
         'Dim mockGiorno = New Mock(Of IGiornoProdConterRep)()
@@ -33,10 +33,29 @@ Public Class LottoManagerTests
         'Dim manager As New LottoManager(settings, mockLettera.Object, mockGiorno.Object, mockLotto.Object)
 
         ' Act
-        Dim result = manager.GetNomeLotto("P123", GlobalConstants.MACHINENAME_MECCANOPLASTICA1, DateTime.Now)
+        Dim result = Manager.GetNomeLotto("M123", GlobalConstants.MACHINENAME_MECCANOPLASTICA1, DateTime.Now)
 
         ' Assert
-        Assert.AreEqual(GlobalConstants.LOTTO_NONAPPLICATO, result)
+        Assert.IsTrue(result.StartsWith("U"))
+    End Sub
+    <TestMethod()>
+    Public Sub GetNomeLotto_MacchinaMeccanoplastica1ProdCon5_RestituisceCondd_MM_yyyy()
+        ' Arrange
+        'Dim settings As New Settings()
+        'Settings.NomeLottoPagCampoFissoFp = "FP"
+
+        'Dim mockLettera = New Mock(Of ILetteraIdentAnnoRep)()
+        'Dim mockGiorno = New Mock(Of IGiornoProdConterRep)()
+        'Dim mockLotto = New Mock(Of ILottoRep)()
+
+        'Dim manager As New LottoManager(settings, mockLettera.Object, mockGiorno.Object, mockLotto.Object)
+
+        ' Act
+        Dim result = Manager.GetNomeLotto("5123", GlobalConstants.MACHINENAME_MECCANOPLASTICA1, DateTime.Now)
+        Dim parsedDate As DateTime
+        Dim isValid = DateTime.TryParseExact(result, "dd/MM/yyyy", Globalization.CultureInfo.InvariantCulture, Globalization.DateTimeStyles.None, parsedDate)
+        ' Assert
+        Assert.IsTrue(isValid)
     End Sub
 
 

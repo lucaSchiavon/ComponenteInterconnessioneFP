@@ -1,19 +1,17 @@
-﻿Imports Moq
-Imports NTSInformatica
+﻿Imports NTSInformatica
 
 <TestClass>
 Public Class CaricoProdManagerTests
 
     Private Settings As Settings
-    Private FakeCleBoll As Mock(Of CLEVEBOLL)
     Private Manager As MovimentazioneManager
 
     <TestInitialize>
     Public Sub Setup()
         ' Inizializzazione comune
         Me.Settings = New Settings()
-        FakeCleBoll = New Mock(Of CLEVEBOLL)()
-        manager = New MovimentazioneManager(Settings, fakeCleBoll.Object)
+        ' Evita di istanziare CLEVEBOLL reale (richiede assembly esterni). Per i test di GetSerie non serve.
+        Manager = New MovimentazioneManager(Settings, Nothing)
     End Sub
 
     '  TEST CASI VALIDI
@@ -43,11 +41,8 @@ Public Class CaricoProdManagerTests
     <DataRow(COMPINT.GlobalConstants.MACHINENAME_PRONTOWASH1, "M123", "PB")>
     <DataRow(COMPINT.GlobalConstants.MACHINENAME_PRONTOWASH2, "M555", "PB")>
     Public Sub GetSerie_ValidCases(macchina As String, codart As String, expected As String)
-        'Dim settings As New Settings()
-        'Dim fakeCleBoll As New Mock(Of CLEVEBOLL)
-        'Dim manager As New MovimentazioneManager(settings, fakeCleBoll.Object)
 
-        Dim result = manager.GetSerie(macchina, codart)
+        Dim result = Manager.GetSerie(macchina, codart)
 
         Assert.AreEqual(expected, result)
 
@@ -60,11 +55,8 @@ Public Class CaricoProdManagerTests
     <DataRow(COMPINT.GlobalConstants.MACHINENAME_DUETTI2, "FBB99")>
     <DataRow("MACHINA_X", "M123")>
     Public Sub GetSerie_InvalidCases(macchina As String, codart As String)
-        'Dim settings As New Settings()
-        'Dim fakeCleBoll As New Mock(Of CLEVEBOLL)
-        'Dim manager As New MovimentazioneManager(settings, fakeCleBoll.Object)
 
-        Dim result = manager.GetSerie(macchina, codart)
+        Dim result = Manager.GetSerie(macchina, codart)
 
     End Sub
 
