@@ -1,0 +1,10 @@
+{
+  "Database": {
+    "ConnectionString": "Data Source=DESKTOP-CB9ESFC\\SQLEXPRESS;Initial Catalog=CompInterconnessioneDB;User Id=sa;PWD=revihcra;"
+  },
+  "Macchine": [ "", "PRONTOWASH1", "PRONTOWASH2", "MECCANOPLASTICA1", "MECCANOPLASTICA4", "DUETTI", "DUETTI2", "AXOMATIC", "ETICH", "LAY", "PICKER23017", "PICKER23018" ],
+  "Login": {
+    "Username": "Admin",
+    "Password": "revihcra"
+  }
+}
