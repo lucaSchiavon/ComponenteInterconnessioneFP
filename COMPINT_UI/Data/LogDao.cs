@@ -38,7 +38,7 @@ namespace COMPINT_UI.Data
                 sb.Append(" AND Messaggio LIKE @messaggio");
             }
 
-            sb.Append(" ORDER BY DataOra DESC");
+            sb.Append(" ORDER BY IdLog DESC");
 
             using (var conn = DatabaseHelper.GetConnection())
             using (var cmd = new SqlCommand(sb.ToString(), conn))

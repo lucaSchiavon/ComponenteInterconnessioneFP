@@ -375,6 +375,29 @@ Public Class CompInterconnManager
 
             Dim PublicCurrFileName As String = ""
 
+            '******************************
+            'metto in ordine di dataora di produzione i file 
+            Dim OLottoManager As New LottoManager(settings, oCleAnlo)
+            'For Each FilePath As String In CsvFilePaths
+            'PublicCurrFileName = Path.GetFileName(FilePath)
+            Try
+                'mi metto in ordine di dataora di produzione i file in quanto l'incremento del contatore per generazione del lotto conter
+                'deve essere coerente con la data di produzione
+                'CsvFilePaths = CsvFilePaths.OrderBy(Function()
+                '                                        Dim Oggi As Date = OLottoManager.GetDataForLottoName(PublicCurrFileName)
+                '                                        Return Oggi
+                '                                    End Function).ToArray()
+                CsvFilePaths =
+               CsvFilePaths.OrderBy(Function(filePath)
+                                        Dim fileName = Path.GetFileName(filePath)
+                                        Return OLottoManager.GetDataForLottoName(fileName)
+                                    End Function).ToArray()
+            Catch ex As Exception
+                    Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.Meccanoplastica1Percorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+                End Try
+            'Next
+            '******************************
+
             For Each FilePath As String In CsvFilePaths
 
 
@@ -386,7 +409,8 @@ Public Class CompInterconnManager
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?
-                    Dim OLottoManager As New LottoManager(settings, oCleAnlo)
+                    'LS:commentato perchè già dichiarato sopra
+                    'Dim OLottoManager As New LottoManager(settings, oCleAnlo)
                     'Dim OLottoRep = New LottoRep(oCleAnlo)
                     Dim IsArtConfForLotto As Boolean = OLottoManager.IsArtConfForLotto(oApp.Ditta, ObjMeccanoplastica1CsvDto.CodiceArticolo)
 
@@ -396,7 +420,9 @@ Public Class CompInterconnManager
 
                     'se si tratta di macchine meccanoplastica prendo la data dal nome del file
                     Dim Oggi As Date = OLottoManager.GetDataForLottoName(PublicCurrFileName)
-
+                    'attenzione sovrascrive dataora con oggi, fondamentale perchè il nome del lotto come la data di movimentazione e tutto quello che viene salvato si deve riferire
+                    'alla data del nome del file e non alla data all'interno del file csv come per tutte le altre macchine
+                    ObjMeccanoplastica1CsvDto.DataOra = Oggi
                     'Il lotto esiste già?
                     If IsArtConfForLotto Then
                         Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjMeccanoplastica1CsvDto.CodiceArticolo, settings.Meccanoplastica1NomeMacchina, ObjMeccanoplastica1CsvDto.DataOra)
@@ -575,6 +601,31 @@ Public Class CompInterconnManager
 
             Dim PublicCurrFileName As String = ""
 
+            '******************************
+            'metto in ordine di dataora di produzione i file 
+            Dim OLottoManager As New LottoManager(settings, oCleAnlo)
+            'For Each FilePath As String In CsvFilePaths
+            '    PublicCurrFileName = Path.GetFileName(FilePath)
+            'Dim CsvFilePathsOrdered() As String
+            Try
+                'mi metto in ordine di dataora di produzione i file in quanto l'incremento del contatore per generazione del lotto conter
+                'deve essere coerente con la data di produzione
+                'CsvFilePaths = CsvFilePaths.OrderBy(Function()
+                '                                        Dim Oggi As Date = OLottoManager.GetDataForLottoName(PublicCurrFileName)
+                '                                        Return Oggi
+                '                                    End Function).ToArray()
+                CsvFilePaths =
+                CsvFilePaths.OrderBy(Function(filePath)
+                                         Dim fileName = Path.GetFileName(filePath)
+                                         Return OLottoManager.GetDataForLottoName(fileName)
+                                     End Function).ToArray()
+
+            Catch ex As Exception
+                    Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.LayPercorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+                End Try
+            'Next
+            '******************************
+
             For Each FilePath As String In CsvFilePaths
 
                 Try
@@ -585,7 +636,8 @@ Public Class CompInterconnManager
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?
-                    Dim OLottoManager As New LottoManager(settings, oCleAnlo)
+                    'LS:commentato perchè già dichiarato sopra
+                    'Dim OLottoManager As New LottoManager(settings, oCleAnlo)
                     'Dim OLottoRep = New LottoRep(oCleAnlo)
                     Dim IsArtConfForLotto As Boolean = OLottoManager.IsArtConfForLotto(oApp.Ditta, ObjMeccanoplastica4CsvDto.CodiceArticolo)
 
@@ -596,11 +648,14 @@ Public Class CompInterconnManager
                     Dim oLottoDto As LottoDto = Nothing
 
                     'se si tratta di macchine meccanoplastica prendo la data dal nome del file
-                    Dim Oggi As Date = OLottoManager.GetDataForLottoName(PublicCurrFileName)
-
+                    Dim Oggi As DateTime = OLottoManager.GetDataForLottoName(PublicCurrFileName)
+                    'attenzione sovrascrive dataora con oggi, fondamentale perchè il nome del lotto come la data di movimentazione e tutto quello che viene salvato si deve riferire
+                    'alla data del nome del file e non alla data all'interno del file csv come per tutte le altre macchine
+                    ObjMeccanoplastica4CsvDto.DataOra = Oggi
                     'Il lotto esiste già?
                     If IsArtConfForLotto Then
 
+                        'Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjMeccanoplastica4CsvDto.CodiceArticolo, settings.Meccanoplastica4NomeMacchina, ObjMeccanoplastica4CsvDto.DataOra)
                         Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjMeccanoplastica4CsvDto.CodiceArticolo, settings.Meccanoplastica4NomeMacchina, ObjMeccanoplastica4CsvDto.DataOra)
                         oLottoDto = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjMeccanoplastica4CsvDto.CodiceArticolo, NomeLotto)
                         'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
@@ -790,13 +845,24 @@ Public Class CompInterconnManager
 
             Dim PublicCurrFileName As String = ""
 
+            Try
+                'mi metto in ordine di dataora di produzione i file in quanto l'incremento del contatore per generazione del lotto conter
+                'deve essere coerente con la data di produzione
+                CsvFilePaths = CsvFilePaths.OrderBy(Function(fp)
+                                                        Dim dto As AxomaticCsvDto = AxomaticCsvParser.ParseProduzioneCsvTollerante(fp, settings, False)
+                                                        Return dto.Data_Ora
+                                                    End Function).ToArray()
+            Catch ex As Exception
+                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.LayPercorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+            End Try
+
             For Each FilePath As String In CsvFilePaths
 
                 Try
                     'espongo il nome del file per loggarlo in caso d'errore
                     PublicCurrFileName = Path.GetFileName(FilePath)
                     'verifica la validità del csv
-                    ObjAxomaticCsvDto = AxomaticCsvParser.ParseProduzioneCsvTollerante(FilePath, settings)
+                    ObjAxomaticCsvDto = AxomaticCsvParser.ParseProduzioneCsvTollerante(FilePath, settings, True)
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?
@@ -1003,6 +1069,17 @@ Public Class CompInterconnManager
 
             Dim PublicCurrFileName As String = ""
 
+            Try
+                'mi metto in ordine di dataora di produzione i file in quanto l'incremento del contatore per generazione del lotto conter
+                'deve essere coerente con la data di produzione
+                CsvFilePaths = CsvFilePaths.OrderBy(Function(fp)
+                                                        Dim dto As LayCsvDto = LayCsvParser.ParseProduzioneCsv(fp, settings, False)
+                                                        Return dto.DataOra
+                                                    End Function).ToArray()
+            Catch ex As Exception
+                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.LayPercorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+            End Try
+
             For Each FilePath As String In CsvFilePaths
 
 
@@ -1010,7 +1087,7 @@ Public Class CompInterconnManager
                     'espongo il nome del file per loggarlo in caso d'errore
                     PublicCurrFileName = Path.GetFileName(FilePath)
                     'verifica la validità del csv
-                    ObjLayCsvDto = LayCsvParser.ParseProduzioneCsv(FilePath, settings)
+                    ObjLayCsvDto = LayCsvParser.ParseProduzioneCsv(FilePath, settings, True)
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?
@@ -1394,6 +1471,17 @@ Public Class CompInterconnManager
 
             Dim PublicCurrFileName As String = ""
 
+            Try
+                'mi metto in ordine di dataora di produzione i file in quanto l'incremento del contatore per generazione del lotto conter
+                'deve essere coerente con la data di produzione
+                CsvFilePaths = CsvFilePaths.OrderBy(Function(fp)
+                                                        Dim dto As EtichCsvDto = EtichCsvParser.ParseProduzioneCsv(fp, settings, False)
+                                                        Return dto.Data
+                                                    End Function).ToArray()
+            Catch ex As Exception
+                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.EtichPercorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+            End Try
+
             For Each FilePath As String In CsvFilePaths
 
 
@@ -1401,7 +1489,7 @@ Public Class CompInterconnManager
                     'espongo il nome del file per loggarlo in caso d'errore
                     PublicCurrFileName = Path.GetFileName(FilePath)
                     'verifica la validità del csv
-                    ObjEtichCsvDto = EtichCsvParser.ParseProduzioneCsv(FilePath, settings)
+                    ObjEtichCsvDto = EtichCsvParser.ParseProduzioneCsv(FilePath, settings, True)
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?
@@ -1624,6 +1712,17 @@ Public Class CompInterconnManager
 
             Dim PublicCurrFileName As String = ""
 
+            Try
+                'mi metto in ordine di dataora di produzione i file in quanto l'incremento del contatore per generazione del lotto conter
+                'deve essere coerente con la data di produzione
+                CsvFilePaths = CsvFilePaths.OrderBy(Function(fp)
+                                                        Dim dto As Picker23017CsvDto = Picker23017CsvParser.ParseProduzioneCsv(fp, settings, False)
+                                                        Return dto.DataEOra
+                                                    End Function).ToArray()
+            Catch ex As Exception
+                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.Picker23017Percorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+            End Try
+
             For Each FilePath As String In CsvFilePaths
 
 
@@ -1631,7 +1730,7 @@ Public Class CompInterconnManager
                     'espongo il nome del file per loggarlo in caso d'errore
                     PublicCurrFileName = Path.GetFileName(FilePath)
                     'verifica la validità del csv
-                    ObjPicker23017CsvDto = Picker23017CsvParser.ParseProduzioneCsv(FilePath, settings)
+                    ObjPicker23017CsvDto = Picker23017CsvParser.ParseProduzioneCsv(FilePath, settings, True)
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?
@@ -1821,6 +1920,17 @@ Public Class CompInterconnManager
 
             Dim PublicCurrFileName As String = ""
 
+            Try
+                'mi metto in ordine di dataora di produzione i file in quanto l'incremento del contatore per generazione del lotto conter
+                'deve essere coerente con la data di produzione
+                CsvFilePaths = CsvFilePaths.OrderBy(Function(fp)
+                                                        Dim dto As Picker23018CsvDto = Picker23018CsvParser.ParseProduzioneCsv(fp, settings, False)
+                                                        Return dto.DataEOra
+                                                    End Function).ToArray()
+            Catch ex As Exception
+                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.Picker23018Percorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+            End Try
+
             For Each FilePath As String In CsvFilePaths
 
 
@@ -1828,7 +1938,7 @@ Public Class CompInterconnManager
                     'espongo il nome del file per loggarlo in caso d'errore
                     PublicCurrFileName = Path.GetFileName(FilePath)
                     'verifica la validità del csv
-                    ObjPicker23018CsvDto = Picker23018CsvParser.ParseProduzioneCsv(FilePath, settings)
+                    ObjPicker23018CsvDto = Picker23018CsvParser.ParseProduzioneCsv(FilePath, settings, True)
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?
@@ -2018,13 +2128,25 @@ Public Class CompInterconnManager
 
             Dim PublicCurrFileName As String = ""
 
+            Try
+                'mi metto in ordine di dataora di produzione i file in quanto l'incremento del contatore per generazione del lotto conter
+                'deve essere coerente con la data di produzione
+                CsvFilePaths = CsvFilePaths.OrderBy(Function(fp)
+                                                        Dim dto As DuettiCsvDto = DuettiCsvParser.ParseProduzioneCsv(fp, settings, False)
+                                                        Return dto.DataOra
+                                                    End Function).ToArray()
+            Catch ex As Exception
+                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.DuettiPercorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+            End Try
+
+
             For Each FilePath As String In CsvFilePaths
 
                 Try
                     'espongo il nome del file per loggarlo in caso d'errore
                     PublicCurrFileName = Path.GetFileName(FilePath)
                     'verifica la validità del csv
-                    ObjDuettiCsvDto = DuettiCsvParser.ParseProduzioneCsv(FilePath, settings)
+                    ObjDuettiCsvDto = DuettiCsvParser.ParseProduzioneCsv(FilePath, settings, True)
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?
@@ -2112,7 +2234,7 @@ Public Class CompInterconnManager
                 'l'insert del contatore conteggio giorni di produzione in crea lotto
                 oLottoDto.IsLottoConter = True
             End If
-            oLottoManager.CreaLotto(oLottoDto)
+            oLottoManager.CreaLotto(oLottoDto, oDuettiCsvDto.DataOra)
 
             logger.LogInfo($"Lotto creato per l'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.DuettiNomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
         Else
@@ -2231,13 +2353,26 @@ Public Class CompInterconnManager
 
             Dim PublicCurrFileName As String = ""
 
+
+
+            Try
+                'mi metto in ordine di dataora di produzione i file in quanto l'incremento del contatore per generazione del lotto conter
+                'deve essere coerente con la data di produzione
+                CsvFilePaths = CsvFilePaths.OrderBy(Function(fp)
+                                                        Dim dto As Duetti2CsvDto = Duetti2CsvParser.ParseProduzioneCsv(fp, settings, False)
+                                                        Return dto.DataOra
+                                                    End Function).ToArray()
+            Catch ex As Exception
+                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.Duetti2Percorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+            End Try
+
             For Each FilePath As String In CsvFilePaths
 
                 Try
                     'espongo il nome del file per loggarlo in caso d'errore
                     PublicCurrFileName = Path.GetFileName(FilePath)
                     'verifica la validità del csv
-                    ObjDuetti2CsvDto = Duetti2CsvParser.ParseProduzioneCsv(FilePath, settings)
+                    ObjDuetti2CsvDto = Duetti2CsvParser.ParseProduzioneCsv(FilePath, settings, True)
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?
@@ -2326,9 +2461,9 @@ Public Class CompInterconnManager
                 'l'insert del contatore conteggio giorni di produzione in crea lotto
                 oLottoDto.IsLottoConter = True
             End If
-            oLottoManager.CreaLotto(oLottoDto)
+            oLottoManager.CreaLotto(oLottoDto, oDuetti2CsvDto.DataOra)
 
-                logger.LogInfo($"Lotto creato per l'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.Duetti2NomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
+            logger.LogInfo($"Lotto creato per l'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.Duetti2NomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
             Else
             If oLottoDto IsNot Nothing AndAlso oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
                 logger.LogInfo($"Lotto associato all'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.Duetti2NomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
@@ -2445,13 +2580,24 @@ Public Class CompInterconnManager
 
             Dim PublicCurrFileName As String = ""
 
+            Try
+                'mi metto in ordine di dataora di produzione i file in quanto l'incremento del contatore per generazione del lotto conter
+                'deve essere coerente con la data di produzione
+                CsvFilePaths = CsvFilePaths.OrderBy(Function(fp)
+                                                        Dim dto As ICAVL08615CsvDto = ICAVL08615CsvParser.ParseProduzioneCsv(fp, settings, False)
+                                                        Return dto.InizioTurno
+                                                    End Function).ToArray()
+            Catch ex As Exception
+                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.ICAVL08615Percorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+            End Try
+
             For Each FilePath As String In CsvFilePaths
 
                 Try
                     'espongo il nome del file per loggarlo in caso d'errore
                     PublicCurrFileName = Path.GetFileName(FilePath)
                     'verifica la validità del csv
-                    ObjIca1CsvDto = ICAVL08615CsvParser.ParseProduzioneCsv(FilePath, settings)
+                    ObjIca1CsvDto = ICAVL08615CsvParser.ParseProduzioneCsv(FilePath, settings, True)
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?
@@ -2658,13 +2804,24 @@ Public Class CompInterconnManager
 
             Dim PublicCurrFileName As String = ""
 
+            Try
+                'mi metto in ordine di dataora di produzione i file in quanto l'incremento del contatore per generazione del lotto conter
+                'deve essere coerente con la data di produzione
+                CsvFilePaths = CsvFilePaths.OrderBy(Function(fp)
+                                                        Dim dto As ICAVL08616CsvDto = ICAVL08616CsvParser.ParseProduzioneCsv(fp, settings, False)
+                                                        Return dto.InizioTurno
+                                                    End Function).ToArray()
+            Catch ex As Exception
+                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.ICAVL08616Percorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+            End Try
+
             For Each FilePath As String In CsvFilePaths
 
                 Try
                     'espongo il nome del file per loggarlo in caso d'errore
                     PublicCurrFileName = Path.GetFileName(FilePath)
                     'verifica la validità del csv
-                    ObjIca2CsvDto = ICAVL08616CsvParser.ParseProduzioneCsv(FilePath, settings)
+                    ObjIca2CsvDto = ICAVL08616CsvParser.ParseProduzioneCsv(FilePath, settings, True)
 
                     'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
                     'l'articolo ha gestione lotti?

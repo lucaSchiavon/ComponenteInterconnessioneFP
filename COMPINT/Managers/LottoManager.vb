@@ -73,12 +73,12 @@ Public Class LottoManager
         Return _OLottorRep.GetLottoProdottoFinito(codditt, ar_codart, alo_lottox)
     End Function
 
-    Public Sub CreaLotto(objLottoDto As LottoDto)
+    Public Sub CreaLotto(objLottoDto As LottoDto, Optional DataProdPerGenLottoConter As DateTime = Nothing)
         _OLottorRep.CreaLotto(objLottoDto)
         'solo sei il lotto è di tipo conter si deve aggiornare la tabella dei giorni di produzione conter
         'solo se non esiste un altro
         If objLottoDto.IsLottoConter Then
-            _OGiornoProdConterRep.InsertIncrementaleGDiProd(GetGiornoProduzioneFromLotto(objLottoDto.StrLottox))
+            _OGiornoProdConterRep.InsertIncrementaleGDiProd(GetGiornoProduzioneFromLotto(objLottoDto.StrLottox), DataProdPerGenLottoConter)
         End If
     End Sub
 

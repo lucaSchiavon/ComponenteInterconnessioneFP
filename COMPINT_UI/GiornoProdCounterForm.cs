@@ -10,12 +10,13 @@ namespace COMPINT_UI
     public class GiornoProdCounterForm : Form
     {
         private DataGridView dgv;
-        private DateTimePicker dtpDataProduzione;
+        //private DateTimePicker dtpDataProduzione;
         private TextBox txtIncrementale;
         private Button btnAdd;
         private Button btnEdit;
         private Button btnDelete;
         private Label label1;
+        private TextBox txtDataProduzione;
         private Label lbl2;
 
         public GiornoProdCounterForm()
@@ -45,13 +46,13 @@ namespace COMPINT_UI
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.dgv = new System.Windows.Forms.DataGridView();
-            this.dtpDataProduzione = new System.Windows.Forms.DateTimePicker();
             this.txtIncrementale = new System.Windows.Forms.TextBox();
             this.btnAdd = new System.Windows.Forms.Button();
             this.btnEdit = new System.Windows.Forms.Button();
             this.btnDelete = new System.Windows.Forms.Button();
             this.lbl2 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.txtDataProduzione = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.dgv)).BeginInit();
             this.SuspendLayout();
             // 
@@ -92,15 +93,6 @@ namespace COMPINT_UI
             this.dgv.Size = new System.Drawing.Size(760, 297);
             this.dgv.TabIndex = 0;
             // 
-            // dtpDataProduzione
-            // 
-            this.dtpDataProduzione.Font = new System.Drawing.Font("Segoe UI", 12F);
-            this.dtpDataProduzione.Format = System.Windows.Forms.DateTimePickerFormat.Short;
-            this.dtpDataProduzione.Location = new System.Drawing.Point(16, 359);
-            this.dtpDataProduzione.Name = "dtpDataProduzione";
-            this.dtpDataProduzione.Size = new System.Drawing.Size(220, 34);
-            this.dtpDataProduzione.TabIndex = 1;
-            // 
             // txtIncrementale
             // 
             this.txtIncrementale.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -135,6 +127,7 @@ namespace COMPINT_UI
             this.btnEdit.TabIndex = 6;
             this.btnEdit.Text = "Modifica";
             this.btnEdit.UseVisualStyleBackColor = false;
+            //this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click_1);
             // 
             // btnDelete
             // 
@@ -169,14 +162,21 @@ namespace COMPINT_UI
             this.label1.TabIndex = 8;
             this.label1.Text = "Data di produzione";
             // 
+            // txtDataProduzione
+            // 
+            this.txtDataProduzione.Location = new System.Drawing.Point(17, 359);
+            this.txtDataProduzione.Name = "txtDataProduzione";
+            this.txtDataProduzione.Size = new System.Drawing.Size(220, 34);
+            this.txtDataProduzione.TabIndex = 9;
+            // 
             // GiornoProdCounterForm
             // 
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(245)))), ((int)(((byte)(245)))));
             this.ClientSize = new System.Drawing.Size(784, 463);
+            this.Controls.Add(this.txtDataProduzione);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.dgv);
-            this.Controls.Add(this.dtpDataProduzione);
             this.Controls.Add(this.lbl2);
             this.Controls.Add(this.txtIncrementale);
             this.Controls.Add(this.btnAdd);
@@ -228,11 +228,13 @@ namespace COMPINT_UI
             if (cellValue == null || cellValue == DBNull.Value || string.IsNullOrWhiteSpace(cellValue.ToString()))
             {
                 // Eviti l'assegnazione e imposti un valore di default
-                dtpDataProduzione.Value = DateTime.Today; // oppure NON fai nulla
+                //dtpDataProduzione.Value = DateTime.Today; // oppure NON fai nulla
+                txtDataProduzione.Text = DateTime.Today.ToString();
             }
             else
             {
-                dtpDataProduzione.Value = Convert.ToDateTime(cellValue);
+                //dtpDataProduzione.Value = Convert.ToDateTime(cellValue);
+                txtDataProduzione.Text= cellValue.ToString();
             }
 
             txtIncrementale.Text = dgv.CurrentRow.Cells["IncrementaleGDiProdConter"].Value?.ToString() ?? string.Empty;
@@ -252,7 +254,8 @@ namespace COMPINT_UI
                 using (var conn = DatabaseHelper.GetConnection())
                 using (var cmd = new SqlCommand("INSERT INTO TblGiornoProdConter (DataProduzione, IncrementaleGDiProdConter) VALUES (@data, @inc)", conn))
                 {
-                    cmd.Parameters.AddWithValue("@data", dtpDataProduzione.Value.Date);
+                    //cmd.Parameters.AddWithValue("@data", dtpDataProduzione.Value.Date);
+                    cmd.Parameters.AddWithValue("@data", Convert.ToDateTime(txtDataProduzione.Text));
                     cmd.Parameters.AddWithValue("@inc", inc);
                     conn.Open();
                     cmd.ExecuteNonQuery();
@@ -276,16 +279,23 @@ namespace COMPINT_UI
                 return;
             }
 
+            if (!DateTime.TryParse(txtDataProduzione.Text.Trim(), out var dataProd))
+            {
+                MessageBox.Show("Data di produzione deve essere una data.", "Validazione", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
             var origData = Convert.ToDateTime(dgv.CurrentRow.Cells["DataProduzione"].Value);
             var origInc = Convert.ToInt32(dgv.CurrentRow.Cells["IncrementaleGDiProdConter"].Value);
 
             try
             {
                 using (var conn = DatabaseHelper.GetConnection())
-                using (var cmd = new SqlCommand("UPDATE TblGiornoProdConter SET IncrementaleGDiProdConter=@inc WHERE DataProduzione=@origData AND IncrementaleGDiProdConter=@origInc", conn))
+                using (var cmd = new SqlCommand("UPDATE TblGiornoProdConter SET IncrementaleGDiProdConter=@inc, DataProduzione=@dataProd WHERE DataProduzione=@origData AND IncrementaleGDiProdConter=@origInc", conn))
                 {
                     cmd.Parameters.AddWithValue("@inc", inc);
-                    cmd.Parameters.AddWithValue("@origData", origData.Date);
+                    cmd.Parameters.AddWithValue("@dataProd", dataProd);
+                    cmd.Parameters.AddWithValue("@origData", origData);
                     cmd.Parameters.AddWithValue("@origInc", origInc);
                     conn.Open();
                     var rows = cmd.ExecuteNonQuery();
@@ -315,7 +325,7 @@ namespace COMPINT_UI
                 using (var conn = DatabaseHelper.GetConnection())
                 using (var cmd = new SqlCommand("DELETE FROM TblGiornoProdConter WHERE DataProduzione=@origData AND IncrementaleGDiProdConter=@origInc", conn))
                 {
-                    cmd.Parameters.AddWithValue("@origData", origData.Date);
+                    cmd.Parameters.AddWithValue("@origData", origData);
                     cmd.Parameters.AddWithValue("@origInc", origInc);
                     conn.Open();
                     var rows = cmd.ExecuteNonQuery();
@@ -329,5 +339,7 @@ namespace COMPINT_UI
                 MessageBox.Show("Errore eliminazione: " + ex.Message, "Errore", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+      
     }
 }

@@ -65,12 +65,13 @@ Public Class GiornoProdConterRep
     End Function
 #Region "Private routine"
 
-    Public Sub InsertIncrementaleGDiProd(IncrementaleGDiProdConter As Int32) Implements IGiornoProdConterRep.InsertIncrementaleGDiProd
+    Public Sub InsertIncrementaleGDiProd(IncrementaleGDiProdConter As Int32, DataDiProduzionePerLottoConter As DateTime) Implements IGiornoProdConterRep.InsertIncrementaleGDiProd
         Dim adoLayer As New AdoDataLayer(_connString)
 
         adoLayer.ClearParameters()
 
-        adoLayer.AddOrReplaceParameter("@DataProduzione", Now, SqlDbType.DateTime)
+        'adoLayer.AddOrReplaceParameter("@DataProduzione", Now, SqlDbType.DateTime)
+        adoLayer.AddOrReplaceParameter("@DataProduzione", DataDiProduzionePerLottoConter, SqlDbType.DateTime)
         adoLayer.AddOrReplaceParameter("@IncrementaleGDiProdConter", IncrementaleGDiProdConter, SqlDbType.Int)
 
 

@@ -2,7 +2,7 @@
 Imports System.IO
 
 Public Module ICAVL08616CsvParser
-    Public Function ParseProduzioneCsv(percorsoFile As String, settings As Settings) As ICAVL08616CsvDto
+    Public Function ParseProduzioneCsv(percorsoFile As String, settings As Settings, secondExecution As Boolean) As ICAVL08616CsvDto
 
 
         ' Lettura righe
@@ -39,7 +39,7 @@ Public Module ICAVL08616CsvParser
             Throw New InvalidDataException($"La riga dati del file {Path.GetFileName(percorsoFile)} non contiene il numero corretto di colonne.")
         End If
 
-        If Integer.Parse(dati(23)) = 0 Then
+        If Integer.Parse(dati(23)) = 0 And secondExecution Then
             'se non vi è stata produzione di alcun prodotto sposta in errore
             Throw New InvalidDataException($"Il file {Path.GetFileName(percorsoFile)} presenta una produzione pari a 0 nel campo Scatole teoriche prodotte")
         End If

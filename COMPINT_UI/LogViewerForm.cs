@@ -218,10 +218,10 @@ namespace COMPINT_UI
             if (dgvLogs.DataSource == null) return;
 
             // Hide IdLog and StackTrace if present
-            if (dgvLogs.Columns.Contains("IdLog"))
-            {
-                dgvLogs.Columns["IdLog"].Visible = false;
-            }
+            //if (dgvLogs.Columns.Contains("IdLog"))
+            //{
+            //    dgvLogs.Columns["IdLog"].Visible = false;
+            //}
             if (dgvLogs.Columns.Contains("StackTrace"))
             {
                 dgvLogs.Columns["StackTrace"].Visible = false;

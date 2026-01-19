@@ -2,7 +2,7 @@
 Imports System.IO
 
 Module EtichCsvParser
-    Public Function ParseProduzioneCsv(percorsoFile As String, settings As Settings) As EtichCsvDto
+    Public Function ParseProduzioneCsv(percorsoFile As String, settings As Settings, secondExecution As Boolean) As EtichCsvDto
 
         Dim NomeFile As String = Path.GetFileName(percorsoFile)
         ' Lettura righe
@@ -34,7 +34,7 @@ Module EtichCsvParser
             Throw New InvalidDataException($"La riga dati nel file {NomeFile} non contiene il numero corretto di colonne.")
         End If
 
-        If Integer.Parse(dati(4).Trim().Replace("""", "")) = 0 And Integer.Parse(dati(6).Trim().Replace("""", "")) = 0 Then
+        If Integer.Parse(dati(4).Trim().Replace("""", "")) = 0 And Integer.Parse(dati(6).Trim().Replace("""", "")) = 0 And secondExecution Then
             'se non vi è stata produzione di alcun prodotto sposta in errore
             Throw New InvalidDataException($"Il file {Path.GetFileName(percorsoFile)} presenta una produzione pari a 0 nel campo EtichetteErogateGruppo1 e nel campo EtichetteErogateGruppo2")
         End If

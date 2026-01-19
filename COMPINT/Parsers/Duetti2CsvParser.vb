@@ -2,7 +2,7 @@
 Imports System.IO
 
 Module Duetti2CsvParser
-    Public Function ParseProduzioneCsv(percorsoFile As String, settings As Settings) As Duetti2CsvDto
+    Public Function ParseProduzioneCsv(percorsoFile As String, settings As Settings, SecondExecution As Boolean) As Duetti2CsvDto
 
         Dim NomeFile As String = Path.GetFileName(percorsoFile)
         ' Lettura righe
@@ -35,7 +35,7 @@ Module Duetti2CsvParser
         End If
 
 
-        If Integer.Parse(dati(2)) = 0 Then
+        If Integer.Parse(dati(2)) = 0 And SecondExecution Then
             'se non vi è stata produzione di alcun prodotto sposta in errore
             Throw New InvalidDataException($"Il file {Path.GetFileName(percorsoFile)} presenta una produzione pari a 0 nel campo CartoniBuoni")
         End If

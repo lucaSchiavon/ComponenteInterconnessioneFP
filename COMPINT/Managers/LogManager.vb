@@ -15,19 +15,19 @@ Public Class LogManager
 
     Public Sub LogInfo(messaggio As String, Optional macchina As String = Nothing, Optional codArt As String = Nothing, Optional fileName As String = Nothing)
         _logRep.InsertLog("INFO", messaggio, Nothing, macchina, codArt, fileName)
-        'SpedisciEmailNotifica(messaggio)
+        SpedisciEmailNotifica(messaggio)
         PrintConsoleMsg(messaggio, macchina, codArt, fileName)
     End Sub
 
     Public Sub LogWarning(messaggio As String, Optional stackTrace As String = Nothing, Optional macchina As String = Nothing, Optional codArt As String = Nothing, Optional fileName As String = Nothing)
         _logRep.InsertLog("WARNING", messaggio, stackTrace, macchina, codArt, fileName)
-        'SpedisciEmailNotifica(messaggio)
+        SpedisciEmailNotifica(messaggio)
         PrintConsoleMsg(messaggio, macchina, codArt, fileName)
     End Sub
 
     Public Sub LogError(messaggio As String, Optional stackTrace As String = Nothing, Optional macchina As String = Nothing, Optional codArt As String = Nothing, Optional fileName As String = Nothing)
         _logRep.InsertLog("ERROR", messaggio, stackTrace, macchina, codArt, fileName)
-        'SpedisciEmailNotifica(messaggio)
+        SpedisciEmailNotifica(messaggio)
         PrintConsoleMsg(messaggio, macchina, codArt, fileName)
     End Sub
 
@@ -88,7 +88,7 @@ Public Class LogManager
                         Dim subject As String = If(String.IsNullOrWhiteSpace(rule.SubjectOfEmail), "Notifica da sistema", rule.SubjectOfEmail)
 
                         Try
-                            ' Evitare logging ricorsivo durante l'invio
+                            ' Evitare logging ricorsivo durante l'invio        
                             emailManager.SendEmail(sender, addresses, subject, messaggio)
                             ' Log a livello informativo dell'azione di notifica
                             _logRep.InsertLog("INFO", $"Invio notifica email a: {String.Join(";", addresses)} soggetto: {subject}", Nothing, "", "", "")

@@ -95,7 +95,7 @@ namespace COMPINT_UI
             // 
             this.gestioneGiornoProdToolStripMenuItem.Name = "gestioneGiornoProdToolStripMenuItem";
             this.gestioneGiornoProdToolStripMenuItem.Size = new System.Drawing.Size(290, 26);
-            this.gestioneGiornoProdToolStripMenuItem.Text = "Gestione GiornoProdCounter";
+            this.gestioneGiornoProdToolStripMenuItem.Text = "Gestione GiornoProdConter";
             this.gestioneGiornoProdToolStripMenuItem.Click += new System.EventHandler(this.gestioneGiornoProdToolStripMenuItem_Click);
             // 
             // apriPdfToolStripMenuItem
