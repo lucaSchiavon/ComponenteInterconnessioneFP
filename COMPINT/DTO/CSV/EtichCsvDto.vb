@@ -5,9 +5,9 @@ Public Class EtichCsvDto
     Public Property Tempo As String
     Public Property Nome_Ricetta As String
     Public Property NomeEtichettaGruppo1 As String
-    Public Property EtichetteErogateGruppo1 As Integer
+    Public Property EtichetteErogateGruppo1 As Long
     Public Property NomeEtichettaGruppo2 As String
-    Public Property EtichetteErogateGruppo2 As Integer
+    Public Property EtichetteErogateGruppo2 As Long
 
 
     Public Property Note As String

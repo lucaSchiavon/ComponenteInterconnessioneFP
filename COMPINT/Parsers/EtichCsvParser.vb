@@ -34,7 +34,16 @@ Module EtichCsvParser
             Throw New InvalidDataException($"La riga dati nel file {NomeFile} non contiene il numero corretto di colonne.")
         End If
 
-        If Integer.Parse(dati(4).Trim().Replace("""", "")) = 0 And Integer.Parse(dati(6).Trim().Replace("""", "")) = 0 And secondExecution Then
+        'verifica quando la macchina etichettatrice da i numeri sparando produzioni che non hanno senso solo la seconda volta del giro del parsing
+        'in questo modo l'elaborazione non si ferma al primo tracciato non valido ma va avanti
+        If secondExecution And (Long.Parse(dati(4).Trim().Replace("""", "")) > 1000000000 Or Long.Parse(dati(6).Trim().Replace("""", "")) > 1000000000) Then
+            'se non vi è stata produzione di alcun prodotto sposta in errore
+            Throw New InvalidDataException($"Il file {Path.GetFileName(percorsoFile)} presenta una produzione pari ad un valore maggiore di un miliardo nel campo EtichetteErogateGruppo1 o nel campo EtichetteErogateGruppo2")
+        End If
+
+        'verifica quando la macchina etichettatrice ha generato un tracciato che non ha avuto alcuna produzione pari a zero solo la seconda volta del giro del parsing
+        'in questo modo l'elaborazione non si ferma al primo tracciato non valido ma va avanti
+        If Long.Parse(dati(4).Trim().Replace("""", "")) = 0 And Long.Parse(dati(6).Trim().Replace("""", "")) = 0 And secondExecution Then
             'se non vi è stata produzione di alcun prodotto sposta in errore
             Throw New InvalidDataException($"Il file {Path.GetFileName(percorsoFile)} presenta una produzione pari a 0 nel campo EtichetteErogateGruppo1 e nel campo EtichetteErogateGruppo2")
         End If
@@ -47,9 +56,9 @@ Module EtichCsvParser
         dto.Tempo = dati(1).Trim().Replace("""", "")
         dto.Nome_Ricetta = dati(2).Trim().Replace("""", "")
         dto.NomeEtichettaGruppo1 = dati(3).Trim().Replace("""", "")
-        dto.EtichetteErogateGruppo1 = Integer.Parse(dati(4).Trim().Replace("""", ""))
+        dto.EtichetteErogateGruppo1 = Long.Parse(dati(4).Trim().Replace("""", ""))
         dto.NomeEtichettaGruppo2 = dati(5).Trim().Replace("""", "")
-        dto.EtichetteErogateGruppo2 = Integer.Parse(dati(6).Trim().Replace("""", ""))
+        dto.EtichetteErogateGruppo2 = Long.Parse(dati(6).Trim().Replace("""", ""))
         dto.Note = settings.EtichNomeMacchina & Environment.NewLine & righe(0) & Environment.NewLine & righe(1)
         Return dto
     End Function
