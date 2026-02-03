@@ -172,6 +172,9 @@ Public Class MovimentazioneManager
 
         With _oCleBoll.dttEC.Rows(_oCleBoll.dttEC.Rows.Count - 1)
             !ec_colli = oCorpoCaricoProd.ec_colli
+            If oCorpoCaricoProd.Magazzino <> 0 Then
+                !ec_magaz = oCorpoCaricoProd.Magazzino
+            End If
             If Not oLottoDto Is Nothing Then
                 If oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
                     !ec_lotto = oLottoDto.LLotto

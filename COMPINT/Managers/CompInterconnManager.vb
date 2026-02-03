@@ -537,6 +537,10 @@ Public Class CompInterconnManager
             r!et_note = oMeccanoplastica1CsvDto.Note
             r!et_datdoc = oMeccanoplastica1CsvDto.DataOra
             r!et_tipobf = settings.TipoBfCaricoScarico
+            r!et_hhdescampolibero2 = "1"
+            If settings.Meccanoplastica1Magazzino <> "" Then
+                r!et_magaz = settings.Meccanoplastica1Magazzino
+            End If
         End Sub
 
         OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
@@ -546,6 +550,9 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd As New CorpoCaricoProd()
         OCorpoCaricoProd.CodArt = oMeccanoplastica1CsvDto.CodiceArticolo
         OCorpoCaricoProd.ec_colli = oMeccanoplastica1CsvDto.PezziBuoni
+        If settings.Meccanoplastica1Magazzino <> "" Then
+            OCorpoCaricoProd.Magazzino = settings.Meccanoplastica1Magazzino
+        End If
 
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
 
@@ -776,6 +783,9 @@ Public Class CompInterconnManager
            r!et_datdoc = oMeccanoplastica4CsvDto.DataOra
            r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
+           If settings.Meccanoplastica4Magazzino <> "" Then
+               r!et_magaz = settings.Meccanoplastica4Magazzino
+           End If
        End Sub
 
         'CreaTestataProd(lNumTmpProd, oCleBoll, settings, OTestataCaricoDiProd)
@@ -785,6 +795,9 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd As New CorpoCaricoProd()
         OCorpoCaricoProd.CodArt = oMeccanoplastica4CsvDto.CodiceArticolo
         OCorpoCaricoProd.ec_colli = oMeccanoplastica4CsvDto.PezziBuoni
+        If settings.Meccanoplastica4Magazzino <> "" Then
+            OCorpoCaricoProd.Magazzino = settings.Meccanoplastica4Magazzino
+        End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
@@ -1001,6 +1014,9 @@ Public Class CompInterconnManager
            r!et_datdoc = oAxomaticCsvDto.Data_Ora
            r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
+           If settings.AxomaticMagazzino <> "" Then
+               r!et_magaz = settings.AxomaticMagazzino
+           End If
        End Sub
 
         'CreaTestataProd(lNumTmpProd, oCleBoll, settings, OTestataCaricoDiProd)
@@ -1010,6 +1026,9 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd As New CorpoCaricoProd()
         OCorpoCaricoProd.CodArt = oAxomaticCsvDto.CodiceArticolo
         OCorpoCaricoProd.ec_colli = oAxomaticCsvDto.CartoniBuoni
+        If settings.AxomaticMagazzino <> "" Then
+            OCorpoCaricoProd.Magazzino = settings.AxomaticMagazzino
+        End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
@@ -1213,6 +1232,10 @@ Public Class CompInterconnManager
             r!et_note = oLayCsvDto.Note
             r!et_datdoc = oLayCsvDto.DataOra
             r!et_tipobf = settings.TipoBfScarico
+            r!et_hhdescampolibero2 = "1"
+            If settings.LayMagazzino <> "" Then
+                r!et_magaz = settings.LayMagazzino
+            End If
         End Sub
 
         OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
@@ -1222,6 +1245,9 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd As New CorpoCaricoProd()
         OCorpoCaricoProd.CodArt = oLayCsvDto.CodiceArticolo
         OCorpoCaricoProd.ec_colli = oLayCsvDto.PalletCompleti
+        If settings.LayMagazzino <> "" Then
+            OCorpoCaricoProd.Magazzino = settings.LayMagazzino
+        End If
 
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
 
@@ -1243,201 +1269,7 @@ Public Class CompInterconnManager
 
 #Region "Etich"
 
-    'Public Overridable Sub EtichScaricoDiProduzione(oCleBoll As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogManager)
-    '    'si scorre i file csv
 
-    '    Dim AllFileCsvPaths() As String = Nothing
-    '    Try
-    '        'prima di accedere alla cartella si logga (solo se la sicurezza è configurata nel config.ini)
-    '        'perchè la cartella condivisa è protetta da nome utente e pwd
-    '        If settings.MachineFoldersSecurity.ToUpper() = GlobalConstants.MACHINE_FOLDERS_SECURITY_ON Then
-    '            Try
-    '                NetworkShareManager.ConnectToShare(settings.EtichPercorso, settings.MachineFoldersUserName, settings.MachineFoldersPassword)
-    '                AllFileCsvPaths = Directory.GetFiles(settings.EtichPercorso, "*.csv")
-    '            Catch ex As Exception
-    '                'si è verificato un errore nell'accesso con password
-    '                'verifico che l'accesso non sia già stato fatto precedentemente perchè nel qual caso andrebbe in crash
-    '                'se cerca di accedere ad una cartella a cui si può già accedere fornendo le credenziali
-    '                Try
-    '                    AllFileCsvPaths = Directory.GetFiles(settings.EtichPercorso, "*.csv")
-    '                Catch exInn As Exception
-    '                    'se anche il tentativo di accedere senza credenziali fallisce allora il problema potrebbe essere utente o pwd errata
-    '                    Throw New Exception($"Apertura della cartella {settings.EtichPercorso} fallita, utilizzando l'utente {settings.MachineFoldersUserName} probabilmente il nome utente o password non sono corretti")
-    '                End Try
-    '            End Try
-    '        Else
-    '            'le cartelle non sono protette da password leggo direttamente i contenuti
-    '            AllFileCsvPaths = Directory.GetFiles(settings.EtichPercorso, "*.csv")
-    '        End If
-
-    '        Dim ObjEtichCsvDto As EtichCsvDto = Nothing
-
-    '        Dim CsvFilePaths = FiltraSoloCsvMacchine(AllFileCsvPaths)
-
-    '        Dim PublicCurrFileName As String = ""
-
-    '        For Each FilePath As String In CsvFilePaths
-
-
-    '            Try
-    '                'espongo il nome del file per loggarlo in caso d'errore
-    '                PublicCurrFileName = Path.GetFileName(FilePath)
-    '                'verifica la validità del csv
-    '                ObjEtichCsvDto = EtichCsvParser.ParseProduzioneCsv(FilePath, settings)
-
-    '                'se l'articolo è configurato per avere lotti crea il lotto altrimenti passa nothing
-    '                'l'articolo ha gestione lotti?
-    '                Dim OLottoManager As New LottoManager(settings, oCleAnlo)
-    '                'Dim OLottoRep = New LottoRep(oCleAnlo)
-    '                Dim IsArtConfForLotto As Boolean = OLottoManager.IsArtConfForLotto(oApp.Ditta, ObjEtichCsvDto.CodiceArticolo)
-
-    '                'se l'articolo è configurato per gestire lotto allora occorre creare un lotto per il prodotto finito
-    '                'preparo i dati da inserire nel lotto...
-    '                Dim oLottoDto As LottoDto = Nothing
-
-    '                Dim Oggi As Date = ObjEtichCsvDto.Data
-
-    '                'Il lotto esiste già?
-    '                If IsArtConfForLotto Then
-    '                    Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjEtichCsvDto.CodiceArticolo, settings.EtichNomeMacchina, ObjEtichCsvDto.Data)
-    '                    oLottoDto = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjEtichCsvDto.CodiceArticolo, NomeLotto)
-    '                    'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
-    '                    'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
-
-    '                    If oLottoDto Is Nothing Then
-    '                        Dim NextLottoNumber As Integer = OLottoManager.GetNextLottoNumber(oApp.Ditta)
-    '                        oLottoDto = New LottoDto() With {
-    '                      .StrCodart = CLN__STD.NTSCStr(ObjEtichCsvDto.CodiceArticolo),
-    '                      .StrDescodart = CLN__STD.NTSCStr(""),
-    '                        .LLotto = CLN__STD.NTSCInt(NextLottoNumber),
-    '                      .StrLottox = NomeLotto,
-    '                      .DataCreazione = CLN__STD.NTSCDate(Oggi),
-    '                      .DataScadenza = CLN__STD.NTSCDate(Oggi.AddYears(3)),
-    '                      .LottoGiaPresente = False
-    '                  }
-    '                    End If
-
-    '                End If
-
-    '                'crea il lotto e un carico di produzione per l'articolo del csv
-    '                Dim OMovimentazioneManager As New MovimentazioneManager(settings, oCleBoll)
-    '                LayExecScdp(OMovimentazioneManager, OLottoManager, ObjEtichCsvDto, oLottoDto, settings, logger, PublicCurrFileName)
-    '                'sposta il file in old dopo averlo elaborato
-    '                'crea la directory se ancora non c'è
-    '                Try
-    '                    SpostaECopiaFile(FilePath, Oggi, settings.EtichPercorsoOld, OMovimentazioneManager)
-
-    '                Catch ex As Exception
-    '                    ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
-    '                End Try
-
-
-    '            Catch ex As Exception
-    '                'logga sposta in errore il file csv e va avanti
-    '                logger.LogError(ex.Message, ex.StackTrace, settings.EtichNomeMacchina, If(ObjEtichCsvDto IsNot Nothing, ObjEtichCsvDto.CodiceArticolo, ""), PublicCurrFileName)
-
-    '                Try
-    '                    SpostaNellaCartellaErrori(FilePath, settings.EtichPercorsoErrori)
-
-    '                Catch
-    '                    ' Se fallisce qui occorrerebbe fare il rollback dell'inserimento movimento di carico e del lotto del prodotto finito (se è stato inserito)
-    '                End Try
-    '            End Try
-
-    '        Next
-    '    Catch ex As Exception
-    '        'logga in caso non riesca ad aprire il path della cartella dei file csv...e poi passa alla elaborazione dei files della prossima macchina
-    '        logger.LogError(ex.Message, ex.StackTrace, settings.EtichNomeMacchina)
-    '    End Try
-    'End Sub
-
-    'Public Overridable Sub EtichExecScdp(OMovimentazioneManager As MovimentazioneManager, oLottoManager As LottoManager, oEtichCsvDto As EtichCsvDto, oLottoDto As LottoDto, settings As Settings, logger As LogManager, PublicCurrFileName As String)
-
-    '    Dim Serie As String = OMovimentazioneManager.GetSerie(GlobalConstants.MACHINENAME_ETICH, oEtichCsvDto.CodiceArticolo)
-
-    '    'esegue effettivamente il carico in experience
-    '    If oLottoDto IsNot Nothing AndAlso Not oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
-    '        'creo il lotto solo se si tratta di un articolo con gestione lotti
-    '        'e solo se il lotto non è ancora presente a db
-    '        If Serie = "CON" Then
-    '            'se la serie è CON allora il lotto è di tipo conter e quindi devo fare 
-    '            'l'insert del contatore conteggio giorni di produzione in crea lotto
-    '            oLottoDto.IsLottoConter = True
-    '        End If
-    '        oLottoManager.CreaLotto(oLottoDto)
-
-    '        logger.LogInfo($"Lotto creato per l'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.EtichNomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
-    '    Else
-    '        If oLottoDto IsNot Nothing AndAlso oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
-    '            logger.LogInfo($"Lotto associato all'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.EtichNomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
-    '        End If
-    '    End If
-
-
-    '    '--- Legge il progressivo in TABNUMA
-    '    Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("Z", Serie, oEtichCsvDto.Data.Year)
-
-    '    'preparo l'ambiente
-
-    '    Dim ds As New DataSet
-    '    If Not OMovimentazioneManager.ApriDoc(oApp.Ditta, False, "Z", oEtichCsvDto.Data.Year, Serie, lNumTmpProd, ds) Then
-    '        Throw New Exception($"Apertura del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotto {oEtichCsvDto.CodiceArticolo} QtaProdotte {oEtichCsvDto.PalletCompleti}")
-    '    End If
-
-    '    OMovimentazioneManager.SetApriDocSilent(True)
-
-    '    If OMovimentazioneManager.DsShared.Tables("TESTA").Rows.Count > 0 Then
-    '        Throw New Exception($"Errore nella numerazione del documento di Scarico. Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotto {oEtichCsvDto.CodiceArticolo} QtaProdotte {oEtichCsvDto.PalletCompleti}")
-    '    End If
-    '    OMovimentazioneManager.ResetVar()
-    '    OMovimentazioneManager.StrVisNoteConto = "N"
-
-    '    If Not OMovimentazioneManager.NuovoDocumento(oApp.Ditta, "Z", oEtichCsvDto.Data.Year, Serie, lNumTmpProd, "") Then
-    '        Throw New Exception($"Creazione del documento di Scarico fallita. Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotto {oEtichCsvDto.CodiceArticolo} QtaProdotte {oEtichCsvDto.PalletCompleti}")
-    '    End If
-    '    'oCleBoll.bInNuovoDocSilent = True
-    '    OMovimentazioneManager.SetNuovoDocSilent(True)
-
-    '    Dim OTestataCaricoDiProd As Action(Of DataRow) =
-    '    Sub(r As DataRow)
-    '        r!codditt = oApp.Ditta
-    '        r!et_conto = settings.Fornitore
-    '        r!et_tipork = "Z"
-    '        r!et_anno = oEtichCsvDto.Data.Year
-    '        r!et_serie = Serie
-    '        r!et_numdoc = lNumTmpProd
-    '        r!et_note = oEtichCsvDto.Note
-    '        r!et_datdoc = oEtichCsvDto.Data
-    '        r!et_tipobf = settings.TipoBfScarico
-    '    End Sub
-
-    '    OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
-
-
-    '    'setta il carico di produzione
-    '    Dim OCorpoCaricoProd As New CorpoCaricoProd()
-    '    OCorpoCaricoProd.CodArt = oEtichCsvDto.CodiceArticolo
-    '    OCorpoCaricoProd.ec_colli = oEtichCsvDto.PalletCompleti
-
-    '    OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
-
-    '    OMovimentazioneManager.SettaPiedeProd()
-
-    '    OMovimentazioneManager.BCreaFilePick = False 'non faccio generare il piking dal salvataggio del documento
-
-    '    If Not OMovimentazioneManager.SalvaDocumento("N") Then
-    '        Throw New Exception($"Errore al salvataggio del documento di Scarico.! Dettagli: numero documento {lNumTmpProd} data documento {oEtichCsvDto.Data.Year}, serie {Serie}, prodotto {oEtichCsvDto.CodiceArticolo} QtaProdotte {oEtichCsvDto.PalletCompleti}")
-    '    End If
-
-
-    '    OMovimentazioneManager.ProgProd = lNumTmpProd
-    '    OMovimentazioneManager.Serie = Serie
-    '    logger.LogInfo($"Scarico effettuato con successo (num. produzione {OMovimentazioneManager.ProgProd} serie {OMovimentazioneManager.Serie} il {oEtichCsvDto.Data.ToString("dddd dd/MM/yyyy", New CultureInfo("it-IT"))} di qta {oEtichCsvDto.PalletCompleti} per il prodotto {oEtichCsvDto.CodiceArticolo} ", settings.EtichNomeMacchina, oEtichCsvDto.CodiceArticolo, PublicCurrFileName)
-    'End Sub
-
-    '-------------------------------------------------------------------
-
-    'qui di seguito la versione corretta per etich
     Public Overridable Sub EtichScaricoDiProduzione(oCleBoll As CLEVEBOLL, oCleAnlo As CLEMGANLO, settings As Settings, logger As LogManager)
         'si scorre i file csv
 
@@ -1642,6 +1474,9 @@ Public Class CompInterconnManager
             r!et_note = oEtichCsvDto.Note
             r!et_datdoc = oEtichCsvDto.Data
             r!et_tipobf = settings.TipoBfScarico
+            If settings.EtichMagazzino <> "" Then
+                r!et_magaz = settings.EtichMagazzino
+            End If
         End Sub
 
         OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
@@ -1651,12 +1486,19 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd1 As New CorpoCaricoProd()
         OCorpoCaricoProd1.CodArt = oEtichCsvDto.NomeEtichettaGruppo1
         OCorpoCaricoProd1.ec_colli = oEtichCsvDto.EtichetteErogateGruppo1
+        If settings.EtichMagazzino <> "" Then
+            OCorpoCaricoProd1.Magazzino = settings.EtichMagazzino
+        End If
+
 
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd1, oLottoDto)
 
         Dim OCorpoCaricoProd2 As New CorpoCaricoProd()
         OCorpoCaricoProd2.CodArt = oEtichCsvDto.NomeEtichettaGruppo2
         OCorpoCaricoProd2.ec_colli = oEtichCsvDto.EtichetteErogateGruppo2
+        If settings.EtichMagazzino <> "" Then
+            OCorpoCaricoProd2.Magazzino = settings.EtichMagazzino
+        End If
 
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd2, oLottoDto)
 
@@ -1856,6 +1698,10 @@ Public Class CompInterconnManager
             r!et_note = oPicker23017CsvDto.Note
             r!et_datdoc = oPicker23017CsvDto.DataEOra
             r!et_tipobf = settings.TipoBfScarico
+            r!et_hhdescampolibero2 = "1"
+            If settings.Picker23017Magazzino <> "" Then
+                r!et_magaz = settings.Picker23017Magazzino
+            End If
         End Sub
 
         OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
@@ -1865,6 +1711,9 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd As New CorpoCaricoProd()
         OCorpoCaricoProd.CodArt = oPicker23017CsvDto.CodiceArticolo
         OCorpoCaricoProd.ec_colli = oPicker23017CsvDto.PezziBuoni
+        If settings.Picker23017Magazzino <> "" Then
+            OCorpoCaricoProd.Magazzino = settings.Picker23017Magazzino
+        End If
 
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
 
@@ -2064,6 +1913,10 @@ Public Class CompInterconnManager
             r!et_note = oPicker23018CsvDto.Note
             r!et_datdoc = oPicker23018CsvDto.DataEOra
             r!et_tipobf = settings.TipoBfScarico
+            r!et_hhdescampolibero2 = "1"
+            If settings.Picker23018Magazzino <> "" Then
+                r!et_magaz = settings.Picker23018Magazzino
+            End If
         End Sub
 
         OMovimentazioneManager.CreaTestataProd(OTestataCaricoDiProd)
@@ -2073,6 +1926,9 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd As New CorpoCaricoProd()
         OCorpoCaricoProd.CodArt = oPicker23018CsvDto.CodiceArticolo
         OCorpoCaricoProd.ec_colli = oPicker23018CsvDto.PezziBuoni
+        If settings.Picker23018Magazzino <> "" Then
+            OCorpoCaricoProd.Magazzino = settings.Picker23018Magazzino
+        End If
 
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
 
@@ -2283,7 +2139,10 @@ Public Class CompInterconnManager
            r!et_note = oDuettiCsvDto.Note
            r!et_datdoc = oDuettiCsvDto.DataOra
            r!et_tipobf = settings.TipoBfCaricoScarico
-           r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
+           r!et_hhdescampolibero2 = "1"
+           If settings.DuettiMagazzino <> "" Then
+               r!et_magaz = settings.DuettiMagazzino
+           End If
        End Sub
 
         'CreaTestataProd(lNumTmpProd, oCleBoll, settings, OTestataCaricoDiProd)
@@ -2293,6 +2152,9 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd As New CorpoCaricoProd()
         OCorpoCaricoProd.CodArt = oDuettiCsvDto.CodiceArticolo
         OCorpoCaricoProd.ec_colli = oDuettiCsvDto.CartoniBuoni
+        If settings.DuettiMagazzino <> "" Then
+            OCorpoCaricoProd.Magazzino = settings.DuettiMagazzino
+        End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
@@ -2511,6 +2373,9 @@ Public Class CompInterconnManager
            r!et_datdoc = oDuetti2CsvDto.DataOra
            r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
+           If settings.Duetti2Magazzino <> "" Then
+               r!et_magaz = settings.Duetti2Magazzino
+           End If
        End Sub
 
         'CreaTestataProd(lNumTmpProd, oCleBoll, settings, OTestataCaricoDiProd)
@@ -2520,6 +2385,9 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd As New CorpoCaricoProd()
         OCorpoCaricoProd.CodArt = oDuetti2CsvDto.CodiceArticolo
         OCorpoCaricoProd.ec_colli = oDuetti2CsvDto.CartoniBuoni
+        If settings.Duetti2Magazzino <> "" Then
+            OCorpoCaricoProd.Magazzino = settings.Duetti2Magazzino
+        End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
@@ -2735,6 +2603,9 @@ Public Class CompInterconnManager
            r!et_datdoc = oIca1CsvDto.InizioTurno
            r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
+           If settings.ICAVL08615Magazzino <> "" Then
+               r!et_magaz = settings.ICAVL08615Magazzino
+           End If
        End Sub
 
         'CreaTestataProd(lNumTmpProd, oCleBoll, settings, OTestataCaricoDiProd)
@@ -2744,6 +2615,9 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd As New CorpoCaricoProd()
         OCorpoCaricoProd.CodArt = oIca1CsvDto.CodiceArticolo
         OCorpoCaricoProd.ec_colli = oIca1CsvDto.ScatoleTeoricheProdotte
+        If settings.ICAVL08615Magazzino <> "" Then
+            OCorpoCaricoProd.Magazzino = settings.ICAVL08615Magazzino
+        End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
@@ -2958,6 +2832,9 @@ Public Class CompInterconnManager
            r!et_datdoc = oIca2CsvDto.InizioTurno
            r!et_tipobf = settings.TipoBfCaricoScarico
            r!et_hhdescampolibero2 = "1" 'serve per segnalare che il carico è stato inserito automaticamente dal componente di interconnessione
+           If settings.ICAVL08616Magazzino <> "" Then
+               r!et_magaz = settings.ICAVL08616Magazzino
+           End If
        End Sub
 
         'CreaTestataProd(lNumTmpProd, oCleBoll, settings, OTestataCaricoDiProd)
@@ -2967,6 +2844,9 @@ Public Class CompInterconnManager
         Dim OCorpoCaricoProd As New CorpoCaricoProd()
         OCorpoCaricoProd.CodArt = oIca2CsvDto.CodiceArticolo
         OCorpoCaricoProd.ec_colli = oIca2CsvDto.ScatoleTeoricheProdotte
+        If settings.ICAVL08616Magazzino <> "" Then
+            OCorpoCaricoProd.Magazzino = settings.ICAVL08616Magazzino
+        End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
         OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)

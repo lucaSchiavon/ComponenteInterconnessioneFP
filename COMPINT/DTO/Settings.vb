@@ -49,65 +49,76 @@
     Public Property ICAVL08615PercorsoErrori As String
     Public Property ICAVL08615PercorsoOld As String
     Public Property ICAVL08615NomeMacchina As String
+    Public Property ICAVL08615Magazzino As String
 
     'ICAVL08616
     Public Property ICAVL08616Percorso As String
     Public Property ICAVL08616PercorsoErrori As String
     Public Property ICAVL08616PercorsoOld As String
     Public Property ICAVL08616NomeMacchina As String
+    Public Property ICAVL08616Magazzino As String
 
     'MECCANOPLASTICA1
     Public Property Meccanoplastica1Percorso As String
     Public Property Meccanoplastica1PercorsoErrori As String
     Public Property Meccanoplastica1PercorsoOld As String
     Public Property Meccanoplastica1NomeMacchina As String
+    Public Property Meccanoplastica1Magazzino As String
 
     'MECCANOPLASTICA4
     Public Property Meccanoplastica4Percorso As String
     Public Property Meccanoplastica4PercorsoErrori As String
     Public Property Meccanoplastica4PercorsoOld As String
     Public Property Meccanoplastica4NomeMacchina As String
+    Public Property Meccanoplastica4Magazzino As String
 
     'DUETTI
     Public Property DuettiPercorso As String
     Public Property DuettiPercorsoErrori As String
     Public Property DuettiPercorsoOld As String
     Public Property DuettiNomeMacchina As String
+    Public Property DuettiMagazzino As String
 
     'DUETTI2
     Public Property Duetti2Percorso As String
     Public Property Duetti2PercorsoErrori As String
     Public Property Duetti2PercorsoOld As String
     Public Property Duetti2NomeMacchina As String
+    Public Property Duetti2Magazzino As String
 
     'AXOMATIC
     Public Property AxomaticPercorso As String
     Public Property AxomaticPercorsoErrori As String
     Public Property AxomaticPercorsoOld As String
     Public Property AxomaticNomeMacchina As String
+    Public Property AxomaticMagazzino As String
 
     'ETICH
     Public Property EtichPercorso As String
     Public Property EtichPercorsoErrori As String
     Public Property EtichPercorsoOld As String
     Public Property EtichNomeMacchina As String
+    Public Property EtichMagazzino As String
 
     'LAY
     Public Property LayPercorso As String
     Public Property LayPercorsoErrori As String
     Public Property LayPercorsoOld As String
     Public Property LayNomeMacchina As String
+    Public Property LayMagazzino As String
 
     'PICKER23017
     Public Property Picker23017Percorso As String
     Public Property Picker23017PercorsoErrori As String
     Public Property Picker23017PercorsoOld As String
     Public Property Picker23017NomeMacchina As String
+    Public Property Picker23017Magazzino As String
 
     'PICKER23018
     Public Property Picker23018Percorso As String
     Public Property Picker23018PercorsoErrori As String
     Public Property Picker23018PercorsoOld As String
     Public Property Picker23018NomeMacchina As String
+    Public Property Picker23018Magazzino As String
 
 End Class
