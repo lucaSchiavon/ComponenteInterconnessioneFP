@@ -628,8 +628,8 @@ Public Class CompInterconnManager
                                      End Function).ToArray()
 
             Catch ex As Exception
-                    Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.LayPercorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
-                End Try
+                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.Meccanoplastica4Percorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+            End Try
             'Next
             '******************************
 
@@ -866,7 +866,7 @@ Public Class CompInterconnManager
                                                         Return dto.Data_Ora
                                                     End Function).ToArray()
             Catch ex As Exception
-                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.LayPercorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
+                Throw New Exception($"Errore nell'ordinamento dei file csv da elaborare per data e ora di produzione nel percorso {settings.AxomaticPercorso}. L'errore potrebbe essere dovuto al parsing di uno dei tracciati csv, che fallisce. Dettagli: " & ex.Message)
             End Try
 
             For Each FilePath As String In CsvFilePaths
