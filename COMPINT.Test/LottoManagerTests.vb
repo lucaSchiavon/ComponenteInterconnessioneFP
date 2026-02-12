@@ -1,4 +1,4 @@
-﻿Imports FPCOMPINTERCONN
+﻿Imports COMPINT
 Imports Moq
 
 <TestClass>
@@ -60,11 +60,11 @@ Public Class LottoManagerTests
 
 
     <DataTestMethod>
-    <DataRow("2024-02-01", "32AFP")>
+    <DataRow("2024-02-01", "032AFP")>
     <DataRow("2024-12-31", "366AFP")>
-    <DataRow("2024-01-01", "1AFP")>
-    <DataRow("2024-03-01", "61AFP")> 'anno bisestile, ci si aspetta 61esimo giorno
-    <DataRow("2023-03-01", "60AFP")> 'anno normale, ci si aspetta 60
+    <DataRow("2024-01-01", "001AFP")>
+    <DataRow("2024-03-01", "061AFP")> 'anno bisestile, ci si aspetta 61esimo giorno
+    <DataRow("2023-03-01", "060AFP")> 'anno normale, ci si aspetta 60
     Public Sub GetNomeLotto_ArticoloP_RestituisceLottoGiuliano(dataStr As String, expected As String)
         ' Arrange
         'Dim settings As New Settings()

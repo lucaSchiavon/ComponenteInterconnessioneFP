@@ -30,7 +30,7 @@ Public Class ICAVL08616CsvParserTests
         Dim tempFile = CreateTempCsvFile(csvContent)
 
         ' Act: chiamata al parser
-        Dim result = ICAVL08616CsvParser.ParseProduzioneCsv(tempFile, settings)
+        Dim result = ICAVL08616CsvParser.ParseProduzioneCsv(tempFile, settings, True)
 
         ' Assert: gestito da ExpectedException
     End Sub
@@ -45,7 +45,7 @@ Public Class ICAVL08616CsvParserTests
         Dim tempFile = CreateTempCsvFile(csvContent)
 
         ' Act
-        Dim dto = ICAVL08616CsvParser.ParseProduzioneCsv(tempFile, settings)
+        Dim dto = ICAVL08616CsvParser.ParseProduzioneCsv(tempFile, settings, True)
 
         ' Assert: controlliamo alcuni campi chiave
         Assert.IsNotNull(dto)

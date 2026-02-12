@@ -199,7 +199,7 @@ Public Class LottoManager
         Dim GiornoGiuliano As Int32 = GetGiornoGiuliano(DataProduzione)
         Dim LetteraIdentAnno As String = _OLetteraIdentAnnoRep.GetLetteraIdentAnno(DataProduzione)
         Dim CampoFissoFp As String = _Settings.NomeLottoPagCampoFissoFp
-        Return String.Concat(GiornoGiuliano.ToString(), LetteraIdentAnno, CampoFissoFp)
+        Return String.Concat(GiornoGiuliano.ToString("000"), LetteraIdentAnno, CampoFissoFp)
 
     End Function
     Private Function GetNomeLottoConter(ByVal DataProduzione As Date) As String
