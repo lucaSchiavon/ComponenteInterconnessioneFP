@@ -21,8 +21,9 @@ Module EtichCsvParser
         If header.Length <> intestazioniAttese.Length Then
             Throw New InvalidDataException($"Numero di colonne nel file {NomeFile} non corrispondente.")
         End If
-
-        For i As Integer = 0 To intestazioniAttese.Length - 1
+        'inizio ad iterare a partire da 1 anzichè 0 perché la prima colonna è la data che è l'unica che può essere diversa da quella attesa
+        'in quanto a volte è "data" a volte è "data , le altre devono essere tutte uguali
+        For i As Integer = 1 To intestazioniAttese.Length - 1
             If Not header(i).Trim().Equals(intestazioniAttese(i), StringComparison.OrdinalIgnoreCase) Then
                 Throw New InvalidDataException($"Colonna {i + 1} non valida nel file {NomeFile}: atteso '{intestazioniAttese(i)}', trovato '{header(i)}'")
             End If

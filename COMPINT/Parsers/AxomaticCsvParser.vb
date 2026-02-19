@@ -49,7 +49,22 @@ Module AxomaticCsvParser
         Dim dati() As String = ParseCsvLineTollerante(righe(1))
 
         If dati.Length < 6 Then
-            Throw New InvalidDataException($"La riga dati nel file {NomeFile} non contiene abbastanza colonne.")
+
+            If dati.Length <> 0 Then
+                Throw New InvalidDataException($"La riga dati (che si trova sulla seconda riga) nel file {NomeFile} non contiene abbastanza colonne.")
+            End If
+            'ho dovuto aggiungere una pezza perchè a volte il file ha tre righe di cui la seconda (che dovrebbe contenere i valori) è vuota
+            Try
+                'quindi se la seconda è vuota guardo nella terza (sperando che ci sia una terza riga)
+                dati = ParseCsvLineTollerante(righe(2))
+                If dati.Length < 6 Then
+                    Throw New InvalidDataException($"La riga dati nel file  (che si trova sulla terza riga) {NomeFile} non contiene abbastanza colonne.")
+                End If
+            Catch ex As Exception
+                Throw New InvalidDataException($"Si è tentato di leggere la terza riga dei dati nel file {NomeFile} essendo la riga due vuota ma la riga 3 è inesistente.")
+            End Try
+
+
         End If
 
         If Integer.Parse(dati(5).Trim().Replace("""", "")) = 0 And secondExecution Then
