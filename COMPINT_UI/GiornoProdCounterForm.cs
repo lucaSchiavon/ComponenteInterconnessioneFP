@@ -1,9 +1,11 @@
+using COMPINT_UI.Data;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Drawing;
 using System.Windows.Forms;
-using COMPINT_UI.Data;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Rebar;
 
 namespace COMPINT_UI
 {
@@ -114,6 +116,7 @@ namespace COMPINT_UI
             this.btnAdd.TabIndex = 5;
             this.btnAdd.Text = "Aggiungi";
             this.btnAdd.UseVisualStyleBackColor = false;
+            //this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click_1);
             // 
             // btnEdit
             // 
@@ -127,7 +130,6 @@ namespace COMPINT_UI
             this.btnEdit.TabIndex = 6;
             this.btnEdit.Text = "Modifica";
             this.btnEdit.UseVisualStyleBackColor = false;
-            //this.btnEdit.Click += new System.EventHandler(this.btnEdit_Click_1);
             // 
             // btnDelete
             // 
@@ -260,6 +262,17 @@ namespace COMPINT_UI
                     conn.Open();
                     cmd.ExecuteNonQuery();
                 }
+
+                //scrive nel log che è stato fatto un inserimento manuale
+                using (var conn = DatabaseHelper.GetConnection())
+                using (var cmd = new SqlCommand("INSERT INTO [dbo].[TblLogUI]([TipoModifica],[DettaglioModifica]) VALUES (@TipoModifica,@DettaglioModifica)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@TipoModifica","Gest. giorni prod. Conter - INSERIMENTO");
+                    cmd.Parameters.AddWithValue("@DettaglioModifica", $"INSERT INTO TblGiornoProdConter (DataProduzione, IncrementaleGDiProdConter) VALUES ({txtDataProduzione.Text},{inc})");
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+
                 LoadData();
                 MessageBox.Show("Record aggiunto.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -301,6 +314,17 @@ namespace COMPINT_UI
                     var rows = cmd.ExecuteNonQuery();
                     if (rows == 0) MessageBox.Show("Nessun record aggiornato.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
+
+                //scrive nel log che è stato fatto una modifica manuale
+                using (var conn = DatabaseHelper.GetConnection())
+                using (var cmd = new SqlCommand("INSERT INTO [dbo].[TblLogUI]([TipoModifica],[DettaglioModifica]) VALUES (@TipoModifica,@DettaglioModifica)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@TipoModifica", "Gest. giorni prod. Conter - MODIFICA");
+                    cmd.Parameters.AddWithValue("@DettaglioModifica", $"UPDATE TblGiornoProdConter SET IncrementaleGDiProdConter = {inc}, DataProduzione = {dataProd} WHERE DataProduzione = {origData} AND IncrementaleGDiProdConter = {origInc}");
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+
                 LoadData();
                 MessageBox.Show("Record aggiornato.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -331,6 +355,17 @@ namespace COMPINT_UI
                     var rows = cmd.ExecuteNonQuery();
                     if (rows == 0) MessageBox.Show("Nessun record eliminato.", "Avviso", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
+
+                //scrive nel log che è stato fatto una eliminazione manuale
+                using (var conn = DatabaseHelper.GetConnection())
+                using (var cmd = new SqlCommand("INSERT INTO [dbo].[TblLogUI]([TipoModifica],[DettaglioModifica]) VALUES (@TipoModifica,@DettaglioModifica)", conn))
+                {
+                    cmd.Parameters.AddWithValue("@TipoModifica", "Gest. giorni prod. Conter - ELIMINAZIONE");
+                    cmd.Parameters.AddWithValue("@DettaglioModifica", $"DELETE FROM TblGiornoProdConter WHERE DataProduzione={origData} AND IncrementaleGDiProdConter={origInc}");
+                    conn.Open();
+                    cmd.ExecuteNonQuery();
+                }
+
                 LoadData();
                 MessageBox.Show("Record eliminato.", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
@@ -340,6 +375,9 @@ namespace COMPINT_UI
             }
         }
 
-      
+        //private void btnAdd_Click_1(object sender, EventArgs e)
+        //{
+
+        //}
     }
 }
