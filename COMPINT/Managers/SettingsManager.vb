@@ -105,6 +105,7 @@ Public Class SettingsManager
         settings.EtichPercorsoOld = Path.Combine(settings.EtichPercorso, "Old")
         settings.EtichNomeMacchina = parser.GetSetting("ETICH", "NomeMacchina")
         settings.EtichMagazzino = parser.GetSetting("ETICH", "Magazzino")
+        settings.EtichLottoBidone = parser.GetSetting("ETICH", "LottoBidone")
 
         'LAY
         settings.LayPercorso = parser.GetSetting("LAY", "Percorso")

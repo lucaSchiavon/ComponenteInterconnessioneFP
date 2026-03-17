@@ -99,6 +99,7 @@
     Public Property EtichPercorsoOld As String
     Public Property EtichNomeMacchina As String
     Public Property EtichMagazzino As String
+    Public Property EtichLottoBidone As String
 
     'LAY
     Public Property LayPercorso As String

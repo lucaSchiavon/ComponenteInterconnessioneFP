@@ -554,7 +554,7 @@ Public Class CompInterconnManager
             OCorpoCaricoProd.Magazzino = settings.Meccanoplastica1Magazzino
         End If
 
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oMeccanoplastica1CsvDto.Note)
 
         OMovimentazioneManager.SettaPiedeProd()
 
@@ -800,7 +800,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oMeccanoplastica4CsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()
@@ -1031,7 +1031,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oAxomaticCsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()
@@ -1249,7 +1249,7 @@ Public Class CompInterconnManager
             OCorpoCaricoProd.Magazzino = settings.LayMagazzino
         End If
 
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oLayCsvDto.Note)
 
         OMovimentazioneManager.SettaPiedeProd()
 
@@ -1383,7 +1383,8 @@ Public Class CompInterconnManager
 
                     'crea il lotto e un carico di produzione per l'articolo del csv
                     Dim OMovimentazioneManager As New MovimentazioneManager(settings, oCleBoll)
-                    'todo:creare due routine per gestire i carichi
+
+                    'dentro questa routine vengono eseguiti due movimenti ,oLottoDto1 viene passato ma è ininfluente
                     EtichExecScdp(OMovimentazioneManager, OLottoManager, ObjEtichCsvDto, oLottoDto1, settings, logger, PublicCurrFileName)
                     'EtichExecScdp(OMovimentazioneManager, OLottoManager, ObjEtichCsvDto, oLottoDto2, settings, logger, PublicCurrFileName)
                     'sposta il file in old dopo averlo elaborato
@@ -1490,8 +1491,9 @@ Public Class CompInterconnManager
             OCorpoCaricoProd1.Magazzino = settings.EtichMagazzino
         End If
 
-
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd1, oLottoDto)
+        'forza l'inserimento di un lotto bidone altrimenti la movimentazione non funziona
+        'in quanto i prodotti qui hanno gestione a lotti e si tratta di uno scarico
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd1, oLottoDto, settings, oEtichCsvDto.Note, True)
 
         Dim OCorpoCaricoProd2 As New CorpoCaricoProd()
         OCorpoCaricoProd2.CodArt = oEtichCsvDto.NomeEtichettaGruppo2
@@ -1499,8 +1501,9 @@ Public Class CompInterconnManager
         If settings.EtichMagazzino <> "" Then
             OCorpoCaricoProd2.Magazzino = settings.EtichMagazzino
         End If
-
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd2, oLottoDto)
+        'forza l'inserimento di un lotto bidone altrimenti la movimentazione non funziona
+        'in quanto i prodotti qui hanno gestione a lotti e si tratta di uno scarico
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd2, oLottoDto, settings, oEtichCsvDto.Note, True)
 
         OMovimentazioneManager.SettaPiedeProd()
 
@@ -1715,7 +1718,7 @@ Public Class CompInterconnManager
             OCorpoCaricoProd.Magazzino = settings.Picker23017Magazzino
         End If
 
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oPicker23017CsvDto.Note)
 
         OMovimentazioneManager.SettaPiedeProd()
 
@@ -1930,7 +1933,7 @@ Public Class CompInterconnManager
             OCorpoCaricoProd.Magazzino = settings.Picker23018Magazzino
         End If
 
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oPicker23018CsvDto.Note)
 
         OMovimentazioneManager.SettaPiedeProd()
 
@@ -2157,7 +2160,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oDuettiCsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()
@@ -2390,7 +2393,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oDuetti2CsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()
@@ -2620,7 +2623,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oIca1CsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()
@@ -2849,7 +2852,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oIca2CsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()
