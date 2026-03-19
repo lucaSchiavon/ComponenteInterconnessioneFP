@@ -163,7 +163,7 @@ Public Class MovimentazioneManager
 
     End Sub
 
-    Public Sub CreaRigaProd(oCorpoCaricoProd As CorpoCaricoProd, oLottoDto As LottoDto, settings As Settings, note As String, Optional etichettatrice As Boolean = False)
+    Public Sub CreaRigaProd(oCorpoCaricoProd As CorpoCaricoProd, oLottoDto As LottoDto, note As String)
 
         'Creo una nuova riga di corpo setto i principali campi poi setto tutti gli altri
         If Not _oCleBoll.AggiungiRigaCorpo(False, CLN__STD.NTSCStr(oCorpoCaricoProd.CodArt), 0, 0) Then
@@ -180,9 +180,7 @@ Public Class MovimentazioneManager
                     !ec_lotto = oLottoDto.LLotto
                 End If
             End If
-            If etichettatrice Then
-                !ec_lotto = settings.EtichLottoBidone
-            End If
+
             !ec_note = note
         End With
 

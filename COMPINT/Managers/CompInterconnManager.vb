@@ -554,7 +554,7 @@ Public Class CompInterconnManager
             OCorpoCaricoProd.Magazzino = settings.Meccanoplastica1Magazzino
         End If
 
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oMeccanoplastica1CsvDto.Note)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, oMeccanoplastica1CsvDto.Note)
 
         OMovimentazioneManager.SettaPiedeProd()
 
@@ -800,7 +800,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oMeccanoplastica4CsvDto.Note)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, oMeccanoplastica4CsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()
@@ -1031,7 +1031,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oAxomaticCsvDto.Note)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, oAxomaticCsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()
@@ -1249,7 +1249,7 @@ Public Class CompInterconnManager
             OCorpoCaricoProd.Magazzino = settings.LayMagazzino
         End If
 
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oLayCsvDto.Note)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, oLayCsvDto.Note)
 
         OMovimentazioneManager.SettaPiedeProd()
 
@@ -1340,7 +1340,8 @@ Public Class CompInterconnManager
                     Dim NextLottoNumber As Integer = OLottoManager.GetNextLottoNumber(oApp.Ditta)
                     'Il lotto esiste già per il primo articolo?
                     If IsArt1ConfForLotto Then
-                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjEtichCsvDto.NomeEtichettaGruppo1, settings.EtichNomeMacchina, ObjEtichCsvDto.Data)
+                        'solo per etich passiamo il nome del bidone
+                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjEtichCsvDto.NomeEtichettaGruppo1, settings.EtichNomeMacchina, ObjEtichCsvDto.Data, settings.EtichLottoBidone)
                         oLottoDto1 = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjEtichCsvDto.NomeEtichettaGruppo1, NomeLotto)
                         'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
                         'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
@@ -1361,8 +1362,9 @@ Public Class CompInterconnManager
 
                     'Il lotto esiste già per il secondo articolo?
                     If IsArt2ConfForLotto Then
-                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjEtichCsvDto.NomeEtichettaGruppo2, settings.EtichNomeMacchina, ObjEtichCsvDto.Data)
-                        oLottoDto1 = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjEtichCsvDto.NomeEtichettaGruppo2, NomeLotto)
+                        Dim NomeLotto As String = OLottoManager.GetNomeLotto(ObjEtichCsvDto.NomeEtichettaGruppo2, settings.EtichNomeMacchina, ObjEtichCsvDto.Data, settings.EtichLottoBidone)
+                        'oLottoDto1 = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjEtichCsvDto.NomeEtichettaGruppo2, NomeLotto)
+                        oLottoDto2 = OLottoManager.GetLottoProdottoFinito(oApp.Ditta, ObjEtichCsvDto.NomeEtichettaGruppo2, NomeLotto)
                         'solo se l'articolo è configurato per le gestione lotti e non esiste già un lotto prodotto finito con lo stesso nome
                         'valorizza un oggetto LottoDto che poi servirà per inserire un nuovo lotto
 
@@ -1385,7 +1387,7 @@ Public Class CompInterconnManager
                     Dim OMovimentazioneManager As New MovimentazioneManager(settings, oCleBoll)
 
                     'dentro questa routine vengono eseguiti due movimenti ,oLottoDto1 viene passato ma è ininfluente
-                    EtichExecScdp(OMovimentazioneManager, OLottoManager, ObjEtichCsvDto, oLottoDto1, settings, logger, PublicCurrFileName)
+                    EtichExecScdp(OMovimentazioneManager, OLottoManager, ObjEtichCsvDto, oLottoDto1, oLottoDto2, settings, logger, PublicCurrFileName)
                     'EtichExecScdp(OMovimentazioneManager, OLottoManager, ObjEtichCsvDto, oLottoDto2, settings, logger, PublicCurrFileName)
                     'sposta il file in old dopo averlo elaborato
                     'crea la directory se ancora non c'è
@@ -1416,29 +1418,45 @@ Public Class CompInterconnManager
         End Try
     End Sub
 
-    Public Overridable Sub EtichExecScdp(OMovimentazioneManager As MovimentazioneManager, oLottoManager As LottoManager, oEtichCsvDto As EtichCsvDto, oLottoDto As LottoDto, settings As Settings, logger As LogManager, PublicCurrFileName As String)
+    Public Overridable Sub EtichExecScdp(OMovimentazioneManager As MovimentazioneManager, oLottoManager As LottoManager, oEtichCsvDto As EtichCsvDto, oLottoDto1 As LottoDto, oLottoDto2 As LottoDto, settings As Settings, logger As LogManager, PublicCurrFileName As String)
 
         Dim Serie As String = OMovimentazioneManager.GetSerie(GlobalConstants.MACHINENAME_ETICH, oEtichCsvDto.NomeEtichettaGruppo1)
 
-        'non deve creare nessun lotto etich...
-        ''esegue effettivamente il carico in experience
-        'If oLottoDto IsNot Nothing AndAlso Not oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
-        '    'creo il lotto solo se si tratta di un articolo con gestione lotti
-        '    'e solo se il lotto non è ancora presente a db
-        '    If Serie1 = "CON" Then
-        '        'se la serie è CON allora il lotto è di tipo conter e quindi devo fare 
-        '        'l'insert del contatore conteggio giorni di produzione in crea lotto
-        '        oLottoDto.IsLottoConter = True
-        '    End If
-        '    oLottoManager.CreaLotto(oLottoDto)
+        '+++++
+        If oLottoDto1 IsNot Nothing AndAlso Not oLottoDto1.LottoGiaPresente AndAlso oLottoDto1.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+            'creo il lotto solo se si tratta di un articolo con gestione lotti
+            'e solo se il lotto non è ancora presente a db
+            If Serie = "CON" Then
+                'se la serie è CON allora il lotto è di tipo conter e quindi devo fare 
+                'l'insert del contatore conteggio giorni di produzione in crea lotto
+                oLottoDto1.IsLottoConter = True
+            End If
+            oLottoManager.CreaLotto(oLottoDto1)
 
-        '    logger.LogInfo($"Lotto creato per l'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.EtichNomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
-        'Else
-        '    If oLottoDto IsNot Nothing AndAlso oLottoDto.LottoGiaPresente AndAlso oLottoDto.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
-        '        logger.LogInfo($"Lotto associato all'articolo {oLottoDto.StrCodart}, nome lotto: {oLottoDto.StrLottox}", settings.EtichNomeMacchina, oLottoDto.StrCodart, PublicCurrFileName)
-        '    End If
-        'End If
+            logger.LogInfo($"Lotto creato per l'articolo {oLottoDto1.StrCodart}, nome lotto: {oLottoDto1.StrLottox}", settings.EtichNomeMacchina, oLottoDto1.StrCodart, PublicCurrFileName)
+        Else
+            If oLottoDto1 IsNot Nothing AndAlso oLottoDto1.LottoGiaPresente AndAlso oLottoDto1.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+                logger.LogInfo($"Lotto associato all'articolo {oLottoDto1.StrCodart}, nome lotto: {oLottoDto1.StrLottox}", settings.EtichNomeMacchina, oLottoDto1.StrCodart, PublicCurrFileName)
+            End If
+        End If
 
+        If oLottoDto2 IsNot Nothing AndAlso Not oLottoDto2.LottoGiaPresente AndAlso oLottoDto2.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+            'creo il lotto solo se si tratta di un articolo con gestione lotti
+            'e solo se il lotto non è ancora presente a db
+            If Serie = "CON" Then
+                'se la serie è CON allora il lotto è di tipo conter e quindi devo fare 
+                'l'insert del contatore conteggio giorni di produzione in crea lotto
+                oLottoDto2.IsLottoConter = True
+            End If
+            oLottoManager.CreaLotto(oLottoDto2)
+
+            logger.LogInfo($"Lotto creato per l'articolo {oLottoDto2.StrCodart}, nome lotto: {oLottoDto2.StrLottox}", settings.EtichNomeMacchina, oLottoDto1.StrCodart, PublicCurrFileName)
+        Else
+            If oLottoDto2 IsNot Nothing AndAlso oLottoDto2.LottoGiaPresente AndAlso oLottoDto2.StrLottox <> GlobalConstants.LOTTO_NONAPPLICATO Then
+                logger.LogInfo($"Lotto associato all'articolo {oLottoDto2.StrCodart}, nome lotto: {oLottoDto2.StrLottox}", settings.EtichNomeMacchina, oLottoDto2.StrCodart, PublicCurrFileName)
+            End If
+        End If
+        '+++++
 
         '--- Legge il progressivo in TABNUMA
         Dim lNumTmpProd As Integer = OMovimentazioneManager.LegNuma("Z", Serie, oEtichCsvDto.Data.Year)
@@ -1493,7 +1511,7 @@ Public Class CompInterconnManager
 
         'forza l'inserimento di un lotto bidone altrimenti la movimentazione non funziona
         'in quanto i prodotti qui hanno gestione a lotti e si tratta di uno scarico
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd1, oLottoDto, settings, oEtichCsvDto.Note, True)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd1, oLottoDto1, oEtichCsvDto.Note)
 
         Dim OCorpoCaricoProd2 As New CorpoCaricoProd()
         OCorpoCaricoProd2.CodArt = oEtichCsvDto.NomeEtichettaGruppo2
@@ -1503,7 +1521,7 @@ Public Class CompInterconnManager
         End If
         'forza l'inserimento di un lotto bidone altrimenti la movimentazione non funziona
         'in quanto i prodotti qui hanno gestione a lotti e si tratta di uno scarico
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd2, oLottoDto, settings, oEtichCsvDto.Note, True)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd2, oLottoDto2, oEtichCsvDto.Note)
 
         OMovimentazioneManager.SettaPiedeProd()
 
@@ -1718,7 +1736,7 @@ Public Class CompInterconnManager
             OCorpoCaricoProd.Magazzino = settings.Picker23017Magazzino
         End If
 
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oPicker23017CsvDto.Note)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, oPicker23017CsvDto.Note)
 
         OMovimentazioneManager.SettaPiedeProd()
 
@@ -1933,7 +1951,7 @@ Public Class CompInterconnManager
             OCorpoCaricoProd.Magazzino = settings.Picker23018Magazzino
         End If
 
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oPicker23018CsvDto.Note)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, oPicker23018CsvDto.Note)
 
         OMovimentazioneManager.SettaPiedeProd()
 
@@ -2160,7 +2178,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oDuettiCsvDto.Note)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, oDuettiCsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()
@@ -2393,7 +2411,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oDuetti2CsvDto.Note)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, oDuetti2CsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()
@@ -2623,7 +2641,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oIca1CsvDto.Note)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, oIca1CsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()
@@ -2852,7 +2870,7 @@ Public Class CompInterconnManager
         End If
 
         'CreaRigaProd(oCleBoll, OCorpoCaricoProd, settings, oLottoDto)
-        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, settings, oIca2CsvDto.Note)
+        OMovimentazioneManager.CreaRigaProd(OCorpoCaricoProd, oLottoDto, oIca2CsvDto.Note)
 
         'SettaPiedeProd(oCleBoll)
         OMovimentazioneManager.SettaPiedeProd()

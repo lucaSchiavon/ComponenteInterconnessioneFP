@@ -31,7 +31,7 @@ Public Class LottoManager
         _OLottorRep = lottorRep
     End Sub
 
-    Public Function GetNomeLotto(CodArt As String, Macchina As String, DataProduzione As DateTime) As String
+    Public Function GetNomeLotto(CodArt As String, Macchina As String, DataProduzione As DateTime, Optional LottoBidoneEtich As String = "") As String
         Dim NomeLotto As String = ""
         Select Case Macchina.ToUpper()
 
@@ -46,7 +46,7 @@ Public Class LottoManager
             Case GlobalConstants.MACHINENAME_AXOMATIC
                 NomeLotto = EstraiNomeLotto(CodArt, DataProduzione)
             Case GlobalConstants.MACHINENAME_ETICH
-                NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
+                NomeLotto = LottoBidoneEtich
             Case GlobalConstants.MACHINENAME_LAY
                 NomeLotto = GlobalConstants.LOTTO_NONAPPLICATO
             Case GlobalConstants.MACHINENAME_PICKER23017
@@ -62,6 +62,8 @@ Public Class LottoManager
         Return NomeLotto
 
     End Function
+
+
 
     Public Function IsArtConfForLotto(codditt As String, ar_codart As String) As Boolean
         Return _OLottorRep.IsArtConfForLotto(codditt, ar_codart)
